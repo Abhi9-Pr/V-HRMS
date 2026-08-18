@@ -89,6 +89,12 @@ indent_size = 2
 [tests/**/*.cs]
 dotnet_diagnostic.CA1707.severity = none
 
+# Domain services are intentionally instance classes (constructor-injectable, uniform shape)
+# even when a given implementation happens not to need instance state — GeofenceEvaluator
+# does (IDistanceCalculator), so the others follow the same shape rather than being static.
+[Vespera.Domain/Services/*.cs]
+dotnet_diagnostic.CA1822.severity = none
+
 # ---------------------------------------------------------------------------
 # Angular / TypeScript (Vespera.Client)
 # ---------------------------------------------------------------------------
