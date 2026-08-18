@@ -1,0 +1,61 @@
+# =========================
+# .NET
+# =========================
+bin/
+obj/
+out/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+.vs/
+[Dd]ebug/
+[Rr]elease/
+[Xx]64/
+[Xx]86/
+*.pdb
+*.dll.config
+*.publishsettings
+artifacts/
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+.vscode/*
+!.vscode/extensions.json
+
+# Rider / IntelliJ
+.idea/
+*.sln.iml
+
+# =========================
+# Secrets
+# =========================
+*.env
+.env.*
+appsettings.*.local.json
+secrets.json
+
+# =========================
+# Angular / Node (Vespera.Client, Vespera.Mobile)
+# =========================
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.tsbuildinfo
+
+# Capacitor
+ios/
+android/
+.capacitor/
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini

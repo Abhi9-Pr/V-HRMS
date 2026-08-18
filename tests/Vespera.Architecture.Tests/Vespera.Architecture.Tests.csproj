@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Vespera.Domain\Vespera.Domain.csproj" />
+    <ProjectReference Include="..\..\Vespera.Application\Vespera.Application.csproj" />
+    <ProjectReference Include="..\..\Vespera.Infrastructure\Vespera.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Vespera.Api\Vespera.Api.csproj" />
+  </ItemGroup>
+
+</Project>
