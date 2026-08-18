@@ -75,6 +75,10 @@ dotnet_diagnostic.CA1724.severity = warning
 # the VB-keyword-collision warning does not apply to this C#-only solution.
 dotnet_diagnostic.CA1716.severity = none
 
+# "Permission" is the intentional, spec-mandated aggregate name in IdentityAccess; CA1711's
+# System.Security.Permissions-suffix collision warning doesn't apply to this domain concept.
+dotnet_diagnostic.CA1711.severity = none
+
 new_line_before_open_brace = all
 indent_brace_style = Allman
 
