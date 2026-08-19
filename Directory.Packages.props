@@ -7,6 +7,11 @@
   <ItemGroup>
     <!-- Application -->
     <PackageVersion Include="MediatR" Version="12.4.1" />
+    <PackageVersion Include="FluentValidation" Version="11.11.0" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+    <PackageVersion Include="Mapster" Version="7.4.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
 
     <!-- Test infrastructure (all test projects) -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
