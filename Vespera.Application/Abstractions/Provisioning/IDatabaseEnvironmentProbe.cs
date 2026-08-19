@@ -1,5 +1,3 @@
-using Vespera.Domain.Common;
-
 namespace Vespera.Application.Abstractions.Provisioning;
 
 public enum DatabaseEnvironmentStatus
@@ -10,7 +8,9 @@ public enum DatabaseEnvironmentStatus
     Faulted,
 }
 
+public sealed record DatabaseEnvironmentProbeResult(DatabaseEnvironmentStatus Status, string Reason);
+
 public interface IDatabaseEnvironmentProbe
 {
-    public Task<DatabaseEnvironmentStatus> ProbeAsync(TenantId tenantId, CancellationToken cancellationToken);
+    public Task<DatabaseEnvironmentProbeResult> ProbeAsync(CancellationToken cancellationToken);
 }

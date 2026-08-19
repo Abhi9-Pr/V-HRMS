@@ -13,6 +13,15 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
 
+    <!-- Infrastructure: database provisioning -->
+    <PackageVersion Include="Docker.DotNet" Version="3.125.15" />
+    <PackageVersion Include="Polly" Version="8.4.2" />
+    <PackageVersion Include="Npgsql" Version="8.0.5" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="8.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+
     <!-- Test infrastructure (all test projects) -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="xunit" Version="2.9.3" />
@@ -20,6 +29,7 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="FluentAssertions" Version="6.12.1" />
     <PackageVersion Include="NSubstitute" Version="5.3.0" />
+    <PackageVersion Include="Xunit.SkippableFact" Version="1.5.23" />
 
     <!-- Vespera.Api.IntegrationTests -->
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.11" />

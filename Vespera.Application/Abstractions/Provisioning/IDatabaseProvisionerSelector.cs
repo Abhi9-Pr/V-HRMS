@@ -1,17 +1,11 @@
 namespace Vespera.Application.Abstractions.Provisioning;
 
-public enum DatabaseProvisioningStrategy
-{
-    SharedDatabase,
-    DedicatedSchema,
-    DedicatedDatabase,
-}
-
 /// <summary>
 /// OCP seam: a new provisioning strategy is added by registering another
-/// IDatabaseProvisioner, never by editing this selector's callers.
+/// IDatabaseProvisioner (paired with its probe) in the DI extension, never by editing this
+/// selector's implementation.
 /// </summary>
 public interface IDatabaseProvisionerSelector
 {
-    public IDatabaseProvisioner Select(DatabaseProvisioningStrategy strategy);
+    public Task<IDatabaseProvisioner> SelectAsync(CancellationToken cancellationToken);
 }

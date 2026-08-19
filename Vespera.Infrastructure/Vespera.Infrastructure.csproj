@@ -1,5 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Docker.DotNet" />
+    <PackageReference Include="Polly" />
+    <PackageReference Include="Npgsql" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Vespera.Application\Vespera.Application.csproj" />
   </ItemGroup>
+
 </Project>

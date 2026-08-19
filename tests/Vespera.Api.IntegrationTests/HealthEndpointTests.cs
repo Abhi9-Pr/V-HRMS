@@ -1,5 +1,6 @@
 using System.Net;
 using FluentAssertions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Vespera.Api;
 
@@ -11,7 +12,9 @@ public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
 
     public HealthEndpointTests(WebApplicationFactory<Program> factory)
     {
-        _factory = factory;
+        // "Testing" skips the real database-provisioning discovery in Program.cs — this test
+        // only needs the app to start, not a real local Postgres/Docker daemon.
+        _factory = factory.WithWebHostBuilder(builder => builder.UseEnvironment("Testing"));
     }
 
     [Fact]
