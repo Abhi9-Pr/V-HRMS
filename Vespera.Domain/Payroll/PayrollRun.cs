@@ -18,20 +18,17 @@ public enum PayrollRunStatus
     Cancelled,
 }
 
-public sealed class PayrollRun : AggregateRoot<PayrollRunId>, ITenantScoped
+public sealed class PayrollRun : AuditableTenantAggregateRoot<PayrollRunId>
 {
     private readonly List<PayrollLine> _lines = [];
 
-    private PayrollRun(PayrollRunId id, TenantId tenantId, int month, int year)
-        : base(id)
+    private PayrollRun(PayrollRunId id, TenantId tenantId, int month, int year, DateTimeOffset createdAt, string createdBy)
+        : base(id, tenantId, createdAt, createdBy)
     {
-        TenantId = tenantId;
         Month = month;
         Year = year;
         Status = PayrollRunStatus.Draft;
     }
-
-    public TenantId TenantId { get; }
 
     public int Month { get; }
 
@@ -41,14 +38,14 @@ public sealed class PayrollRun : AggregateRoot<PayrollRunId>, ITenantScoped
 
     public IReadOnlyCollection<PayrollLine> Lines => _lines.AsReadOnly();
 
-    public static Result<PayrollRun> Open(TenantId tenantId, int month, int year)
+    public static Result<PayrollRun> Open(TenantId tenantId, int month, int year, DateTimeOffset occurredOn, string createdBy)
     {
         if (month is < 1 or > 12)
         {
             return Result.Failure<PayrollRun>(Error.Validation("payroll_run.invalid_month", "Month must be between 1 and 12."));
         }
 
-        return Result.Success(new PayrollRun(PayrollRunId.New(), tenantId, month, year));
+        return Result.Success(new PayrollRun(PayrollRunId.New(), tenantId, month, year, occurredOn, createdBy));
     }
 
     public Result AddLine(EmployeeId employeeId, Money gross, Money deductions, Money net, decimal lossOfPayDays)

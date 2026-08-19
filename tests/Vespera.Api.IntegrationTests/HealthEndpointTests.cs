@@ -18,11 +18,11 @@ public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
-    public async Task Health_Endpoint_Should_Return_Ok()
+    public async Task Health_Live_Endpoint_Should_Return_Ok()
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync("/health");
+        var response = await client.GetAsync("/health/live");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }

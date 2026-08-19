@@ -1,9 +1,5 @@
-using Vespera.Application;
-using Vespera.Application.Abstractions.Provisioning;
+using Vespera.Api.Extensions;
 using Vespera.Infrastructure.BackgroundJobs;
-using Vespera.Infrastructure.Persistence;
-using Vespera.Infrastructure.Persistence.Seed;
-using Vespera.Infrastructure.Provisioning;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,34 +8,29 @@ builder.Configuration.AddCommandLine(args, new Dictionary<string, string>
     ["--db-mode"] = "Vespera:Database:Mode",
 });
 
-// MediatR + the CQRS pipeline behaviors — registered here (not previously wired into the API host)
-// because the outbox dispatcher needs a resolvable IPublisher to replay domain events.
-builder.Services.AddApplication();
-builder.Services.AddVesperaDatabaseProvisioning(builder.Configuration, builder.Environment);
-builder.Services.AddVesperaPersistence();
+builder.AddVesperaDatabase();
+builder.AddVesperaIdentity();
+builder.AddVesperaApplication();
+builder.AddVesperaSwagger();
 
-// The hosted services poll the database from the moment the host starts, so they must not be
-// registered under "Testing" — same reason ResolveAsync/ApplyVesperaPersistenceSchemaAsync/
-// DevelopmentSeeder are skipped there below (see Vespera.Api.IntegrationTests).
-if (!builder.Environment.IsEnvironment("Testing"))
+// The hosted background services (outbox dispatcher, retention purge) poll the database from the
+// moment the host starts, so they must not be registered under "Testing" (which stays entirely
+// DB-free — see DatabaseServiceCollectionExtensions) or "IntegrationTesting" (which has a real
+// database, but integration tests need to control outbox/retention timing themselves rather than
+// race a live background dispatcher — see VesperaWebApplicationFactory).
+if (!builder.Environment.IsEnvironment("Testing") && !builder.Environment.IsEnvironment("IntegrationTesting"))
 {
     builder.Services.AddVesperaBackgroundJobs(builder.Configuration);
 }
 
+builder.AddVesperaObservability();
+
 var app = builder.Build();
 
-if (!app.Environment.IsEnvironment("Testing"))
-{
-    await app.Services.GetRequiredService<IConnectionStringResolver>().ResolveAsync(CancellationToken.None);
-    await app.Services.ApplyVesperaPersistenceSchemaAsync(CancellationToken.None);
+await app.InitializeVesperaDatabaseAsync();
 
-    if (app.Environment.IsDevelopment())
-    {
-        await DevelopmentSeeder.SeedAsync(app.Services, CancellationToken.None);
-    }
-}
-
-app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+app.UseVesperaMiddlewarePipeline();
+app.MapVesperaEndpoints();
 
 app.Run();
 

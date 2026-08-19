@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Vespera.Application.Abstractions.Identity;
+using Vespera.Application.Authorization;
 using Vespera.Domain.Attendance;
 using Vespera.Domain.Common;
 using Vespera.Domain.Compliance;
@@ -8,24 +10,34 @@ using Vespera.Domain.IdentityAccess;
 using Vespera.Domain.Leave;
 using Vespera.Domain.Payroll;
 using Vespera.Domain.ValueObjects;
+using Vespera.Infrastructure.Identity;
 
 namespace Vespera.Infrastructure.Persistence.Seed;
 
 /// <summary>
-/// Idempotent demo-data seeder, gated by the caller (Program.cs) to Development only. Idempotency
-/// is a single check against <c>Tenant.Code</c> (not tenant-scoped, so it's unaffected by the
-/// ambient-tenant query filter that would otherwise hide everything from a no-tenant background
-/// scope) — if the demo tenant already exists, nothing else runs. Every other operation here is a
-/// write, so the tenant filter never needs to be satisfied for this to work correctly.
+/// Idempotent demo-data seeder, gated by the caller (Program.cs) to Development only (and used
+/// directly by <c>VesperaWebApplicationFactory</c> under the IntegrationTesting environment).
+/// Idempotency is a single check against <c>Tenant.Code</c> (not tenant-scoped, so it's
+/// unaffected by the ambient-tenant query filter that would otherwise hide everything from a
+/// no-tenant background scope) — if the demo tenant already exists, nothing else runs. Every
+/// other operation here is a write, so the tenant filter never needs to be satisfied for this to
+/// work correctly.
 /// </summary>
 public static class DevelopmentSeeder
 {
-    private const string DemoTenantCode = "DEMO";
+    public const string DemoTenantCode = "DEMO";
+
+    public const string DemoPassword = "Passw0rd!23456";
+
+    /// <summary>A fixed (not randomly generated) TOTP secret so integration tests can compute a
+    /// valid code deterministically — never used outside Development/IntegrationTesting.</summary>
+    public const string FinanceAdminTotpSecretBase32 = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
 
     public static async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
         using var scope = services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<VesperaDbContext>();
+        var credentialStore = scope.ServiceProvider.GetRequiredService<IUserCredentialStore>();
 
         if (await dbContext.Set<Tenant>().AnyAsync(t => t.Code == DemoTenantCode, cancellationToken))
         {
@@ -40,41 +52,45 @@ public static class DevelopmentSeeder
         dbContext.Add(tenant);
         var tid = tenant.Id;
 
-        var permissions = new[]
-        {
-            Permission.Create("employees.read", "View employee records").Value,
-            Permission.Create("employees.write", "Create or edit employee records").Value,
-            Permission.Create("payroll.read", "View payroll data").Value,
-            Permission.Create("payroll.write", "Run or edit payroll").Value,
-            Permission.Create("leave.request", "Request leave").Value,
-            Permission.Create("leave.approve", "Approve or reject leave requests").Value,
-            Permission.Create("departments.manage", "Manage departments and designations").Value,
-            Permission.Create("users.manage", "Manage users and role assignments").Value,
-        };
+        var permissions = Permissions.All
+            .Select(code => Permission.Create(code, $"Grants the '{code}' capability").Value)
+            .ToList();
         dbContext.AddRange(permissions);
+
+        Permission Find(string code) => permissions.Single(p => p.Code == code);
 
         var adminRole = Role.Create(tid, "Admin", now, createdBy).Value;
         var hrRole = Role.Create(tid, "HR", now, createdBy).Value;
         var managerRole = Role.Create(tid, "Manager", now, createdBy).Value;
         var employeeRole = Role.Create(tid, "Employee", now, createdBy).Value;
 
-        foreach (var permission in permissions)
+        // Admin/SysAdmin gets every *other* permission, but deliberately not Finance.Admin — the
+        // separation-of-duties proof the finance-policy-wall tests assert against. Granting
+        // Finance.Admin means adding it to the dedicated Finance role below, the same way every
+        // other permission is granted; it is never implied by a role name.
+        foreach (var permission in permissions.Where(p => p.Code != Permissions.Finance.Admin))
         {
             adminRole.Grant(permission.Id, now, createdBy);
         }
 
-        hrRole.Grant(permissions[0].Id, now, createdBy);
-        hrRole.Grant(permissions[1].Id, now, createdBy);
-        hrRole.Grant(permissions[4].Id, now, createdBy);
-        hrRole.Grant(permissions[5].Id, now, createdBy);
-        hrRole.Grant(permissions[6].Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Employees.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Employees.Write).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Departments.Manage).Id, now, createdBy);
 
-        managerRole.Grant(permissions[0].Id, now, createdBy);
-        managerRole.Grant(permissions[5].Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Employees.Read).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
 
-        employeeRole.Grant(permissions[4].Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
 
-        dbContext.AddRange(adminRole, hrRole, managerRole, employeeRole);
+        var financeRole = Role.Create(tid, "Finance", now, createdBy).Value;
+        financeRole.Grant(Find(Permissions.Finance.Admin).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Payroll.Read).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Payroll.Write).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Payroll.Finalize).Id, now, createdBy);
+
+        dbContext.AddRange(adminRole, hrRole, managerRole, employeeRole, financeRole);
 
         var headOffice = Location.Create(
             tid, "Head Office", "1 MG Road", "Bengaluru", "India",
@@ -84,12 +100,14 @@ public static class DevelopmentSeeder
         var engineering = Department.Create(tid, "Engineering", "ENG", null, now, createdBy).Value;
         var humanResources = Department.Create(tid, "Human Resources", "HR", null, now, createdBy).Value;
         var sales = Department.Create(tid, "Sales", "SLS", null, now, createdBy).Value;
-        dbContext.AddRange(engineering, humanResources, sales);
+        var finance = Department.Create(tid, "Finance", "FIN", null, now, createdBy).Value;
+        dbContext.AddRange(engineering, humanResources, sales, finance);
 
         var softwareEngineer = Designation.Create(tid, "Software Engineer", 3, now, createdBy).Value;
         var hrManager = Designation.Create(tid, "HR Manager", 5, now, createdBy).Value;
         var salesExecutive = Designation.Create(tid, "Sales Executive", 2, now, createdBy).Value;
-        dbContext.AddRange(softwareEngineer, hrManager, salesExecutive);
+        var financeManager = Designation.Create(tid, "Finance Manager", 6, now, createdBy).Value;
+        dbContext.AddRange(softwareEngineer, hrManager, salesExecutive, financeManager);
 
         var generalShift = Shift.Create(
             tid, "General Shift", new TimeOnly(9, 0), new TimeOnly(18, 0), graceMinutes: 10, now, createdBy).Value;
@@ -132,7 +150,17 @@ public static class DevelopmentSeeder
             EmailAddress.Create("ananya.iyer@demo.vespera.test").Value, PhoneNumber.Create("+919812345003").Value,
             new DateOnly(1996, 7, 22), new DateOnly(2025, 3, 10), sales.Id, salesExecutive.Id, headOffice.Id, now, createdBy).Value;
 
-        dbContext.AddRange(priya, rohan, ananya);
+        var vikram = Employee.Onboard(
+            tid, EmployeeCode.Create("EMP-004").Value, "Vikram", "Nair",
+            EmailAddress.Create("vikram.nair@demo.vespera.test").Value, PhoneNumber.Create("+919812345004").Value,
+            new DateOnly(1985, 2, 19), new DateOnly(2022, 4, 1), finance.Id, financeManager.Id, headOffice.Id, now, createdBy).Value;
+
+        var fatima = Employee.Onboard(
+            tid, EmployeeCode.Create("EMP-005").Value, "Fatima", "Khan",
+            EmailAddress.Create("fatima.khan@demo.vespera.test").Value, PhoneNumber.Create("+919812345005").Value,
+            new DateOnly(1990, 9, 5), new DateOnly(2021, 1, 10), finance.Id, financeManager.Id, headOffice.Id, now, createdBy).Value;
+
+        dbContext.AddRange(priya, rohan, ananya, vikram, fatima);
 
         dbContext.AddRange(
             ReportingRelationship.Create(tid, priya.Id, rohan.Id, priya.DateOfJoining, null).Value,
@@ -148,7 +176,42 @@ public static class DevelopmentSeeder
         var ananyaUser = User.Create(tid, ananya.WorkEmail, ananya.Id, now, createdBy);
         ananyaUser.AssignRole(employeeRole.Id, now, createdBy);
 
-        dbContext.AddRange(priyaUser, rohanUser, ananyaUser);
+        // Both HR (rohanUser) and a SysAdmin below hold high-privilege roles but neither carries
+        // Finance.Admin — the /api/v1/finance/* wall must still reject them.
+        var sysAdminUser = User.Create(tid, EmailAddress.Create("admin@demo.vespera.test").Value, null, now, createdBy);
+        sysAdminUser.AssignRole(adminRole.Id, now, createdBy);
+
+        var vikramUser = User.Create(tid, vikram.WorkEmail, vikram.Id, now, createdBy);
+        vikramUser.AssignRole(financeRole.Id, now, createdBy);
+
+        var fatimaUser = User.Create(tid, fatima.WorkEmail, fatima.Id, now, createdBy);
+        fatimaUser.AssignRole(financeRole.Id, now, createdBy);
+
+        dbContext.AddRange(priyaUser, rohanUser, ananyaUser, sysAdminUser, vikramUser, fatimaUser);
+
+        foreach (var user in new[] { priyaUser, rohanUser, ananyaUser, sysAdminUser, vikramUser, fatimaUser })
+        {
+            await credentialStore.CreateAsync(user.Id, user.Email.Value, DemoPassword, cancellationToken);
+        }
+
+        // Finance.Admin logins require TOTP (see LoginCommandHandler) — pre-enrol both finance
+        // users with a known, fixed secret so integration tests can compute a valid code. The
+        // ApplicationUser rows credentialStore.CreateAsync just staged aren't in the database yet
+        // (TransactionBehavior-style: nothing is saved until the SaveChangesAsync below), so this
+        // reads the change tracker's local set rather than issuing a query that would find nothing.
+        foreach (var financeUserId in new[] { vikramUser.Id, fatimaUser.Id })
+        {
+            var applicationUser = dbContext.Set<ApplicationUser>().Local.Single(u => u.Id == financeUserId.Value);
+            applicationUser.AuthenticatorKey = FinanceAdminTotpSecretBase32;
+            applicationUser.TwoFactorEnabled = true;
+        }
+
+        // A draft payroll run "created" by Vikram — used by FinancePolicyWallTests to prove
+        // maker-checker: Vikram (the creator) must not be able to finalize his own run, but
+        // Fatima (a different Finance.Admin) can.
+        var payrollRun = PayrollRun.Open(tid, DateTime.UtcNow.Month, DateTime.UtcNow.Year, now, vikramUser.Id.Value.ToString()).Value;
+        payrollRun.AddLine(priya.Id, Money.Of(80000m, Currency.Inr), Money.Of(8000m, Currency.Inr), Money.Of(72000m, Currency.Inr), 0m);
+        dbContext.Add(payrollRun);
 
         dbContext.AddRange(
             RetentionPolicy.Create(tid, "Employee.Document", retentionPeriodDays: 2555, RetentionAction.Anonymize, now, createdBy).Value,
@@ -156,5 +219,14 @@ public static class DevelopmentSeeder
             RetentionPolicy.Create(tid, "AuditLog", retentionPeriodDays: 2190, RetentionAction.Purge, now, createdBy).Value);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        // AuditableEntityInterceptor always stamps CreatedBy from the ambient ICurrentUser, which
+        // is "system" during seeding (there's no HTTP request/authenticated user at startup) — it
+        // overwrote the vikramUser.Id passed to PayrollRun.Open above. The maker-checker test
+        // needs a real, specific creator on record, so this patches the column directly,
+        // bypassing the interceptor (which only runs on tracked-entity SaveChanges, not raw SQL).
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"UPDATE \"PayrollRun\" SET \"CreatedBy\" = {vikramUser.Id.Value.ToString()} WHERE \"Id\" = {payrollRun.Id.Value}",
+            cancellationToken);
     }
 }

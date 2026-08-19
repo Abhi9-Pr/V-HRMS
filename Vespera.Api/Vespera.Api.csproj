@@ -1,8 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
+  <PropertyGroup>
+    <!-- Swagger reads XML <summary>/<response> docs for the documented-error-shapes requirement.
+         CS1591 ("missing XML comment") is suppressed — only the endpoints/DTOs that matter for
+         the API surface are annotated, not every internal member. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Vespera.Application\Vespera.Application.csproj" />
     <ProjectReference Include="..\Vespera.Infrastructure\Vespera.Infrastructure.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Mvc" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+  </ItemGroup>
+
+  <!--
+    Build-time openapi.json artifact. Swashbuckle's document generator needs to construct the
+    real app's DI container, which requires ASPNETCORE_ENVIRONMENT=Testing (the one environment
+    guaranteed not to need a real database — see DatabaseServiceCollectionExtensions) and a
+    working directory equal to the output directory (where appsettings.Testing.json actually
+    lands) — configuration/content-root resolution is otherwise relative to whatever directory
+    the build happened to run from. Requires `dotnet tool restore` once (see .config/dotnet-tools.json).
+  -->
+  <Target Name="GenerateOpenApiDocument" AfterTargets="Build">
+    <Exec Command="dotnet swagger tofile --output &quot;$(MSBuildProjectDirectory)\openapi.json&quot; &quot;$(TargetFileName)&quot; v1"
+          WorkingDirectory="$(TargetDir)"
+          EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Testing"
+          ContinueOnError="WarnAndContinue" />
+  </Target>
 
 </Project>

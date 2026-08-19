@@ -65,3 +65,6 @@ desktop.ini
 # =========================
 # SqliteFallbackProvisioner's dev-only database (see AGENTS.md/Phase 3) — local only, never committed.
 .vespera/
+
+# Build-time OpenAPI artifact (see Vespera.Api.csproj's GenerateOpenApiDocument target) — regenerated on every build.
+Vespera.Api/openapi.json

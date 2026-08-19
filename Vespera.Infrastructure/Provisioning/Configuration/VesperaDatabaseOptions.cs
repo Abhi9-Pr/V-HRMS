@@ -66,4 +66,10 @@ public sealed class ExternalDatabaseOptions
 public sealed class FallbackDatabaseOptions
 {
     public bool UseSqlite { get; set; }
+
+    /// <summary>Overrides the fallback database's file name (default "dev.db"), still resolved
+    /// under &lt;ContentRootPath&gt;/.vespera/. Lets integration tests give each
+    /// WebApplicationFactory instance an isolated database without touching provisioning
+    /// internals — see VesperaWebApplicationFactory.</summary>
+    public string? DatabaseFileName { get; set; }
 }

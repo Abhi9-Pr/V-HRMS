@@ -12,6 +12,28 @@ namespace Vespera.Infrastructure.Migrations.Postgres
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "ApplicationUsers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Email = table.Column<string>(type: "character varying(254)", maxLength: 254, nullable: false),
+                    NormalizedEmail = table.Column<string>(type: "character varying(254)", maxLength: 254, nullable: false),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AuthenticatorKey = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    RecoveryCodesConcatenated = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AuditLogs",
                 columns: table => new
                 {
@@ -78,6 +100,24 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                 });
 
             migrationBuilder.CreateTable(
+                name: "DeviceRegistration",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DeviceId = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Platform = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    PushToken = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "bytea", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceRegistration", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Employee",
                 columns: table => new
                 {
@@ -122,6 +162,24 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_IdempotencyRecords", x => x.IdempotencyKey);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "IdempotencyResponses",
+                columns: table => new
+                {
+                    IdempotencyKey = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: true),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    StatusCode = table.Column<int>(type: "integer", nullable: false),
+                    ContentType = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Body = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ExpiresAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_IdempotencyResponses", x => x.IdempotencyKey);
                 });
 
             migrationBuilder.CreateTable(
@@ -212,6 +270,29 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                 });
 
             migrationBuilder.CreateTable(
+                name: "PayrollRun",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Month = table.Column<int>(type: "integer", nullable: false),
+                    Year = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "bytea", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    ModifiedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    ModifiedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PayrollRun", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Permission",
                 columns: table => new
                 {
@@ -222,6 +303,27 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Permission", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RefreshToken",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TokenHash = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    DeviceId = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    FamilyId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ExpiresAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    RevokedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    ReplacedByTokenId = table.Column<Guid>(type: "uuid", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "bytea", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshToken", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -440,6 +542,41 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "PayrollLines",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    EmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Gross = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Deductions = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Net = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    LossOfPayDays = table.Column<decimal>(type: "numeric(5,2)", precision: 5, scale: 2, nullable: false),
+                    PayrollRunId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PayrollLines", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PayrollLines_PayrollRun_PayrollRunId",
+                        column: x => x.PayrollRunId,
+                        principalTable: "PayrollRun",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUsers_NormalizedEmail",
+                table: "ApplicationUsers",
+                column: "NormalizedEmail",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUsers_NormalizedUserName",
+                table: "ApplicationUsers",
+                column: "NormalizedUserName",
+                unique: true);
+
             migrationBuilder.CreateIndex(
                 name: "IX_AuditLogs_TenantId_EntityName_EntityKey",
                 table: "AuditLogs",
@@ -453,6 +590,11 @@ namespace Vespera.Infrastructure.Migrations.Postgres
             migrationBuilder.CreateIndex(
                 name: "IX_Designation_TenantId",
                 table: "Designation",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceRegistration_TenantId",
+                table: "DeviceRegistration",
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
@@ -482,6 +624,11 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                 column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_IdempotencyResponses_ExpiresAt",
+                table: "IdempotencyResponses",
+                column: "ExpiresAt");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_LeavePolicy_TenantId",
                 table: "LeavePolicy",
                 column: "TenantId");
@@ -502,9 +649,35 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                 column: "Status");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PayrollLines_PayrollRunId",
+                table: "PayrollLines",
+                column: "PayrollRunId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PayrollRun_TenantId",
+                table: "PayrollRun",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Permission_Code",
                 table: "Permission",
                 column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshToken_FamilyId",
+                table: "RefreshToken",
+                column: "FamilyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshToken_TenantId",
+                table: "RefreshToken",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshToken_TokenHash",
+                table: "RefreshToken",
+                column: "TokenHash",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -565,6 +738,9 @@ namespace Vespera.Infrastructure.Migrations.Postgres
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ApplicationUsers");
+
+            migrationBuilder.DropTable(
                 name: "AuditLogs");
 
             migrationBuilder.DropTable(
@@ -572,6 +748,9 @@ namespace Vespera.Infrastructure.Migrations.Postgres
 
             migrationBuilder.DropTable(
                 name: "Designation");
+
+            migrationBuilder.DropTable(
+                name: "DeviceRegistration");
 
             migrationBuilder.DropTable(
                 name: "EmployeeConsentRecords");
@@ -586,6 +765,9 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                 name: "IdempotencyRecords");
 
             migrationBuilder.DropTable(
+                name: "IdempotencyResponses");
+
+            migrationBuilder.DropTable(
                 name: "LeavePolicy");
 
             migrationBuilder.DropTable(
@@ -598,7 +780,13 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                 name: "OutboxMessages");
 
             migrationBuilder.DropTable(
+                name: "PayrollLines");
+
+            migrationBuilder.DropTable(
                 name: "Permission");
+
+            migrationBuilder.DropTable(
+                name: "RefreshToken");
 
             migrationBuilder.DropTable(
                 name: "ReportingRelationship");
@@ -623,6 +811,9 @@ namespace Vespera.Infrastructure.Migrations.Postgres
 
             migrationBuilder.DropTable(
                 name: "Employee");
+
+            migrationBuilder.DropTable(
+                name: "PayrollRun");
         }
     }
 }

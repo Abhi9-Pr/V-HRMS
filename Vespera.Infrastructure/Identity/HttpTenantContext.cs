@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Vespera.Application.Abstractions.Identity;
 using Vespera.Domain.Common;
@@ -5,14 +6,13 @@ using Vespera.Domain.Common;
 namespace Vespera.Infrastructure.Identity;
 
 /// <summary>
-/// Interim <see cref="ITenantContext"/>: reads an <c>X-Tenant-Id</c> header. There is no
-/// authentication phase yet (see AGENTS.md — Identity is a separate, not-yet-built Infrastructure
-/// responsibility), so this is deliberately the simplest thing that lets tenant isolation be
-/// exercised now; a later phase swaps it for a JWT-claims-backed implementation without touching
-/// any caller, since everything downstream only depends on <see cref="ITenantContext"/>.
-/// Outside an HTTP request (background jobs), <see cref="HasTenant"/> is always false — by
-/// design, since those flows either don't touch tenant-scoped data or use
-/// <c>IReadRepositoryAdmin{T}</c> to cross tenants deliberately.
+/// For an authenticated request, the tenant comes from the JWT's own <c>tenant</c> claim (the
+/// authoritative source once a token exists — a header would be spoofable at that point). Pre-auth
+/// (login/register/refresh/forgot-password), there is no token yet, so these fall back to the
+/// <c>X-Tenant-Id</c> header — that's how those commands know which tenant's data to look at
+/// before any credential has been verified. Outside an HTTP request (background jobs),
+/// <see cref="HasTenant"/> is always false — by design, since those flows either don't touch
+/// tenant-scoped data or use <c>IReadRepositoryAdmin{T}</c> to cross tenants deliberately.
 /// </summary>
 public sealed class HttpTenantContext : ITenantContext
 {
@@ -22,8 +22,18 @@ public sealed class HttpTenantContext : ITenantContext
 
     public HttpTenantContext(IHttpContextAccessor httpContextAccessor)
     {
-        var header = httpContextAccessor.HttpContext?.Request.Headers[TenantHeaderName].FirstOrDefault();
-        HasTenant = header is not null && Guid.TryParse(header, out var parsed);
+        var httpContext = httpContextAccessor.HttpContext;
+        var user = httpContext?.User;
+
+        if (user?.Identity?.IsAuthenticated == true && Guid.TryParse(user.FindFirstValue(JwtClaimTypes.TenantId), out var claimTenantId))
+        {
+            HasTenant = true;
+            _tenantId = new TenantId(claimTenantId);
+            return;
+        }
+
+        var header = httpContext?.Request.Headers[TenantHeaderName].FirstOrDefault();
+        HasTenant = header is not null && Guid.TryParse(header, out var headerTenantId);
         _tenantId = HasTenant ? new TenantId(Guid.Parse(header!)) : default;
     }
 

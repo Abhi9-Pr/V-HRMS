@@ -10,6 +10,7 @@ using Vespera.Application.Abstractions.Persistence;
 using Vespera.Application.Abstractions.Provisioning;
 using Vespera.Application.Abstractions.Services;
 using Vespera.Infrastructure.Identity;
+using Vespera.Infrastructure.Notifications;
 using Vespera.Infrastructure.Persistence.Idempotency;
 using Vespera.Infrastructure.Persistence.Interceptors;
 using Vespera.Infrastructure.Persistence.Outbox;
@@ -32,6 +33,11 @@ public static class VesperaPersistenceServiceCollectionExtensions
 
         services.AddDataProtection();
         services.AddSingleton<IPiiProtector, DataProtectionPiiProtector>();
+
+        // Registered unconditionally (not bundled with the background-jobs hosted services,
+        // which are skipped under Testing/IntegrationTesting) — command handlers like
+        // ForgotPasswordCommandHandler need a dispatcher whether or not those hosted services run.
+        services.AddSingleton<INotificationDispatcher, NotificationDispatcher>();
 
         // Order matters: EF Core runs registered ISaveChangesInterceptor instances in
         // registration order. TenantGuard must reject a bad insert before anything else treats
@@ -78,6 +84,7 @@ public static class VesperaPersistenceServiceCollectionExtensions
         services.AddScoped(typeof(IReadRepositoryAdmin<>), typeof(ReadRepositoryAdmin<>));
 
         services.AddScoped<IIdempotencyStore, IdempotencyStore>();
+        services.AddScoped<IIdempotencyResponseCache, EfIdempotencyResponseCache>();
         services.AddScoped<IOutboxWriter, EfOutboxWriter>();
 
         return services;

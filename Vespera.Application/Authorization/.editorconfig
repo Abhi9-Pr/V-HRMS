@@ -1,0 +1,5 @@
+# Permissions.Payroll.Finalize / Permissions.Leave.Approve / etc. are the exact call-site shape
+# this catalog is designed to have; CA1724's "type name collides with a namespace" is a false
+# positive here — the nested classes are a deliberate namespacing device, not an accidental clash.
+[Permissions.cs]
+dotnet_diagnostic.CA1724.severity = none

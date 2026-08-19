@@ -4,10 +4,13 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Application -->
+    <PackageVersion Include="Asp.Versioning.Mvc" Version="8.1.0" />
+    <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
     <PackageVersion Include="MediatR" Version="12.4.1" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageVersion Include="Mapster" Version="7.4.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
     <PackageVersion Include="Microsoft.AspNetCore.DataProtection" Version="8.0.10" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
@@ -16,11 +19,16 @@
     </PackageVersion>
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
+    <PackageVersion Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.11">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
     <!-- Infrastructure: database provisioning -->
     <PackageVersion Include="Docker.DotNet" Version="3.125.15" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
+    <PackageVersion Include="Otp.NET" Version="1.4.1" />
     <PackageVersion Include="Polly" Version="8.4.2" />
     <PackageVersion Include="Npgsql" Version="8.0.5" />
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
@@ -29,6 +37,8 @@
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <!-- Test infrastructure (all test projects) -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.22.0" />
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.14.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
