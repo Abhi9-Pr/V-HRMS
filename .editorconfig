@@ -75,6 +75,10 @@ dotnet_diagnostic.CA1724.severity = warning
 # the VB-keyword-collision warning does not apply to this C#-only solution.
 dotnet_diagnostic.CA1716.severity = none
 
+# "Permission" is the intentional, spec-mandated aggregate name in IdentityAccess; CA1711's
+# System.Security.Permissions-suffix collision warning doesn't apply to this domain concept.
+dotnet_diagnostic.CA1711.severity = none
+
 new_line_before_open_brace = all
 indent_brace_style = Allman
 
@@ -84,6 +88,12 @@ indent_size = 2
 # Test projects: Given_When_Then / Should_X_When_Y underscore naming is the xUnit convention.
 [tests/**/*.cs]
 dotnet_diagnostic.CA1707.severity = none
+
+# Domain services are intentionally instance classes (constructor-injectable, uniform shape)
+# even when a given implementation happens not to need instance state — GeofenceEvaluator
+# does (IDistanceCalculator), so the others follow the same shape rather than being static.
+[Vespera.Domain/Services/*.cs]
+dotnet_diagnostic.CA1822.severity = none
 
 # ---------------------------------------------------------------------------
 # Angular / TypeScript (Vespera.Client)
