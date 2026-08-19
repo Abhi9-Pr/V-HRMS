@@ -37,4 +37,19 @@ public class TransactionBehaviorTests
         response.IsSuccess.Should().BeFalse();
         await unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task Handle_Should_Return_Conflict_Result_When_SaveChanges_Throws_ConcurrencyConflictException()
+    {
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
+            .Returns<Task<int>>(_ => throw new ConcurrencyConflictException("conflict", new InvalidOperationException()));
+        var behavior = new TransactionBehavior<TestCommand, Result<int>>(unitOfWork);
+        RequestHandlerDelegate<Result<int>> next = () => Task.FromResult(Result.Success(1));
+
+        var response = await behavior.Handle(new TestCommand(), next, CancellationToken.None);
+
+        response.IsFailure.Should().BeTrue();
+        response.Error.Type.Should().Be(ErrorType.Conflict);
+    }
 }

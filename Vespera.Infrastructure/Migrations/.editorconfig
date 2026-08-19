@@ -1,0 +1,6 @@
+# EF Core-generated migration files (dotnet ef migrations add) are not hand-authored and are
+# regenerated verbatim by tooling; don't hold them to the hand-written-code style/analysis rules.
+[*.cs]
+dotnet_diagnostic.IDE0161.severity = none
+dotnet_diagnostic.CA1861.severity = none
+dotnet_diagnostic.CA1852.severity = none

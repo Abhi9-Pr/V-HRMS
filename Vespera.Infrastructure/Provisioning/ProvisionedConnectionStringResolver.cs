@@ -21,6 +21,11 @@ public sealed class ProvisionedConnectionStringResolver : IConnectionStringResol
 
     private string? _cachedConnectionString;
 
+    /// <summary>True once <see cref="ResolveAsync"/> has fallen through to <see cref="SqliteFallbackProvisioner"/>,
+    /// whether because Docker provisioning failed or because Auto mode's own candidate chain reached it directly.
+    /// Read by <c>AddVesperaPersistence</c> to pick the matching EF provider/migrations set.</summary>
+    public bool UsedSqliteFallback { get; private set; }
+
     public ProvisionedConnectionStringResolver(
         IDatabaseProvisionerSelector selector, ILogger<ProvisionedConnectionStringResolver> logger, SqliteFallbackProvisioner? fallback = null)
     {
@@ -41,12 +46,14 @@ public sealed class ProvisionedConnectionStringResolver : IConnectionStringResol
         try
         {
             _cachedConnectionString = await provisioner.ProvisionAsync(cancellationToken);
+            UsedSqliteFallback = provisioner is SqliteFallbackProvisioner;
             return _cachedConnectionString;
         }
         catch (Exception ex) when (provisioner is DockerContainerProvisioner && _fallback is not null)
         {
             LogDockerFallthrough(_logger, ex);
             _cachedConnectionString = await _fallback.ProvisionAsync(cancellationToken);
+            UsedSqliteFallback = true;
             return _cachedConnectionString;
         }
     }

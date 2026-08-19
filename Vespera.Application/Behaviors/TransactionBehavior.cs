@@ -24,9 +24,19 @@ public sealed class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior
     {
         var response = await next();
 
-        if (response.IsSuccess)
+        if (!response.IsSuccess)
+        {
+            return response;
+        }
+
+        try
         {
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (ConcurrencyConflictException)
+        {
+            return ResultResponseFactory.Create<TResponse>(
+                Error.Conflict("concurrency.conflict", "This record was changed by someone else. Reload and try again."));
         }
 
         return response;

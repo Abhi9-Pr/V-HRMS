@@ -88,7 +88,8 @@ public static class InfrastructureProvisioningServiceCollectionExtensions
         }
 
         services.AddSingleton<IDatabaseProvisionerSelector, DatabaseProvisionerSelector>();
-        services.AddSingleton<IConnectionStringResolver, ProvisionedConnectionStringResolver>();
+        services.AddSingleton<ProvisionedConnectionStringResolver>();
+        services.AddSingleton<IConnectionStringResolver>(sp => sp.GetRequiredService<ProvisionedConnectionStringResolver>());
 
         return services;
     }

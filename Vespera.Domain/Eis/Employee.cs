@@ -76,6 +76,10 @@ public sealed class Employee : AuditableTenantAggregateRoot<EmployeeId>
 
     public EmploymentStatus Status { get; private set; }
 
+    public PanNumber? Pan { get; private set; }
+
+    public BankAccountNumber? BankAccount { get; private set; }
+
     public DateOnly? ExitDate { get; private set; }
 
     public EmployeeExitReason? ExitReason { get; private set; }
@@ -139,6 +143,14 @@ public sealed class Employee : AuditableTenantAggregateRoot<EmployeeId>
         ExitReason = reason;
         Touch(occurredOn, modifiedBy);
         Raise(new EmployeeExited(Id, TenantId, exitDate, occurredOn));
+        return Result.Success();
+    }
+
+    public Result UpdateStatutoryDetails(PanNumber? pan, BankAccountNumber? bankAccount, DateTimeOffset occurredOn, string modifiedBy)
+    {
+        Pan = pan;
+        BankAccount = bankAccount;
+        Touch(occurredOn, modifiedBy);
         return Result.Success();
     }
 

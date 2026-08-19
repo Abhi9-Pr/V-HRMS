@@ -59,3 +59,9 @@ android/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# =========================
+# Vespera local dev
+# =========================
+# SqliteFallbackProvisioner's dev-only database (see AGENTS.md/Phase 3) — local only, never committed.
+.vespera/
