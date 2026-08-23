@@ -28,9 +28,10 @@ public sealed class PayrollController : FinanceControllerBase
         _authorizationService = authorizationService;
     }
 
-    /// <response code="200">Opened.</response>
+    /// <response code="200">The new payroll run's id.</response>
     [HttpPost]
     [HasPermission(Permissions.Payroll.Write)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     public async Task<IActionResult> Open([FromBody] OpenPayrollRunRequest request, CancellationToken cancellationToken)
     {
         var result = await _sender.Send(new OpenPayrollRunCommand(request.Month, request.Year, request.IdempotencyKey), cancellationToken);

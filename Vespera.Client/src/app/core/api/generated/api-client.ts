@@ -6758,9 +6758,9 @@ export class OrgChartClient implements IOrgChartClient {
 export interface IPayrollClient {
     /**
      * @param body (optional) 
-     * @return Opened.
+     * @return The new payroll run's id.
      */
-    open(body?: OpenPayrollRunRequest | undefined): Observable<void>;
+    open(body?: OpenPayrollRunRequest | undefined): Observable<string>;
     /**
      * @param page (optional) 
      * @param pageSize (optional) 
@@ -6821,9 +6821,9 @@ export class PayrollClient implements IPayrollClient {
 
     /**
      * @param body (optional) 
-     * @return Opened.
+     * @return The new payroll run's id.
      */
-    open(body?: OpenPayrollRunRequest | undefined): Observable<void> {
+    open(body?: OpenPayrollRunRequest | undefined): Observable<string> {
         let url_ = this.baseUrl + "/api/v1/finance/payroll-runs";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -6835,6 +6835,7 @@ export class PayrollClient implements IPayrollClient {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
+                "Accept": "application/json"
             })
         };
 
@@ -6845,14 +6846,14 @@ export class PayrollClient implements IPayrollClient {
                 try {
                     return this.processOpen(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<string>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<string>;
         }));
     }
 
-    protected processOpen(response: HttpResponseBase): Observable<void> {
+    protected processOpen(response: HttpResponseBase): Observable<string> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -6861,7 +6862,9 @@ export class PayrollClient implements IPayrollClient {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as string;
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {

@@ -3,12 +3,19 @@ import { environment } from '../../../environments/environment';
 import {
   API_BASE_URL,
   AuthClient,
+  BankExportsClient,
   DepartmentsClient,
   EmployeesClient,
   HolidaysClient,
+  InvestmentDeclarationReviewClient,
+  InvestmentDeclarationsClient,
   LeaveClient,
   LeaveTypesClient,
+  PayrollClient,
+  PayslipsClient,
   ProxyDelegationsClient,
+  SalaryStructuresClient,
+  StatutoryReportsClient,
   TenantsClient,
 } from './generated/api-client';
 
@@ -30,5 +37,12 @@ export function provideVesperaApiClients(): Provider[] {
     LeaveClient,
     LeaveTypesClient,
     ProxyDelegationsClient,
+    PayrollClient,
+    InvestmentDeclarationsClient,
+    InvestmentDeclarationReviewClient,
+    PayslipsClient,
+    BankExportsClient,
+    StatutoryReportsClient,
+    SalaryStructuresClient,
   ];
 }

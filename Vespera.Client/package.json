@@ -28,6 +28,7 @@
     "@ngrx/effects": "^18.1.1",
     "@ngrx/store": "^18.1.1",
     "@ngrx/store-devtools": "^18.1.1",
+    "@swimlane/ngx-charts": "^20.5.0",
     "autoprefixer": "^10.5.4",
     "postcss": "^8.5.26",
     "rxjs": "~7.8.0",
