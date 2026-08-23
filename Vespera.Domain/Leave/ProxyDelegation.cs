@@ -13,6 +13,7 @@ public enum DelegationScope
 {
     LeaveApprovals,
     ExpenseApprovals,
+    AttendanceApprovals,
     All,
 }
 

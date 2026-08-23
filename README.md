@@ -3,7 +3,7 @@
 Vespera is a multi-tenant enterprise HRMS.
 
 - **Backend:** .NET 8, Clean Architecture + DDD.
-- **Frontend:** Angular 18 SPA (`Vespera.Client`, added in a later phase).
+- **Frontend:** Angular 18 SPA (`Vespera.Client`).
 - **Mobile:** Capacitor shell (`Vespera.Mobile`, added in Phase 13).
 
 The full feature specification lives in [`docs/spec/vespera-master-spec.md`](docs/spec/vespera-master-spec.md).
@@ -19,6 +19,7 @@ Vespera.Application     CQRS commands/queries (MediatR contracts), DTOs, validat
 Vespera.Infrastructure  EF Core, Identity, provisioning, email/SMS/push, OCR, storage,
                          Hangfire. Implements Application ports. Depends on Application.
 Vespera.Api             controllers, middleware, SignalR hubs, DI composition root.
+Vespera.Client          Angular 18 SPA — see docs/CONTRIBUTING-frontend.md.
 tests/
   Vespera.Domain.UnitTests
   Vespera.Application.UnitTests

@@ -1,0 +1,12 @@
+@if (crumbs().length > 0) {
+  <nav aria-label="Breadcrumb" class="px-4 py-2 text-sm text-text-muted">
+    @for (crumb of crumbs(); track crumb.url; let last = $last) {
+      @if (!last) {
+        <a [routerLink]="crumb.url" class="hover:text-primary">{{ crumb.label }}</a>
+        <span class="mx-1">/</span>
+      } @else {
+        <span class="text-text">{{ crumb.label }}</span>
+      }
+    }
+  </nav>
+}

@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vespera.Domain.Eis;
@@ -50,6 +51,16 @@ public sealed class EmployeeConfiguration : TenantScopedEntityConfiguration<Empl
         builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(32);
         builder.Property(e => e.ExitDate);
         builder.Property(e => e.ExitReason).HasConversion<string>().HasMaxLength(32);
+        builder.Property(e => e.Gender).HasConversion<string>().HasMaxLength(16);
+
+        // A plain scalar conversion, not OwnsOne: EF Core can't bind an owned-navigation-typed
+        // constructor parameter when materializing the owner via its (required, private)
+        // constructor — see StatutoryRuleSetConfiguration/PayrollRunConfiguration for the same pattern.
+        builder.Property(e => e.CurrentAnnualCtc)
+            .HasConversion(
+                ctc => ctc == null ? null : $"{ctc.Amount.ToString(CultureInfo.InvariantCulture)}|{ctc.Currency}",
+                value => ParseMoney(value))
+            .HasMaxLength(64);
 
         builder.OwnsMany(e => e.EmploymentHistory, history =>
         {
@@ -77,6 +88,13 @@ public sealed class EmployeeConfiguration : TenantScopedEntityConfiguration<Empl
             documents.Property(d => d.UploadedAt).IsRequired();
             documents.Property(d => d.VerificationStatus).HasConversion<string>().HasMaxLength(32);
             documents.Property(d => d.RejectionReason).HasMaxLength(1024);
+            documents.Property(d => d.ScanStatus).HasConversion<string>().HasMaxLength(32);
+            documents.Property(d => d.OcrSuggestedFieldsJson);
+            documents.Property(d => d.OcrConfidence);
+            documents.Property(d => d.IsOcrConfirmed).IsRequired();
+            documents.Property(d => d.ConfirmedFieldsJson);
+            documents.Property(d => d.ConfirmedBy).HasMaxLength(256);
+            documents.Property(d => d.ConfirmedAt);
         });
 
         builder.OwnsMany(e => e.ConsentRecords, consents =>
@@ -91,5 +109,16 @@ public sealed class EmployeeConfiguration : TenantScopedEntityConfiguration<Empl
             consents.Property(c => c.GrantedAt).IsRequired();
             consents.Property(c => c.WithdrawnAt);
         });
+    }
+
+    private static Money? ParseMoney(string? value)
+    {
+        if (value is null)
+        {
+            return null;
+        }
+
+        var parts = value.Split('|');
+        return Money.Of(decimal.Parse(parts[0], CultureInfo.InvariantCulture), Enum.Parse<Currency>(parts[1]));
     }
 }

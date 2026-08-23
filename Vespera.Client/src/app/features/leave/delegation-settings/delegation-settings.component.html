@@ -1,0 +1,74 @@
+<h1 class="mb-4 text-xl font-semibold">Delegation settings</h1>
+<p class="mb-4 text-sm text-muted">
+  Route your pending and new approvals to someone else for a date window — your reporting structure is unchanged.
+</p>
+
+<form [formGroup]="form" (ngSubmit)="create()" class="mb-6 flex max-w-lg flex-col gap-1">
+  <mat-form-field appearance="outline">
+    <mat-label>Delegate to</mat-label>
+    <mat-select formControlName="delegateEmployeeId">
+      @for (employee of employees(); track employee.id) {
+        <mat-option [value]="employee.id">{{ employee.fullName }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Scope</mat-label>
+    <mat-select formControlName="scope">
+      @for (scope of scopes; track scope) {
+        <mat-option [value]="scope">{{ scope }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <vespera-date-range-picker label="Active dates" (rangeChange)="onRangeChange($event)" />
+
+  @if (error()) {
+    <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+  }
+
+  <div class="mt-2">
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">Create delegation</button>
+  </div>
+</form>
+
+<table mat-table [dataSource]="delegations()" class="w-full">
+  <ng-container matColumnDef="delegate">
+    <th mat-header-cell *matHeaderCellDef>Delegate</th>
+    <td mat-cell *matCellDef="let delegation">{{ employeeLabel(delegation.delegateEmployeeId) }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="dates">
+    <th mat-header-cell *matHeaderCellDef>Dates</th>
+    <td mat-cell *matCellDef="let delegation">{{ delegation.from | date: 'mediumDate' }} – {{ delegation.to | date: 'mediumDate' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="scope">
+    <th mat-header-cell *matHeaderCellDef>Scope</th>
+    <td mat-cell *matCellDef="let delegation">{{ delegation.scope }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef="let delegation">
+      <mat-chip [color]="delegation.isRevoked ? undefined : 'primary'">{{ delegation.isRevoked ? 'Revoked' : 'Active' }}</mat-chip>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let delegation">
+      @if (!delegation.isRevoked) {
+        <button mat-button color="warn" (click)="revoke(delegation.id)">Revoke</button>
+      }
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>
+
+@if (delegations().length === 0) {
+  <p class="mt-4 text-sm text-muted">No delegations yet.</p>
+}

@@ -1,5 +1,10 @@
 using Vespera.Api.Extensions;
+using Vespera.Api.Http;
+using Vespera.Infrastructure.Attendance;
 using Vespera.Infrastructure.BackgroundJobs;
+using Vespera.Infrastructure.Notifications;
+using Vespera.Infrastructure.Security;
+using Vespera.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +17,14 @@ builder.AddVesperaDatabase();
 builder.AddVesperaIdentity();
 builder.AddVesperaApplication();
 builder.AddVesperaSwagger();
+
+builder.Services.AddVesperaVirusScanning(builder.Configuration);
+builder.Services.AddVesperaOcr(builder.Configuration);
+builder.Services.AddVesperaNotificationChannels(builder.Configuration);
+builder.Services.AddVesperaTimeZoneConversion();
+builder.Services.AddVesperaBiometricDevices();
+builder.Services.Configure<WebPunchOptions>(builder.Configuration.GetSection(WebPunchOptions.SectionName));
+builder.Services.Configure<MobilePunchOptions>(builder.Configuration.GetSection(MobilePunchOptions.SectionName));
 
 // The hosted background services (outbox dispatcher, retention purge) poll the database from the
 // moment the host starts, so they must not be registered under "Testing" (which stays entirely

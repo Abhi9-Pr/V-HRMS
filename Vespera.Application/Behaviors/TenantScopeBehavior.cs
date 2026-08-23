@@ -1,5 +1,6 @@
 using MediatR;
 using Vespera.Application.Abstractions.Identity;
+using Vespera.Application.Abstractions.Messaging;
 using Vespera.Domain.Common;
 
 namespace Vespera.Application.Behaviors;
@@ -17,7 +18,7 @@ public sealed class TenantScopeBehavior<TRequest, TResponse> : IPipelineBehavior
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        if (!_tenantContext.HasTenant)
+        if (request is not ITenantlessRequest && !_tenantContext.HasTenant)
         {
             return ResultResponseFactory.Create<TResponse>(
                 Error.Unauthorized("tenant.missing", "This request requires an authenticated tenant context."));

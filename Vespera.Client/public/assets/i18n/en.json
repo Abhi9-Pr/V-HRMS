@@ -1,0 +1,24 @@
+{
+  "shell": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "notifications": "Notifications",
+    "markAllRead": "Mark all as read",
+    "search": "Search…"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "retry": "Retry",
+    "loading": "Loading…"
+  },
+  "departments": {
+    "title": "Departments",
+    "new": "New department",
+    "empty": "No departments yet — create the first one.",
+    "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone."
+  }
+}

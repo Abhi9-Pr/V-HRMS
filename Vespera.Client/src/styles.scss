@@ -1,0 +1,20 @@
+@use './styles/material-theme.scss';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import './styles/tokens.css';
+@import './styles/tokens.dark.css';
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--vespera-font-family);
+  background-color: var(--vespera-color-surface-alt);
+  color: var(--vespera-color-text);
+}

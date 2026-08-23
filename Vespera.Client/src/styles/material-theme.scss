@@ -1,0 +1,48 @@
+// Angular Material's M3 theme. Generated once from the closest predefined M3 palette
+// (violet — Material's built-in M3 palette set has no indigo) to our design tokens' primary
+// color (--vespera-color-primary, an indigo) — Material's system tokens
+// (--mdc-*/--mat-*) and our own tokens.css custom properties are two separate palettes kept in
+// sync by hand when either changes; see docs/CONTRIBUTING-frontend.md for why they can't be
+// unified automatically.
+@use '@angular/material' as mat;
+
+$vespera-light-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$violet-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: (
+      brand-family: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+    ),
+    density: (
+      scale: 0,
+    ),
+  )
+);
+
+$vespera-dark-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: dark,
+      primary: mat.$violet-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: (
+      brand-family: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+    ),
+    density: (
+      scale: 0,
+    ),
+  )
+);
+
+html {
+  @include mat.core();
+  @include mat.all-component-themes($vespera-light-theme);
+
+  &[data-theme='dark'] {
+    @include mat.all-component-colors($vespera-dark-theme);
+  }
+}

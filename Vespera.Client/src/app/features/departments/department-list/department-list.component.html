@@ -1,0 +1,43 @@
+<div class="mb-4 flex items-center justify-between">
+  <h1 class="text-xl font-semibold">Departments</h1>
+  <vespera-permission-button [permission]="Permissions.Departments.Manage" variant="flat" (clicked)="openCreateDialog()">
+    New department
+  </vespera-permission-button>
+</div>
+
+@if (removeError()) {
+  <p class="mb-2 text-sm text-danger" role="alert">{{ removeError() }}</p>
+}
+
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else {
+  <vespera-data-table
+    [columns]="columns"
+    [rows]="departments()"
+    [totalCount]="totalCount()"
+    [loading]="loading()"
+    emptyLabel="No departments yet — create the first one."
+    (queryChange)="onQueryChange($event)"
+  />
+}
+
+<ng-template #actionsCell let-department>
+  <div class="flex justify-end gap-1">
+    <vespera-permission-button
+      [permission]="Permissions.Departments.Manage"
+      variant="icon"
+      (clicked)="openEditDialog(department)"
+    >
+      <mat-icon>edit</mat-icon>
+    </vespera-permission-button>
+    <vespera-permission-button
+      [permission]="Permissions.Departments.Manage"
+      variant="icon"
+      color="warn"
+      (clicked)="confirmDelete(department)"
+    >
+      <mat-icon>delete</mat-icon>
+    </vespera-permission-button>
+  </div>
+</ng-template>

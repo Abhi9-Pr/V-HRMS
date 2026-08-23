@@ -77,12 +77,51 @@ public static class DevelopmentSeeder
         hrRole.Grant(Find(Permissions.Employees.Write).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Departments.Read).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Departments.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Designations.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Designations.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Locations.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Locations.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.EmployeeDocuments.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.EmployeeDocuments.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.ReportingRelationships.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.ReportingRelationships.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.OrgChart.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Onboarding.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Onboarding.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.EmployeeImport.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Offboarding.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Offboarding.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Shifts.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Shifts.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.RotationPatterns.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.RotationPatterns.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Holidays.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Holidays.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Rosters.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Rosters.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Rosters.Publish).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Attendance.ManageTeam).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Regularizations.Approve).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Regularizations.ReadTeam).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.BiometricDevices.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ReadTeam).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ManagePolicy).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ManageBlackout).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ManageDelegation).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.Encash).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.Cancel).Id, now, createdBy);
 
         managerRole.Grant(Find(Permissions.Employees.Read).Id, now, createdBy);
         managerRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Leave.ReadTeam).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Leave.ManageDelegation).Id, now, createdBy);
 
         employeeRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Leave.Cancel).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Leave.Encash).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Regularizations.Request).Id, now, createdBy);
 
         var financeRole = Role.Create(tid, "Finance", now, createdBy).Value;
         financeRole.Grant(Find(Permissions.Finance.Admin).Id, now, createdBy);
@@ -118,13 +157,30 @@ public static class DevelopmentSeeder
         var casualLeave = LeaveType.Create(tid, "Casual Leave", isPaid: true, carryForwardLimit: 5, now, createdBy).Value;
         var sickLeave = LeaveType.Create(tid, "Sick Leave", isPaid: true, carryForwardLimit: 0, now, createdBy).Value;
         var earnedLeave = LeaveType.Create(tid, "Earned Leave", isPaid: true, carryForwardLimit: 15, now, createdBy).Value;
+        earnedLeave.UpdateEligibilityRules(
+            applicableGender: null, minimumTenureMonths: 0, isEncashable: true, maxEncashableDays: 10, now, createdBy);
         dbContext.AddRange(casualLeave, sickLeave, earnedLeave);
 
         var policyValidFrom = new DateOnly(2026, 1, 1);
-        dbContext.AddRange(
-            LeavePolicy.Create(tid, casualLeave.Id, annualEntitlementDays: 12, accrualRatePerMonth: 1, maxCarryForwardDays: 5, policyValidFrom, null).Value,
-            LeavePolicy.Create(tid, sickLeave.Id, annualEntitlementDays: 10, accrualRatePerMonth: 0.83m, maxCarryForwardDays: 0, policyValidFrom, null).Value,
-            LeavePolicy.Create(tid, earnedLeave.Id, annualEntitlementDays: 18, accrualRatePerMonth: 1.5m, maxCarryForwardDays: 15, policyValidFrom, null).Value);
+        var casualPolicy = LeavePolicy.Create(
+            tid, casualLeave.Id, annualEntitlementDays: 12, accrualRatePerMonth: 1, maxCarryForwardDays: 5, policyValidFrom, null).Value;
+        var sickPolicy = LeavePolicy.Create(
+            tid, sickLeave.Id, annualEntitlementDays: 10, accrualRatePerMonth: 0.83m, maxCarryForwardDays: 0, policyValidFrom, null).Value;
+        var earnedPolicy = LeavePolicy.Create(
+            tid, earnedLeave.Id, annualEntitlementDays: 18, accrualRatePerMonth: 1.5m, maxCarryForwardDays: 15, policyValidFrom, null).Value;
+
+        // Earned Leave demonstrates the full multi-tier chain: direct manager, then (once the
+        // request exceeds 3 days) the manager's manager, then a final HR sign-off.
+        earnedPolicy.ConfigureApprovalChain(requiresSkipLevelApproval: false, skipLevelThresholdDays: 3m, requiresHrApproval: true);
+        earnedPolicy.ConfigureBalanceRules(NegativeBalancePolicy.AllowWithLop, maxNegativeBalanceDays: 0m, sandwichLeaveEnabled: true);
+        casualPolicy.ConfigureBalanceRules(NegativeBalancePolicy.AllowWithLop, maxNegativeBalanceDays: 0m, sandwichLeaveEnabled: false);
+        sickPolicy.ConfigureBalanceRules(NegativeBalancePolicy.AllowNegative, maxNegativeBalanceDays: 3m, sandwichLeaveEnabled: false);
+
+        dbContext.AddRange(casualPolicy, sickPolicy, earnedPolicy);
+
+        dbContext.Add(BlackoutPeriod.Create(
+            tid, DateRange.Create(new DateOnly(2026, 12, 24), new DateOnly(2027, 1, 2)).Value,
+            "Year-end freeze", leaveTypeId: null, now, createdBy).Value);
 
         // Indian FY 2026-27 (1 Apr 2026 - 31 Mar 2027) statutory rates.
         var fyStart = new DateOnly(2026, 4, 1);

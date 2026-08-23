@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Vespera.Application.Abstractions.Identity;
+using Vespera.Application.Abstractions.Services;
 
 namespace Vespera.Infrastructure.Identity;
 
@@ -35,6 +36,7 @@ public static class IdentityInfrastructureServiceCollectionExtensions
         services.Configure<PasswordHasherOptions>(options => options.IterationCount = 210_000);
 
         services.AddScoped<IUserCredentialStore, EfUserCredentialStore>();
+        services.AddScoped<IAccessRevocationService, AccessRevocationService>();
 
         return services;
     }

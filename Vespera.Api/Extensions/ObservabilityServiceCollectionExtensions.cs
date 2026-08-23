@@ -13,7 +13,7 @@ public static class ObservabilityServiceCollectionExtensions
 
     public static WebApplicationBuilder AddVesperaObservability(this WebApplicationBuilder builder)
     {
-        builder.Services.AddVesperaStorage();
+        builder.Services.AddVesperaStorage(builder.Configuration);
 
         builder.Services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database", tags: ["ready"])

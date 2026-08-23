@@ -12,6 +12,7 @@
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="NSubstitute" />
     <PackageReference Include="Xunit.SkippableFact" />
+    <PackageReference Include="NodaTime" />
   </ItemGroup>
 
   <ItemGroup>

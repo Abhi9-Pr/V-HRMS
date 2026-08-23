@@ -90,4 +90,19 @@ public sealed class User : AuditableTenantAggregateRoot<UserId>
         Touch(occurredOn, modifiedBy);
         return Result.Success();
     }
+
+    /// <summary>Permanently ends this login (as opposed to <see cref="Lock"/>, which is a
+    /// reversible security hold) — what an offboarding sweep calls once an employee's last
+    /// working day has passed.</summary>
+    public Result Deactivate(DateTimeOffset occurredOn, string modifiedBy)
+    {
+        if (Status == UserStatus.Deactivated)
+        {
+            return Result.Failure(Error.Conflict("user.already_deactivated", "User is already deactivated."));
+        }
+
+        Status = UserStatus.Deactivated;
+        Touch(occurredOn, modifiedBy);
+        return Result.Success();
+    }
 }

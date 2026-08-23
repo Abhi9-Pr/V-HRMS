@@ -1,4 +1,7 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Vespera.Application.Abstractions.Services;
 
 namespace Vespera.Infrastructure.Storage;
@@ -12,11 +15,13 @@ namespace Vespera.Infrastructure.Storage;
 public sealed class LocalFileStorage : IFileStorage
 {
     private readonly string _root;
+    private readonly LocalFileStorageOptions _options;
 
-    public LocalFileStorage(IHostEnvironment environment)
+    public LocalFileStorage(IHostEnvironment environment, IOptions<LocalFileStorageOptions> options)
     {
         _root = Path.Combine(environment.ContentRootPath, ".vespera-storage");
         Directory.CreateDirectory(_root);
+        _options = options.Value;
     }
 
     public async Task<string> UploadAsync(string fileName, Stream content, CancellationToken cancellationToken)
@@ -34,5 +39,44 @@ public sealed class LocalFileStorage : IFileStorage
     {
         File.Delete(Path.Combine(_root, storageKey));
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Local disk has no native pre-signed-URL concept, so this signs its own callback URL — an
+    /// HMAC-SHA256 over <c>(storageKey, expiresUnixSeconds)</c> that
+    /// <c>Vespera.Api.Controllers.V1.FilesController</c> verifies before streaming. A future
+    /// S3/Blob adapter would return that provider's own pre-signed URL instead of this scheme —
+    /// same port, no caller changes.
+    /// </summary>
+    public Task<Uri> GetDownloadUrlAsync(string storageKey, TimeSpan expiry, CancellationToken cancellationToken)
+    {
+        var expiresAt = DateTimeOffset.UtcNow.Add(expiry).ToUnixTimeSeconds();
+        var signature = ComputeSignature(storageKey, expiresAt);
+        var uri = new Uri(
+            $"/api/v1/files/{Uri.EscapeDataString(storageKey)}/download?expires={expiresAt}&sig={Uri.EscapeDataString(signature)}",
+            UriKind.Relative);
+
+        return Task.FromResult(uri);
+    }
+
+    public bool ValidateSignature(string storageKey, long expiresAtUnixSeconds, string signature)
+    {
+        if (DateTimeOffset.UtcNow.ToUnixTimeSeconds() > expiresAtUnixSeconds)
+        {
+            return false;
+        }
+
+        var expected = ComputeSignature(storageKey, expiresAtUnixSeconds);
+        var expectedBytes = Encoding.UTF8.GetBytes(expected);
+        var actualBytes = Encoding.UTF8.GetBytes(signature);
+
+        return expectedBytes.Length == actualBytes.Length && CryptographicOperations.FixedTimeEquals(expectedBytes, actualBytes);
+    }
+
+    private string ComputeSignature(string storageKey, long expiresAtUnixSeconds)
+    {
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_options.SigningSecret));
+        var payload = Encoding.UTF8.GetBytes($"{storageKey}:{expiresAtUnixSeconds}");
+        return Convert.ToHexString(hmac.ComputeHash(payload));
     }
 }

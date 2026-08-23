@@ -86,6 +86,7 @@ public static class VesperaPersistenceServiceCollectionExtensions
         services.AddScoped<IIdempotencyStore, IdempotencyStore>();
         services.AddScoped<IIdempotencyResponseCache, EfIdempotencyResponseCache>();
         services.AddScoped<IOutboxWriter, EfOutboxWriter>();
+        services.AddScoped<IPiiAccessAuditor, PiiAccessAuditor>();
 
         return services;
     }

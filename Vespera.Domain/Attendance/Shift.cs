@@ -28,6 +28,8 @@ public sealed class Shift : AuditableTenantAggregateRoot<ShiftId>
 
     public int GraceMinutes { get; private set; }
 
+    public int BreakMinutes { get; private set; }
+
     public bool IsOvernight => EndTime < StartTime;
 
     public static Result<Shift> Create(
@@ -63,6 +65,18 @@ public sealed class Shift : AuditableTenantAggregateRoot<ShiftId>
     {
         StartTime = startTime;
         EndTime = endTime;
+        Touch(occurredOn, modifiedBy);
+        return Result.Success();
+    }
+
+    public Result ConfigureBreak(int minutes, DateTimeOffset occurredOn, string modifiedBy)
+    {
+        if (minutes < 0)
+        {
+            return Result.Failure(Error.Validation("shift.invalid_break", "Break minutes cannot be negative."));
+        }
+
+        BreakMinutes = minutes;
         Touch(occurredOn, modifiedBy);
         return Result.Success();
     }
