@@ -24,6 +24,11 @@ public static class Permissions
         public const string Read = "Payroll.Read";
         public const string Write = "Payroll.Write";
         public const string Finalize = "Payroll.Finalize";
+
+        /// <summary>Every employee's own investment declaration (submit, add a line) - distinct
+        /// from <see cref="Read"/>/<see cref="Write"/>, which are Finance-only and cover every
+        /// employee's payroll data, not just the caller's own.</summary>
+        public const string SelfService = "Payroll.SelfService";
     }
 
     public static class Leave

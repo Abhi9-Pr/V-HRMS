@@ -122,6 +122,7 @@ public static class DevelopmentSeeder
         employeeRole.Grant(Find(Permissions.Leave.Cancel).Id, now, createdBy);
         employeeRole.Grant(Find(Permissions.Leave.Encash).Id, now, createdBy);
         employeeRole.Grant(Find(Permissions.Regularizations.Request).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Payroll.SelfService).Id, now, createdBy);
 
         var financeRole = Role.Create(tid, "Finance", now, createdBy).Value;
         financeRole.Grant(Find(Permissions.Finance.Admin).Id, now, createdBy);
