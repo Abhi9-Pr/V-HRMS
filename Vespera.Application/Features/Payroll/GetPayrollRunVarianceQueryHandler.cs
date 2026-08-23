@@ -87,14 +87,16 @@ public sealed class GetPayrollRunVarianceQueryHandler : IRequestHandler<GetPayro
             }
 
             results.Add(new PayrollVarianceLine(
-                employeeId, priorNetByEmployee.TryGetValue(employeeId, out var prior) ? prior : null, currentNet, variancePercent, flags));
+                employeeId, priorNetByEmployee.TryGetValue(employeeId, out var prior) ? prior : null, currentNet, variancePercent,
+                [.. flags.Select(flag => flag.ToString())]));
         }
 
         if (priorRun is not null)
         {
             foreach (var employeeId in priorNetByEmployee.Keys.Except(currentNetByEmployee.Keys))
             {
-                results.Add(new PayrollVarianceLine(employeeId, priorNetByEmployee[employeeId], null, null, [PayrollVarianceFlag.Exit]));
+                results.Add(new PayrollVarianceLine(
+                    employeeId, priorNetByEmployee[employeeId], null, null, [PayrollVarianceFlag.Exit.ToString()]));
             }
         }
 

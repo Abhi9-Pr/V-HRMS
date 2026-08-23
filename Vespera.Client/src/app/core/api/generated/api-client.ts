@@ -10248,19 +10248,12 @@ export interface PayrollRunSummaryDtoPagedResult {
     readonly hasPreviousPage?: boolean;
 }
 
-export enum PayrollVarianceFlag {
-    _0 = 0,
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
-}
-
 export interface PayrollVarianceLine {
     employeeId?: string;
     priorNet?: number | undefined;
     currentNet?: number | undefined;
     variancePercent?: number | undefined;
-    flags?: PayrollVarianceFlag[] | undefined;
+    flags?: string[] | undefined;
 }
 
 export interface PfEcrReportLineDto {

@@ -5,6 +5,12 @@ import {
   leaveDelegationsNavItem,
   teamCalendarNavItem,
 } from '../../features/leave/leave.nav';
+import {
+  investmentDeclarationReviewNavItem,
+  myInvestmentDeclarationNavItem,
+  payrollRunsNavItem,
+  salaryStructuresNavItem,
+} from '../../features/payroll/payroll.nav';
 import { NavItem } from './nav-item.model';
 
 /** Assembled from each feature's own `<feature>.nav.ts` — see nav-item.model.ts for why this
@@ -16,4 +22,8 @@ export const NAV_TREE: NavItem[] = [
   leaveApprovalsNavItem,
   teamCalendarNavItem,
   leaveDelegationsNavItem,
+  payrollRunsNavItem,
+  salaryStructuresNavItem,
+  myInvestmentDeclarationNavItem,
+  investmentDeclarationReviewNavItem,
 ];
