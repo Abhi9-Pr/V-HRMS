@@ -7,7 +7,7 @@ namespace Vespera.Infrastructure.Payroll.BankFiles;
 /// <summary>Shared control-total/checksum and reconciliation-report logic for every
 /// <see cref="IBankFileFormatter"/> — each bank still owns its own field layout, this only removes
 /// the duplication in the trailer/report boilerplate every formatter needs regardless.</summary>
-internal static class BankFileChecksumHelper
+internal static class BankFileControlTotals
 {
     public static decimal TotalAmount(IReadOnlyList<BankTransferLine> lines) => lines.Sum(line => line.Amount);
 

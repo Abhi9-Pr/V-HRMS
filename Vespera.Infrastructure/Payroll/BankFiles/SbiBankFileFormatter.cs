@@ -11,8 +11,8 @@ public sealed class SbiBankFileFormatter : IBankFileFormatter
 
     public BankFileExportResult Format(IReadOnlyList<BankTransferLine> lines)
     {
-        var checksum = BankFileChecksumHelper.ComputeChecksum(lines);
-        var total = BankFileChecksumHelper.TotalAmount(lines);
+        var checksum = BankFileControlTotals.ComputeChecksum(lines);
+        var total = BankFileControlTotals.TotalAmount(lines);
 
         var builder = new StringBuilder();
         builder.AppendLine("SlNo,BeneficiaryName,AccountNo,IFSC,Amount,Remarks");
@@ -20,7 +20,7 @@ public sealed class SbiBankFileFormatter : IBankFileFormatter
         {
             var line = lines[index];
             builder.AppendLine(
-                $"{index + 1},{BankFileChecksumHelper.Escape(line.EmployeeName)},{line.AccountNumber},{line.IfscCode},{line.Amount:F2},{BankFileChecksumHelper.Escape(line.Narration)}");
+                $"{index + 1},{BankFileControlTotals.Escape(line.EmployeeName)},{line.AccountNumber},{line.IfscCode},{line.Amount:F2},{BankFileControlTotals.Escape(line.Narration)}");
         }
 
         builder.AppendLine($"CONTROL,{lines.Count},{total:F2},{checksum}");
@@ -28,6 +28,6 @@ public sealed class SbiBankFileFormatter : IBankFileFormatter
         return new BankFileExportResult(
             $"sbi-salary-transfer-{DateTime.UtcNow:yyyyMMddHHmmss}.csv",
             builder.ToString(),
-            BankFileChecksumHelper.BuildReconciliationReport(BankCode, lines, checksum));
+            BankFileControlTotals.BuildReconciliationReport(BankCode, lines, checksum));
     }
 }

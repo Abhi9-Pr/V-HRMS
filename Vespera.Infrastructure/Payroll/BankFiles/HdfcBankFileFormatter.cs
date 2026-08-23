@@ -11,8 +11,8 @@ public sealed class HdfcBankFileFormatter : IBankFileFormatter
 
     public BankFileExportResult Format(IReadOnlyList<BankTransferLine> lines)
     {
-        var checksum = BankFileChecksumHelper.ComputeChecksum(lines);
-        var total = BankFileChecksumHelper.TotalAmount(lines);
+        var checksum = BankFileControlTotals.ComputeChecksum(lines);
+        var total = BankFileControlTotals.TotalAmount(lines);
 
         var builder = new StringBuilder();
         builder.AppendLine("H|BENE_NAME|BENE_ACCT_NO|BENE_IFSC|TXN_AMOUNT|REMARKS");
@@ -26,6 +26,6 @@ public sealed class HdfcBankFileFormatter : IBankFileFormatter
         return new BankFileExportResult(
             $"hdfc-salary-transfer-{DateTime.UtcNow:yyyyMMddHHmmss}.txt",
             builder.ToString(),
-            BankFileChecksumHelper.BuildReconciliationReport(BankCode, lines, checksum));
+            BankFileControlTotals.BuildReconciliationReport(BankCode, lines, checksum));
     }
 }
