@@ -12,7 +12,7 @@ public class SalaryStructureTests
     public void Create_Should_Fail_With_No_Lines()
     {
         var result = SalaryStructure.Create(
-            TenantId.New(), EmployeeId.New(), [], new DateOnly(2026, 1, 1), null);
+            TenantId.New(), EmployeeId.New(), Money.Zero(Currency.Inr), [], new DateOnly(2026, 1, 1), null);
 
         result.IsFailure.Should().BeTrue();
     }
@@ -27,7 +27,7 @@ public class SalaryStructureTests
             SalaryStructureLine.Of(SalaryComponentId.New(), SalaryComponentFormula.PercentageOfComponent(basicId, 40m)),
         };
 
-        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null);
+        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), Money.Zero(Currency.Inr), lines, new DateOnly(2026, 1, 1), null);
 
         result.IsSuccess.Should().BeTrue();
     }
@@ -40,7 +40,7 @@ public class SalaryStructureTests
             SalaryStructureLine.Of(SalaryComponentId.New(), SalaryComponentFormula.PercentageOfComponent(SalaryComponentId.New(), 40m)),
         };
 
-        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null);
+        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), Money.Zero(Currency.Inr), lines, new DateOnly(2026, 1, 1), null);
 
         result.IsFailure.Should().BeTrue();
     }
@@ -56,7 +56,7 @@ public class SalaryStructureTests
             SalaryStructureLine.Of(componentBId, SalaryComponentFormula.PercentageOfComponent(componentAId, 50m)),
         };
 
-        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null);
+        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), Money.Zero(Currency.Inr), lines, new DateOnly(2026, 1, 1), null);
 
         result.IsFailure.Should().BeTrue("A = 50% of B and B = 50% of A can never converge");
     }
@@ -70,7 +70,7 @@ public class SalaryStructureTests
             SalaryStructureLine.Of(SalaryComponentId.New(), SalaryComponentFormula.RemainderOfCtc()),
         };
 
-        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null);
+        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), Money.Zero(Currency.Inr), lines, new DateOnly(2026, 1, 1), null);
 
         result.IsFailure.Should().BeTrue();
     }
@@ -85,7 +85,7 @@ public class SalaryStructureTests
             SalaryStructureLine.Of(componentId, SalaryComponentFormula.FixedAmount(Money.Of(2000m, Currency.Inr))),
         };
 
-        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null);
+        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), Money.Zero(Currency.Inr), lines, new DateOnly(2026, 1, 1), null);
 
         result.IsFailure.Should().BeTrue();
     }
@@ -100,8 +100,8 @@ public class SalaryStructureTests
             SalaryStructureLine.Of(SalaryComponentId.New(), SalaryComponentFormula.FixedAmount(Money.Of(50000m, Currency.Inr))),
         };
 
-        var current = SalaryStructure.Create(tenantId, employeeId, lines, new DateOnly(2026, 1, 1), null).Value;
-        var revised = SalaryStructure.Create(tenantId, employeeId, lines, new DateOnly(2026, 6, 1), null).Value;
+        var current = SalaryStructure.Create(tenantId, employeeId, Money.Zero(Currency.Inr), lines, new DateOnly(2026, 1, 1), null).Value;
+        var revised = SalaryStructure.Create(tenantId, employeeId, Money.Zero(Currency.Inr), lines, new DateOnly(2026, 6, 1), null).Value;
 
         var result = EffectiveDatedTimeline.EnsureNoOverlap<SalaryStructureId, SalaryStructure>([current], revised);
 
@@ -118,9 +118,9 @@ public class SalaryStructureTests
             SalaryStructureLine.Of(SalaryComponentId.New(), SalaryComponentFormula.FixedAmount(Money.Of(50000m, Currency.Inr))),
         };
 
-        var current = SalaryStructure.Create(tenantId, employeeId, lines, new DateOnly(2026, 1, 1), null).Value;
+        var current = SalaryStructure.Create(tenantId, employeeId, Money.Zero(Currency.Inr), lines, new DateOnly(2026, 1, 1), null).Value;
         current.EndOn(new DateOnly(2026, 5, 31));
-        var revised = SalaryStructure.Create(tenantId, employeeId, lines, new DateOnly(2026, 6, 1), null).Value;
+        var revised = SalaryStructure.Create(tenantId, employeeId, Money.Zero(Currency.Inr), lines, new DateOnly(2026, 6, 1), null).Value;
 
         var result = EffectiveDatedTimeline.EnsureNoOverlap<SalaryStructureId, SalaryStructure>([current], revised);
 

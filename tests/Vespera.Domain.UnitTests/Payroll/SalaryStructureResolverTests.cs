@@ -21,7 +21,7 @@ public class SalaryStructureResolverTests
             SalaryStructureLine.Of(hraId, SalaryComponentFormula.PercentageOfComponent(basicId, 40m)),
             SalaryStructureLine.Of(specialAllowanceId, SalaryComponentFormula.RemainderOfCtc()),
         };
-        var structure = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null).Value;
+        var structure = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), Money.Zero(Currency.Inr), lines, new DateOnly(2026, 1, 1), null).Value;
 
         var result = SalaryStructureResolver.ResolveMonthly(structure, Money.Of(70000m, Currency.Inr));
 
@@ -43,7 +43,7 @@ public class SalaryStructureResolverTests
             SalaryStructureLine.Of(hraId, SalaryComponentFormula.FixedAmount(Money.Of(16000m, Currency.Inr))),
             SalaryStructureLine.Of(grossEarningsId, SalaryComponentFormula.SumOfComponents([basicId, hraId])),
         };
-        var structure = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null).Value;
+        var structure = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), Money.Zero(Currency.Inr), lines, new DateOnly(2026, 1, 1), null).Value;
 
         var result = SalaryStructureResolver.ResolveMonthly(structure, Money.Of(56000m, Currency.Inr));
 
@@ -61,7 +61,7 @@ public class SalaryStructureResolverTests
             SalaryStructureLine.Of(basicId, SalaryComponentFormula.FixedAmount(Money.Of(80000m, Currency.Inr))),
             SalaryStructureLine.Of(specialAllowanceId, SalaryComponentFormula.RemainderOfCtc()),
         };
-        var structure = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null).Value;
+        var structure = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), Money.Zero(Currency.Inr), lines, new DateOnly(2026, 1, 1), null).Value;
 
         var result = SalaryStructureResolver.ResolveMonthly(structure, Money.Of(70000m, Currency.Inr));
 
@@ -78,7 +78,7 @@ public class SalaryStructureResolverTests
             SalaryStructureLine.Of(basicId, SalaryComponentFormula.FixedAmount(Money.Of(40000m, Currency.Inr))),
             SalaryStructureLine.Of(hraId, SalaryComponentFormula.PercentageOfComponent(basicId, 40m)),
         };
-        var structure = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null).Value;
+        var structure = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), Money.Zero(Currency.Inr), lines, new DateOnly(2026, 1, 1), null).Value;
 
         var result = SalaryStructureResolver.ResolveMonthly(structure, Money.Of(56000m, Currency.Inr));
 

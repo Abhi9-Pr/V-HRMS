@@ -1,6 +1,7 @@
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
 using Vespera.Domain.Services;
+using Vespera.Domain.ValueObjects;
 
 namespace Vespera.Domain.Payroll;
 
@@ -36,11 +37,12 @@ public sealed class SalaryStructure : EffectiveDated<SalaryStructureId>, ITenant
 
     // No `lines` constructor parameter: EF Core cannot constructor-bind an owned-collection
     // navigation. Create() below populates _lines after construction instead.
-    private SalaryStructure(SalaryStructureId id, TenantId tenantId, EmployeeId employeeId, DateOnly validFrom, DateOnly? validTo)
+    private SalaryStructure(SalaryStructureId id, TenantId tenantId, EmployeeId employeeId, Money monthlyCtc, DateOnly validFrom, DateOnly? validTo)
         : base(id, validFrom, validTo)
     {
         TenantId = tenantId;
         EmployeeId = employeeId;
+        MonthlyCtc = monthlyCtc;
         _lines = [];
     }
 
@@ -48,10 +50,16 @@ public sealed class SalaryStructure : EffectiveDated<SalaryStructureId>, ITenant
 
     public EmployeeId EmployeeId { get; }
 
+    /// <summary>The CTC-down target <see cref="Services.SalaryStructureResolver"/> resolves lines
+    /// against — specifically what a lone <see cref="SalaryComponentFormulaKind.RemainderOfCtc"/>
+    /// line's leftover is computed from. Fixed/percentage/sum lines don't need this at all; it only
+    /// matters when a structure has a remainder line.</summary>
+    public Money MonthlyCtc { get; }
+
     public IReadOnlyList<SalaryStructureLine> Lines => _lines.AsReadOnly();
 
     public static Result<SalaryStructure> Create(
-        TenantId tenantId, EmployeeId employeeId, IReadOnlyList<SalaryStructureLine> lines, DateOnly validFrom, DateOnly? validTo)
+        TenantId tenantId, EmployeeId employeeId, Money monthlyCtc, IReadOnlyList<SalaryStructureLine> lines, DateOnly validFrom, DateOnly? validTo)
     {
         if (lines is null || lines.Count == 0)
         {
@@ -64,7 +72,7 @@ public sealed class SalaryStructure : EffectiveDated<SalaryStructureId>, ITenant
             return Result.Failure<SalaryStructure>(graphResult.Error);
         }
 
-        var structure = new SalaryStructure(SalaryStructureId.New(), tenantId, employeeId, validFrom, validTo);
+        var structure = new SalaryStructure(SalaryStructureId.New(), tenantId, employeeId, monthlyCtc, validFrom, validTo);
         structure._lines.AddRange(lines);
         return Result.Success(structure);
     }

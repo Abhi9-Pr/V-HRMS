@@ -26,6 +26,10 @@ public sealed class SalaryStructureConfiguration : TenantScopedReferenceEntityCo
         builder.Property(e => e.EmployeeId).HasConversion(id => id.Value, value => new EmployeeId(value));
         builder.HasIndex(e => new { e.TenantId, e.EmployeeId });
 
+        builder.Property(e => e.MonthlyCtc)
+            .HasConversion(ctc => $"{ctc.Amount.ToString(CultureInfo.InvariantCulture)}|{ctc.Currency}", value => ParseMoney(value))
+            .HasMaxLength(64);
+
         builder.OwnsMany(e => e.Lines, lines =>
         {
             lines.ToTable("SalaryStructureLines");
@@ -34,6 +38,12 @@ public sealed class SalaryStructureConfiguration : TenantScopedReferenceEntityCo
                 .HasConversion(formula => SerializeFormula(formula), value => DeserializeFormula(value))
                 .HasMaxLength(1024);
         });
+    }
+
+    private static Money ParseMoney(string value)
+    {
+        var parts = value.Split('|');
+        return Money.Of(decimal.Parse(parts[0], CultureInfo.InvariantCulture), Enum.Parse<Currency>(parts[1]));
     }
 
     private static string SerializeFormula(SalaryComponentFormula formula) => formula.Kind switch

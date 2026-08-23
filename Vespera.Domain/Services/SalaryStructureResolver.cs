@@ -17,6 +17,16 @@ namespace Vespera.Domain.Services;
 /// </summary>
 public static class SalaryStructureResolver
 {
+    /// <summary>Resolves against the structure's own stored <see cref="SalaryStructure.MonthlyCtc"/> —
+    /// the normal case. The explicit-<paramref name="targetCtc"/> overload exists for gross-up,
+    /// where the Application-layer orchestrator searches for a hypothetical CTC different from
+    /// what's on file.</summary>
+    public static Result<IReadOnlyDictionary<SalaryComponentId, Money>> ResolveMonthly(SalaryStructure structure)
+    {
+        ArgumentNullException.ThrowIfNull(structure);
+        return ResolveMonthly(structure, structure.MonthlyCtc);
+    }
+
     public static Result<IReadOnlyDictionary<SalaryComponentId, Money>> ResolveMonthly(SalaryStructure structure, Money targetCtc)
     {
         ArgumentNullException.ThrowIfNull(structure);
