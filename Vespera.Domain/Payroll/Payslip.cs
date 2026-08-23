@@ -14,16 +14,17 @@ public sealed class Payslip : AggregateRoot<PayslipId>, ITenantScoped
 {
     private readonly List<PayrollComponentLine> _lines;
 
-    private Payslip(
-        PayslipId id, TenantId tenantId, PayrollRunId payrollRunId, EmployeeId employeeId, Money netPay,
-        IReadOnlyList<PayrollComponentLine> lines, DateTimeOffset generatedAt)
+    // No `lines` constructor parameter: EF Core cannot constructor-bind an owned-collection
+    // navigation (see PayrollRun's constructor for the same shape) — Generate() below populates
+    // _lines after construction instead.
+    private Payslip(PayslipId id, TenantId tenantId, PayrollRunId payrollRunId, EmployeeId employeeId, Money netPay, DateTimeOffset generatedAt)
         : base(id)
     {
         TenantId = tenantId;
         PayrollRunId = payrollRunId;
         EmployeeId = employeeId;
         NetPay = netPay;
-        _lines = [.. lines];
+        _lines = [];
         GeneratedAt = generatedAt;
         IsPublished = false;
     }
@@ -52,8 +53,12 @@ public sealed class Payslip : AggregateRoot<PayslipId>, ITenantScoped
 
     public static Payslip Generate(
         TenantId tenantId, PayrollRunId payrollRunId, EmployeeId employeeId, Money netPay,
-        IReadOnlyList<PayrollComponentLine> lines, DateTimeOffset generatedAt) =>
-        new(PayslipId.New(), tenantId, payrollRunId, employeeId, netPay, lines, generatedAt);
+        IReadOnlyList<PayrollComponentLine> lines, DateTimeOffset generatedAt)
+    {
+        var payslip = new Payslip(PayslipId.New(), tenantId, payrollRunId, employeeId, netPay, generatedAt);
+        payslip._lines.AddRange(lines);
+        return payslip;
+    }
 
     public Result MarkPublished()
     {

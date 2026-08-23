@@ -262,11 +262,19 @@ public static class DevelopmentSeeder
             applicationUser.TwoFactorEnabled = true;
         }
 
-        // A draft payroll run "created" by Vikram — used by FinancePolicyWallTests to prove
-        // maker-checker: Vikram (the creator) must not be able to finalize his own run, but
-        // Fatima (a different Finance.Admin) can.
-        var payrollRun = PayrollRun.Open(tid, DateTime.UtcNow.Month, DateTime.UtcNow.Year, now, vikramUser.Id.Value.ToString()).Value;
-        payrollRun.AddLine(priya.Id, Money.Of(80000m, Currency.Inr), Money.Of(8000m, Currency.Inr), Money.Of(72000m, Currency.Inr), 0m);
+        // A payroll run "created" and dry-run by Vikram, driven through the real domain
+        // transitions to Approved — used by FinancePolicyWallTests to prove maker-checker: Vikram
+        // (the creator) must not be able to finalize his own run, but Fatima (a different
+        // Finance.Admin) can. freezeDay: 1 keeps FreezeAttendance's "before the configured day"
+        // branch (which requires an override reason) unreachable regardless of what day seeding runs on.
+        var vikramId = vikramUser.Id.Value.ToString();
+        var payrollRun = PayrollRun.Open(tid, DateTime.UtcNow.Month, DateTime.UtcNow.Year, now, vikramId).Value;
+        payrollRun.FreezeAttendance(DateOnly.FromDateTime(now.UtcDateTime), freezeDay: 1, now, vikramId);
+        payrollRun.RecomputeLines(
+            [new PayrollLineInput(priya.Id, Money.Of(80000m, Currency.Inr), Money.Of(8000m, Currency.Inr), Money.Of(72000m, Currency.Inr), 0m)],
+            vikramId, now);
+        payrollRun.SubmitForReview();
+        payrollRun.Approve(fatimaUser.Id.Value.ToString(), now);
         dbContext.Add(payrollRun);
 
         dbContext.AddRange(

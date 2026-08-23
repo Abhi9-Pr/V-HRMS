@@ -34,14 +34,14 @@ public sealed class SalaryStructure : EffectiveDated<SalaryStructureId>, ITenant
 {
     private readonly List<SalaryStructureLine> _lines;
 
-    private SalaryStructure(
-        SalaryStructureId id, TenantId tenantId, EmployeeId employeeId, IReadOnlyList<SalaryStructureLine> lines,
-        DateOnly validFrom, DateOnly? validTo)
+    // No `lines` constructor parameter: EF Core cannot constructor-bind an owned-collection
+    // navigation. Create() below populates _lines after construction instead.
+    private SalaryStructure(SalaryStructureId id, TenantId tenantId, EmployeeId employeeId, DateOnly validFrom, DateOnly? validTo)
         : base(id, validFrom, validTo)
     {
         TenantId = tenantId;
         EmployeeId = employeeId;
-        _lines = [.. lines];
+        _lines = [];
     }
 
     public TenantId TenantId { get; }
@@ -64,7 +64,9 @@ public sealed class SalaryStructure : EffectiveDated<SalaryStructureId>, ITenant
             return Result.Failure<SalaryStructure>(graphResult.Error);
         }
 
-        return Result.Success(new SalaryStructure(SalaryStructureId.New(), tenantId, employeeId, lines, validFrom, validTo));
+        var structure = new SalaryStructure(SalaryStructureId.New(), tenantId, employeeId, validFrom, validTo);
+        structure._lines.AddRange(lines);
+        return Result.Success(structure);
     }
 
     public Result EndOn(DateOnly validTo) => Close(validTo);

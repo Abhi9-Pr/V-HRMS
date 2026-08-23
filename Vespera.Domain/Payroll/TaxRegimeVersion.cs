@@ -47,14 +47,15 @@ public sealed class TaxRegimeVersion : AggregateRoot<TaxRegimeVersionId>, ITenan
 {
     private readonly List<TaxSlab> _slabs;
 
-    private TaxRegimeVersion(
-        TaxRegimeVersionId id, TenantId tenantId, TaxRegimeType regimeType, string financialYear, IReadOnlyList<TaxSlab> slabs)
+    // No `slabs` constructor parameter: EF Core cannot constructor-bind an owned-collection
+    // navigation. Create() below populates _slabs after construction instead.
+    private TaxRegimeVersion(TaxRegimeVersionId id, TenantId tenantId, TaxRegimeType regimeType, string financialYear)
         : base(id)
     {
         TenantId = tenantId;
         RegimeType = regimeType;
         FinancialYear = financialYear;
-        _slabs = [.. slabs.OrderBy(slab => slab.UpTo.Amount)];
+        _slabs = [];
     }
 
     public TenantId TenantId { get; }
@@ -78,7 +79,9 @@ public sealed class TaxRegimeVersion : AggregateRoot<TaxRegimeVersionId>, ITenan
             return Result.Failure<TaxRegimeVersion>(Error.Validation("tax_regime_version.no_slabs", "At least one tax slab is required."));
         }
 
-        return Result.Success(new TaxRegimeVersion(TaxRegimeVersionId.New(), tenantId, regimeType, financialYear.Trim(), slabs));
+        var version = new TaxRegimeVersion(TaxRegimeVersionId.New(), tenantId, regimeType, financialYear.Trim());
+        version._slabs.AddRange(slabs.OrderBy(slab => slab.UpTo.Amount));
+        return Result.Success(version);
     }
 
     public Money CalculateTax(Money taxableIncome)
