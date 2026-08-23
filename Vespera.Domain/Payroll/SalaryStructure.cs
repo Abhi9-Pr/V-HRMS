@@ -1,27 +1,27 @@
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
-using Vespera.Domain.ValueObjects;
+using Vespera.Domain.Services;
 
 namespace Vespera.Domain.Payroll;
 
 public sealed class SalaryStructureLine : ValueObject
 {
-    private SalaryStructureLine(SalaryComponentId componentId, Money amount)
+    private SalaryStructureLine(SalaryComponentId componentId, SalaryComponentFormula formula)
     {
         ComponentId = componentId;
-        Amount = amount;
+        Formula = formula;
     }
 
     public SalaryComponentId ComponentId { get; }
 
-    public Money Amount { get; }
+    public SalaryComponentFormula Formula { get; }
 
-    public static SalaryStructureLine Of(SalaryComponentId componentId, Money amount) => new(componentId, amount);
+    public static SalaryStructureLine Of(SalaryComponentId componentId, SalaryComponentFormula formula) => new(componentId, formula);
 
     protected override IEnumerable<object?> GetEqualityComponents()
     {
         yield return ComponentId;
-        yield return Amount;
+        yield return Formula;
     }
 }
 
@@ -58,11 +58,14 @@ public sealed class SalaryStructure : EffectiveDated<SalaryStructureId>, ITenant
             return Result.Failure<SalaryStructure>(Error.Validation("salary_structure.no_lines", "A salary structure needs at least one line."));
         }
 
+        var graphResult = SalaryComponentGraphValidator.Validate(lines);
+        if (graphResult.IsFailure)
+        {
+            return Result.Failure<SalaryStructure>(graphResult.Error);
+        }
+
         return Result.Success(new SalaryStructure(SalaryStructureId.New(), tenantId, employeeId, lines, validFrom, validTo));
     }
-
-    /// <summary>Sum of all lines. Currency-mismatched lines throw via Money's own guard.</summary>
-    public Money GrossMonthly() => _lines.Skip(1).Aggregate(_lines[0].Amount, (total, line) => total + line.Amount);
 
     public Result EndOn(DateOnly validTo) => Close(validTo);
 }

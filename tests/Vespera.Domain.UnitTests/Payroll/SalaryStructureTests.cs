@@ -18,17 +18,76 @@ public class SalaryStructureTests
     }
 
     [Fact]
-    public void GrossMonthly_Should_Sum_All_Lines()
+    public void Create_Should_Succeed_With_Fixed_And_Percentage_Lines()
+    {
+        var basicId = SalaryComponentId.New();
+        var lines = new[]
+        {
+            SalaryStructureLine.Of(basicId, SalaryComponentFormula.FixedAmount(Money.Of(50000m, Currency.Inr))),
+            SalaryStructureLine.Of(SalaryComponentId.New(), SalaryComponentFormula.PercentageOfComponent(basicId, 40m)),
+        };
+
+        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null);
+
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Create_Should_Fail_When_A_Formula_References_A_Component_Not_In_The_Structure()
     {
         var lines = new[]
         {
-            SalaryStructureLine.Of(SalaryComponentId.New(), Money.Of(50000m, Currency.Inr)),
-            SalaryStructureLine.Of(SalaryComponentId.New(), Money.Of(10000m, Currency.Inr)),
+            SalaryStructureLine.Of(SalaryComponentId.New(), SalaryComponentFormula.PercentageOfComponent(SalaryComponentId.New(), 40m)),
         };
-        var structure = SalaryStructure.Create(
-            TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null).Value;
 
-        structure.GrossMonthly().Should().Be(Money.Of(60000m, Currency.Inr));
+        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null);
+
+        result.IsFailure.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Create_Should_Fail_When_Two_Formulas_Reference_Each_Other()
+    {
+        var componentAId = SalaryComponentId.New();
+        var componentBId = SalaryComponentId.New();
+        var lines = new[]
+        {
+            SalaryStructureLine.Of(componentAId, SalaryComponentFormula.PercentageOfComponent(componentBId, 50m)),
+            SalaryStructureLine.Of(componentBId, SalaryComponentFormula.PercentageOfComponent(componentAId, 50m)),
+        };
+
+        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null);
+
+        result.IsFailure.Should().BeTrue("A = 50% of B and B = 50% of A can never converge");
+    }
+
+    [Fact]
+    public void Create_Should_Fail_With_Two_Remainder_Of_Ctc_Lines()
+    {
+        var lines = new[]
+        {
+            SalaryStructureLine.Of(SalaryComponentId.New(), SalaryComponentFormula.RemainderOfCtc()),
+            SalaryStructureLine.Of(SalaryComponentId.New(), SalaryComponentFormula.RemainderOfCtc()),
+        };
+
+        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null);
+
+        result.IsFailure.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Create_Should_Fail_With_A_Duplicate_Component()
+    {
+        var componentId = SalaryComponentId.New();
+        var lines = new[]
+        {
+            SalaryStructureLine.Of(componentId, SalaryComponentFormula.FixedAmount(Money.Of(1000m, Currency.Inr))),
+            SalaryStructureLine.Of(componentId, SalaryComponentFormula.FixedAmount(Money.Of(2000m, Currency.Inr))),
+        };
+
+        var result = SalaryStructure.Create(TenantId.New(), EmployeeId.New(), lines, new DateOnly(2026, 1, 1), null);
+
+        result.IsFailure.Should().BeTrue();
     }
 
     [Fact]
@@ -36,7 +95,10 @@ public class SalaryStructureTests
     {
         var tenantId = TenantId.New();
         var employeeId = EmployeeId.New();
-        var lines = new[] { SalaryStructureLine.Of(SalaryComponentId.New(), Money.Of(50000m, Currency.Inr)) };
+        var lines = new[]
+        {
+            SalaryStructureLine.Of(SalaryComponentId.New(), SalaryComponentFormula.FixedAmount(Money.Of(50000m, Currency.Inr))),
+        };
 
         var current = SalaryStructure.Create(tenantId, employeeId, lines, new DateOnly(2026, 1, 1), null).Value;
         var revised = SalaryStructure.Create(tenantId, employeeId, lines, new DateOnly(2026, 6, 1), null).Value;
@@ -51,7 +113,10 @@ public class SalaryStructureTests
     {
         var tenantId = TenantId.New();
         var employeeId = EmployeeId.New();
-        var lines = new[] { SalaryStructureLine.Of(SalaryComponentId.New(), Money.Of(50000m, Currency.Inr)) };
+        var lines = new[]
+        {
+            SalaryStructureLine.Of(SalaryComponentId.New(), SalaryComponentFormula.FixedAmount(Money.Of(50000m, Currency.Inr))),
+        };
 
         var current = SalaryStructure.Create(tenantId, employeeId, lines, new DateOnly(2026, 1, 1), null).Value;
         current.EndOn(new DateOnly(2026, 5, 31));
