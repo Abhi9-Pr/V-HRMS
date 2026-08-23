@@ -27,6 +27,8 @@
     <PackageReference Include="Tesseract" />
     <PackageReference Include="Azure.AI.DocumentIntelligence" />
     <PackageReference Include="NodaTime" />
+    <PackageReference Include="QuestPDF" />
+    <PackageReference Include="PdfSharpCore" />
   </ItemGroup>
 
   <ItemGroup>
