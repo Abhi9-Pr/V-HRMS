@@ -112,6 +112,7 @@ public sealed class PayrollController : FinanceControllerBase
     /// <response code="200">The payroll run, with every computed line.</response>
     [HttpGet("{id:guid}")]
     [HasPermission(Permissions.Payroll.Read)]
+    [ProducesResponseType(typeof(PayrollRunDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var result = await _sender.Send(new GetPayrollRunQuery(id), cancellationToken);
@@ -121,6 +122,7 @@ public sealed class PayrollController : FinanceControllerBase
     /// <response code="200">A page of payroll run summaries for this tenant.</response>
     [HttpGet]
     [HasPermission(Permissions.Payroll.Read)]
+    [ProducesResponseType(typeof(PagedResult<PayrollRunSummaryDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> List([FromQuery] PagedRequest paging, CancellationToken cancellationToken)
     {
         var result = await _sender.Send(new GetPayrollRunsQuery(paging), cancellationToken);
@@ -130,6 +132,7 @@ public sealed class PayrollController : FinanceControllerBase
     /// <response code="200">Per-employee variance against the prior finalized cycle.</response>
     [HttpGet("{id:guid}/variance")]
     [HasPermission(Permissions.Payroll.Read)]
+    [ProducesResponseType(typeof(IReadOnlyList<PayrollVarianceLine>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetVariance(Guid id, CancellationToken cancellationToken)
     {
         var result = await _sender.Send(new GetPayrollRunVarianceQuery(id), cancellationToken);

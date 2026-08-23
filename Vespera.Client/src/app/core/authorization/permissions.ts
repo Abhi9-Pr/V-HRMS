@@ -13,6 +13,7 @@ export const Permissions = {
     Read: 'Payroll.Read',
     Write: 'Payroll.Write',
     Finalize: 'Payroll.Finalize',
+    SelfService: 'Payroll.SelfService',
   },
   Leave: {
     Request: 'Leave.Request',
