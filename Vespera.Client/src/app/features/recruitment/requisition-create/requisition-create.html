@@ -1,0 +1,22 @@
+<div class="requisition-create-page">
+  <h1>New Requisition</h1>
+
+  <form [formGroup]="form" (ngSubmit)="create()">
+    <mat-form-field appearance="outline">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" data-testid="requisition-title" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Department Id</mat-label>
+      <input matInput formControlName="departmentId" data-testid="requisition-department" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Openings</mat-label>
+      <input matInput type="number" formControlName="openingsCount" data-testid="requisition-openings" />
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="submit" data-testid="requisition-create-submit">Create</button>
+  </form>
+</div>

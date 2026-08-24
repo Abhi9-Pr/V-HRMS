@@ -1,0 +1,21 @@
+<div class="public-jobs-page">
+  <h1>Open Positions</h1>
+
+  @if (loading()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  } @else if (jobs().length === 0) {
+    <p>No open positions right now — check back soon.</p>
+  } @else {
+    <div class="job-list" data-testid="public-jobs-list">
+      @for (job of jobs(); track job.id) {
+        <mat-card class="job-card" data-testid="public-job-card">
+          <mat-card-title>{{ job.title }}</mat-card-title>
+          <mat-card-content>
+            <p>{{ job.departmentName }}</p>
+            <p>{{ job.openingsCount }} opening(s)</p>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

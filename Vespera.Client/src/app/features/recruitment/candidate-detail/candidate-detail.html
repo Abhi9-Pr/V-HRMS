@@ -1,0 +1,153 @@
+<div class="candidate-detail-page">
+  @if (loading()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  } @else if (candidate(); as candidate) {
+    <h1>{{ candidate.fullName }}</h1>
+    <mat-card>
+      <mat-card-content>
+        <p>Email: {{ candidate.email }}</p>
+        <p>Phone: {{ candidate.phone }}</p>
+        <p>Status: {{ candidateStatusLabel(candidate.status) }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    <mat-card>
+      <mat-card-title>Interviews</mat-card-title>
+      <mat-card-content>
+        @for (interview of interviews(); track interview.id) {
+          <div class="interview-row" [attr.data-testid]="'interview-' + interview.id">
+            <p>{{ interview.scheduledAt }} — {{ interviewStatusLabel(interview.status) }}</p>
+            <p>Interviewers: {{ interview.interviewerIds.join(', ') }}</p>
+            @if (isScheduled(interview)) {
+              <div class="inline-form">
+                <input #feedback placeholder="Feedback" data-testid="complete-feedback" />
+                <input #rating type="number" min="1" max="5" placeholder="Rating (1-5)" data-testid="complete-rating" />
+                <button mat-button (click)="completeInterview(interview.id, feedback.value, +rating.value)" data-testid="complete-submit">
+                  Complete
+                </button>
+                <button mat-button (click)="cancelInterview(interview.id)" data-testid="cancel-interview">Cancel</button>
+              </div>
+              <div class="inline-form">
+                <input #interviewerId placeholder="Interviewer id" data-testid="scorecard-interviewer" />
+                <input #scRating type="number" min="1" max="5" placeholder="Rating (1-5)" data-testid="scorecard-rating" />
+                <input #scNotes placeholder="Notes" data-testid="scorecard-notes" />
+                <button
+                  mat-button
+                  (click)="submitScorecard(interview.id, interviewerId.value, +scRating.value, scNotes.value || null)"
+                  data-testid="scorecard-submit">
+                  Submit Scorecard
+                </button>
+              </div>
+            }
+            @for (scorecard of interview.scorecards; track scorecard.interviewerId) {
+              <p class="scorecard">{{ scorecard.interviewerId }}: {{ scorecard.rating }}/5 — {{ scorecard.notes }}</p>
+            }
+          </div>
+        }
+
+        <form [formGroup]="interviewForm" (ngSubmit)="scheduleInterview()">
+          <mat-form-field appearance="outline">
+            <mat-label>Stage</mat-label>
+            <mat-select formControlName="pipelineStageId" data-testid="interview-stage">
+              @for (stage of requisition()?.stages ?? []; track stage.id) {
+                <mat-option [value]="stage.id">{{ stage.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Date/time</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="scheduledAt" data-testid="interview-date" />
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Interviewer ids (comma-separated)</mat-label>
+            <input matInput formControlName="interviewerIds" data-testid="interview-interviewers" />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="submit" data-testid="schedule-interview-submit">Schedule Interview</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-title>Offers</mat-card-title>
+      <mat-card-content>
+        @for (offer of offers(); track offer.id) {
+          <div class="offer-row" [attr.data-testid]="'offer-' + offer.id">
+            <p>
+              {{ offer.proposedCtc }} {{ offer.currency }} — joining {{ offer.joiningDate }} —
+              {{ offerStatusLabel(offer.status) }}
+            </p>
+            <div class="inline-form">
+              @if (canSend(offer)) {
+                <button mat-button (click)="sendOffer(offer.id)" data-testid="offer-send">Send</button>
+              }
+              @if (canAcceptOrDecline(offer)) {
+                <button mat-button (click)="acceptOffer(offer.id)" data-testid="offer-accept">Accept</button>
+                <button mat-button (click)="declineOffer(offer.id)" data-testid="offer-decline">Decline</button>
+              }
+              @if (canWithdraw(offer)) {
+                <button mat-button (click)="withdrawOffer(offer.id)" data-testid="offer-withdraw">Withdraw</button>
+              }
+              <button mat-button (click)="downloadPdf(offer.id)" data-testid="offer-download-pdf">Download PDF</button>
+            </div>
+
+            @if (canConvert(offer)) {
+              <form [formGroup]="conversionForm" (ngSubmit)="convertToEmployee(offer.id)" class="inline-form">
+                <mat-form-field appearance="outline">
+                  <mat-label>Employee code</mat-label>
+                  <input matInput formControlName="employeeCode" data-testid="conversion-employee-code" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Date of birth</mat-label>
+                  <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth" data-testid="conversion-dob" />
+                  <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #dobPicker></mat-datepicker>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Location id</mat-label>
+                  <input matInput formControlName="locationId" data-testid="conversion-location" />
+                </mat-form-field>
+                <button mat-flat-button color="primary" type="submit" data-testid="convert-to-employee-submit">Convert to Employee</button>
+              </form>
+            }
+          </div>
+        }
+
+        <form [formGroup]="offerForm" (ngSubmit)="createOffer()">
+          <mat-form-field appearance="outline">
+            <mat-label>Designation id</mat-label>
+            <input matInput formControlName="proposedDesignationId" data-testid="offer-designation" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Proposed CTC</mat-label>
+            <input matInput type="number" formControlName="proposedCtc" data-testid="offer-ctc" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Currency</mat-label>
+            <mat-select formControlName="currency" data-testid="offer-currency">
+              @for (option of currencyOptions; track option) {
+                <mat-option [value]="option">{{ currencyLabel(option) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Joining date</mat-label>
+            <input matInput [matDatepicker]="joinPicker" formControlName="joiningDate" data-testid="offer-joining-date" />
+            <mat-datepicker-toggle matIconSuffix [for]="joinPicker"></mat-datepicker-toggle>
+            <mat-datepicker #joinPicker></mat-datepicker>
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="submit" data-testid="create-offer-submit">Create Offer</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    @if (newEmployeeId()) {
+      <p class="success">New employee created: {{ newEmployeeId() }}</p>
+    }
+  }
+</div>

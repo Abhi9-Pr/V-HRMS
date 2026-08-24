@@ -1,0 +1,48 @@
+<div class="requisition-list-page">
+  <div class="header">
+    <h1>Job Requisitions</h1>
+    <button mat-flat-button color="primary" (click)="newRequisition()" data-testid="new-requisition">New Requisition</button>
+  </div>
+
+  @if (loading()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  } @else {
+    <table mat-table [dataSource]="requisitions()" data-testid="requisitions-table">
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef>Title</th>
+        <td mat-cell *matCellDef="let requisition">{{ requisition.title }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="departmentId">
+        <th mat-header-cell *matHeaderCellDef>Department</th>
+        <td mat-cell *matCellDef="let requisition">{{ requisition.departmentId }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let requisition">{{ statusLabel(requisition.status) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="approvalStatus">
+        <th mat-header-cell *matHeaderCellDef>Approval</th>
+        <td mat-cell *matCellDef="let requisition">{{ approvalStatusLabel(requisition.approvalStatus) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="isPublished">
+        <th mat-header-cell *matHeaderCellDef>Published</th>
+        <td mat-cell *matCellDef="let requisition">{{ requisition.isPublished ? 'Yes' : 'No' }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let requisition; columns: displayedColumns" (click)="openRequisition(requisition)" class="clickable-row"></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalCount()"
+      [pageSize]="pageSize()"
+      [pageIndex]="pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPage($event)">
+    </mat-paginator>
+  }
+</div>

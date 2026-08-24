@@ -1,0 +1,74 @@
+<div class="requisition-detail-page">
+  @if (loading()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  } @else if (requisition(); as requisition) {
+    <h1>{{ requisition.title }}</h1>
+
+    <mat-card>
+      <mat-card-content>
+        <p>Department: {{ requisition.departmentId }}</p>
+        <p>Openings: {{ requisition.openingsCount }}</p>
+        <p [attr.data-status]="requisition.status">Status: {{ statusLabel(requisition.status) }}</p>
+        <p [attr.data-approval-status]="requisition.approvalStatus">Approval: {{ approvalStatusLabel(requisition.approvalStatus) }}</p>
+        <p>Published: {{ requisition.isPublished ? 'Yes' : 'No' }}</p>
+        @if (requisition.rejectionReason) {
+          <p class="rejection-reason">Rejection reason: {{ requisition.rejectionReason }}</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    <div class="actions">
+      @if (canSubmitForApproval(requisition)) {
+        <button mat-flat-button color="primary" (click)="submitForApproval()" data-testid="action-submit-for-approval">
+          Submit for Approval
+        </button>
+      }
+      @if (canDecide(requisition)) {
+        <button mat-flat-button color="primary" (click)="openDecisionForm()" data-testid="action-decide">Approve / Reject</button>
+      }
+      @if (canPublish(requisition)) {
+        <button mat-flat-button color="primary" (click)="publish()" data-testid="action-publish">Publish</button>
+      }
+      <button mat-button (click)="openPipeline()" data-testid="action-open-pipeline">Open Candidate Pipeline</button>
+    </div>
+
+    @if (decisionFormOpen()) {
+      <mat-card data-testid="decision-panel">
+        <mat-card-title>Approval Decision</mat-card-title>
+        <mat-card-content>
+          <form [formGroup]="decisionForm">
+            <mat-form-field appearance="outline">
+              <mat-label>Comment</mat-label>
+              <input matInput formControlName="comment" data-testid="decision-comment" />
+            </mat-form-field>
+            <button mat-flat-button color="primary" type="button" (click)="decide(true)" data-testid="decision-approve">Approve</button>
+            <button mat-flat-button color="warn" type="button" (click)="decide(false)" data-testid="decision-reject">Reject</button>
+            <button mat-button type="button" (click)="closeDecisionForm()">Cancel</button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <mat-card>
+      <mat-card-title>Pipeline Stages</mat-card-title>
+      <mat-card-content>
+        <ul>
+          @for (stage of requisition.stages; track stage.id) {
+            <li>{{ stage.sequenceNumber + 1 }}. {{ stage.name }}</li>
+          }
+        </ul>
+        <form [formGroup]="stageForm" (ngSubmit)="addStage()">
+          <mat-form-field appearance="outline">
+            <mat-label>New stage name</mat-label>
+            <input matInput formControlName="stageName" data-testid="stage-name" />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="submit" data-testid="add-stage-submit">Add Stage</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

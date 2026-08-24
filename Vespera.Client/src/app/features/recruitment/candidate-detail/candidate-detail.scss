@@ -1,0 +1,34 @@
+.candidate-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+}
+
+form,
+.inline-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.interview-row,
+.offer-row {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--mat-sys-outline-variant, #ddd);
+}
+
+.scorecard {
+  margin-left: 16px;
+  font-size: 0.9em;
+}
+
+.error {
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.success {
+  color: var(--mat-sys-primary, #006e2c);
+}

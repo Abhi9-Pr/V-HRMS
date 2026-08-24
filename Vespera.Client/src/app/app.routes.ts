@@ -4,6 +4,10 @@ import { authGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
   { path: 'login', loadComponent: () => import('./login/login').then((m) => m.LoginPage) },
   {
+    path: 'careers/:tenantId',
+    loadComponent: () => import('./features/recruitment/public-jobs/public-jobs').then((m) => m.PublicJobs),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./shell/shell').then((m) => m.Shell),
@@ -69,6 +73,30 @@ export const routes: Routes = [
       {
         path: 'assets/:id',
         loadComponent: () => import('./features/assets/asset-detail/asset-detail').then((m) => m.AssetDetail),
+      },
+      {
+        path: 'recruitment/requisitions',
+        loadComponent: () => import('./features/recruitment/requisition-list/requisition-list').then((m) => m.RequisitionList),
+      },
+      {
+        path: 'recruitment/requisitions/new',
+        loadComponent: () =>
+          import('./features/recruitment/requisition-create/requisition-create').then((m) => m.RequisitionCreate),
+      },
+      {
+        path: 'recruitment/candidates/:id',
+        loadComponent: () => import('./features/recruitment/candidate-detail/candidate-detail').then((m) => m.CandidateDetail),
+      },
+      // Registered after 'recruitment/requisitions/new' so that static segment matches first.
+      {
+        path: 'recruitment/requisitions/:id/pipeline',
+        loadComponent: () =>
+          import('./features/recruitment/candidate-pipeline/candidate-pipeline').then((m) => m.CandidatePipeline),
+      },
+      {
+        path: 'recruitment/requisitions/:id',
+        loadComponent: () =>
+          import('./features/recruitment/requisition-detail/requisition-detail').then((m) => m.RequisitionDetail),
       },
     ],
   },

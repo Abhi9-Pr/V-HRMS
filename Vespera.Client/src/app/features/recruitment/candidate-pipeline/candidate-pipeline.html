@@ -1,0 +1,67 @@
+<div class="pipeline-page">
+  <h1>Candidate Pipeline</h1>
+
+  @if (loading()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  } @else {
+    <mat-card class="new-candidate-card">
+      <mat-card-title>New Candidate</mat-card-title>
+      <mat-card-content>
+        <form [formGroup]="candidateForm" (ngSubmit)="addCandidate()">
+          <mat-form-field appearance="outline">
+            <mat-label>Full name</mat-label>
+            <input matInput formControlName="fullName" data-testid="candidate-name" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" data-testid="candidate-email" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Phone</mat-label>
+            <input matInput formControlName="phone" data-testid="candidate-phone" />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="submit" data-testid="candidate-create-submit">Add Candidate</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="board">
+      <div class="column" data-testid="column-unassigned">
+        <h3>New / Unassigned</h3>
+        <div
+          cdkDropList
+          [id]="unassignedColumnId"
+          [cdkDropListData]="candidatesForStage(null)"
+          [cdkDropListConnectedTo]="connectedStageColumnIds()"
+          class="drop-list">
+          @for (candidate of candidatesForStage(null); track candidate.id) {
+            <div cdkDrag [cdkDragData]="candidate" class="candidate-card" (click)="openCandidate(candidate)" data-testid="candidate-card">
+              <strong>{{ candidate.fullName }}</strong>
+              <span>{{ statusLabel(candidate.status) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      @for (stage of columns(); track stage.id) {
+        <div class="column" [attr.data-testid]="'column-' + stage.id">
+          <h3>{{ stage.name }}</h3>
+          <div
+            cdkDropList
+            [id]="stage.id"
+            [cdkDropListData]="candidatesForStage(stage.id)"
+            [cdkDropListConnectedTo]="[unassignedColumnId].concat(connectedStageColumnIds())"
+            (cdkDropListDropped)="onDrop($event, stage.id)"
+            class="drop-list">
+            @for (candidate of candidatesForStage(stage.id); track candidate.id) {
+              <div cdkDrag [cdkDragData]="candidate" class="candidate-card" (click)="openCandidate(candidate)" data-testid="candidate-card">
+                <strong>{{ candidate.fullName }}</strong>
+                <span>{{ statusLabel(candidate.status) }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
