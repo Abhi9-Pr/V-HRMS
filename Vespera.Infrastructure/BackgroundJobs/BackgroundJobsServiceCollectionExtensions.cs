@@ -22,6 +22,7 @@ public static class BackgroundJobsServiceCollectionExtensions
 
         services.AddHostedService<OutboxDispatcherHostedService>();
         services.AddHostedService<RetentionPurgeHostedService>();
+        services.AddHostedService<SlaEscalationHostedService>();
 
         return services;
     }

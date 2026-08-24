@@ -5,6 +5,7 @@ using Vespera.Application.Behaviors;
 using Vespera.Application.Features.Auth;
 using Vespera.Application.Features.Expenses;
 using Vespera.Application.Features.Expenses.Policy;
+using Vespera.Application.Features.Helpdesk.Routing;
 using Vespera.Application.Features.Recruitment.Rules;
 
 namespace Vespera.Application;
@@ -25,6 +26,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IExpensePolicyRule, ReceiptRequiredAboveAmountRule>();
         services.AddScoped<StageTransitionEvaluator>();
         services.AddScoped<IStageTransitionRule, RequiresCompletedInterviewBeforeOfferStageRule>();
+        services.AddScoped<TicketRoutingEvaluator>();
+        services.AddScoped<ITicketRoutingRule, DefaultToDepartmentHeadRoutingRule>();
 
         // Order matters: outermost first. See docs/CONTRIBUTING-slices.md for the rationale.
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));

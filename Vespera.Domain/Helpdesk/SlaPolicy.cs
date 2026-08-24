@@ -11,12 +11,14 @@ public sealed class SlaPolicy : AuditableTenantAggregateRoot<SlaPolicyId>
 {
     private SlaPolicy(
         SlaPolicyId id, TenantId tenantId, string name, TimeSpan responseTime, TimeSpan resolutionTime,
-        DateTimeOffset createdAt, string createdBy)
+        TimeOnly businessHoursStart, TimeOnly businessHoursEnd, DateTimeOffset createdAt, string createdBy)
         : base(id, tenantId, createdAt, createdBy)
     {
         Name = name;
         ResponseTime = responseTime;
         ResolutionTime = resolutionTime;
+        BusinessHoursStart = businessHoursStart;
+        BusinessHoursEnd = businessHoursEnd;
     }
 
     public string Name { get; private set; }
@@ -25,8 +27,16 @@ public sealed class SlaPolicy : AuditableTenantAggregateRoot<SlaPolicyId>
 
     public TimeSpan ResolutionTime { get; private set; }
 
+    /// <summary>The business-hours window <see cref="Services.BusinessHoursCalculator"/> uses to
+    /// turn <see cref="ResolutionTime"/> into an actual due instant — see
+    /// <c>RaiseTicketCommandHandler</c>.</summary>
+    public TimeOnly BusinessHoursStart { get; private set; }
+
+    public TimeOnly BusinessHoursEnd { get; private set; }
+
     public static Result<SlaPolicy> Create(
-        TenantId tenantId, string name, TimeSpan responseTime, TimeSpan resolutionTime, DateTimeOffset occurredOn, string createdBy)
+        TenantId tenantId, string name, TimeSpan responseTime, TimeSpan resolutionTime, DateTimeOffset occurredOn, string createdBy,
+        TimeOnly? businessHoursStart = null, TimeOnly? businessHoursEnd = null)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -38,10 +48,14 @@ public sealed class SlaPolicy : AuditableTenantAggregateRoot<SlaPolicyId>
             return Result.Failure<SlaPolicy>(Error.Validation("sla_policy.invalid_targets", "Resolution time cannot be shorter than response time."));
         }
 
-        return Result.Success(new SlaPolicy(SlaPolicyId.New(), tenantId, name.Trim(), responseTime, resolutionTime, occurredOn, createdBy));
+        return Result.Success(new SlaPolicy(
+            SlaPolicyId.New(), tenantId, name.Trim(), responseTime, resolutionTime,
+            businessHoursStart ?? new TimeOnly(9, 0), businessHoursEnd ?? new TimeOnly(18, 0), occurredOn, createdBy));
     }
 
-    public Result UpdateTargets(TimeSpan responseTime, TimeSpan resolutionTime, DateTimeOffset occurredOn, string modifiedBy)
+    public Result UpdateTargets(
+        TimeSpan responseTime, TimeSpan resolutionTime, DateTimeOffset occurredOn, string modifiedBy,
+        TimeOnly? businessHoursStart = null, TimeOnly? businessHoursEnd = null)
     {
         if (resolutionTime < responseTime)
         {
@@ -50,6 +64,8 @@ public sealed class SlaPolicy : AuditableTenantAggregateRoot<SlaPolicyId>
 
         ResponseTime = responseTime;
         ResolutionTime = resolutionTime;
+        BusinessHoursStart = businessHoursStart ?? BusinessHoursStart;
+        BusinessHoursEnd = businessHoursEnd ?? BusinessHoursEnd;
         Touch(occurredOn, modifiedBy);
         return Result.Success();
     }

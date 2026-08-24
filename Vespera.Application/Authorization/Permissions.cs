@@ -74,6 +74,14 @@ public static class Permissions
         public const string ConvertToEmployee = "Recruitment.ConvertToEmployee";
     }
 
+    public static class Helpdesk
+    {
+        public const string RaiseTickets = "Helpdesk.RaiseTickets";
+        public const string ManageTickets = "Helpdesk.ManageTickets";
+        public const string ManageConfiguration = "Helpdesk.ManageConfiguration";
+        public const string ViewReports = "Helpdesk.ViewReports";
+    }
+
     /// <summary>The separation-of-duties permission behind the finance policy wall
     /// (<c>/api/v1/finance/*</c>). Deliberately not implied by any role name — see
     /// docs/data-protection.md-adjacent reasoning in the Phase 4 plan: granting it means adding it

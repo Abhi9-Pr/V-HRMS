@@ -7,6 +7,8 @@ public sealed class BackgroundJobsOptions
     public OutboxDispatcherOptions Outbox { get; set; } = new();
 
     public RetentionPurgeOptions Retention { get; set; } = new();
+
+    public SlaEscalationOptions SlaEscalation { get; set; } = new();
 }
 
 public sealed class OutboxDispatcherOptions
@@ -23,4 +25,9 @@ public sealed class OutboxDispatcherOptions
 public sealed class RetentionPurgeOptions
 {
     public int RunIntervalHours { get; set; } = 24;
+}
+
+public sealed class SlaEscalationOptions
+{
+    public int PollIntervalMinutes { get; set; } = 15;
 }
