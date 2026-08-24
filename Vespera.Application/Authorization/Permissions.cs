@@ -64,6 +64,16 @@ public static class Permissions
         public const string Manage = "Licenses.Manage";
     }
 
+    public static class Recruitment
+    {
+        public const string ManageRequisitions = "Recruitment.ManageRequisitions";
+        public const string ApproveRequisitions = "Recruitment.ApproveRequisitions";
+        public const string ManageCandidates = "Recruitment.ManageCandidates";
+        public const string ManageInterviews = "Recruitment.ManageInterviews";
+        public const string ManageOffers = "Recruitment.ManageOffers";
+        public const string ConvertToEmployee = "Recruitment.ConvertToEmployee";
+    }
+
     /// <summary>The separation-of-duties permission behind the finance policy wall
     /// (<c>/api/v1/finance/*</c>). Deliberately not implied by any role name — see
     /// docs/data-protection.md-adjacent reasoning in the Phase 4 plan: granting it means adding it

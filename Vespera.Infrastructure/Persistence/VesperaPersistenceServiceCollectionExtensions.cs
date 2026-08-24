@@ -14,6 +14,7 @@ using Vespera.Infrastructure.CurrencyRates;
 using Vespera.Infrastructure.Identity;
 using Vespera.Infrastructure.Notifications;
 using Vespera.Infrastructure.Ocr;
+using Vespera.Infrastructure.Pdf;
 using Vespera.Infrastructure.Persistence.Idempotency;
 using Vespera.Infrastructure.Persistence.Interceptors;
 using Vespera.Infrastructure.Persistence.Outbox;
@@ -45,6 +46,7 @@ public static class VesperaPersistenceServiceCollectionExtensions
         services.AddVesperaOcr();
         services.AddOptions<CurrencyRateOptions>().Bind(configuration.GetSection(CurrencyRateOptions.SectionName));
         services.AddScoped<ICurrencyRateProvider, StaticTableCurrencyRateProvider>();
+        services.AddSingleton<IPdfGenerator, MinimalPdfGenerator>();
 
         // Order matters: EF Core runs registered ISaveChangesInterceptor instances in
         // registration order. TenantGuard must reject a bad insert before anything else treats

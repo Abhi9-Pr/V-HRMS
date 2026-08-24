@@ -86,6 +86,11 @@ public static class DevelopmentSeeder
         hrRole.Grant(Find(Permissions.Assets.Recover).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Licenses.Read).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Licenses.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageRequisitions).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageCandidates).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageInterviews).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageOffers).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ConvertToEmployee).Id, now, createdBy);
 
         managerRole.Grant(Find(Permissions.Employees.Read).Id, now, createdBy);
         managerRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
@@ -93,6 +98,7 @@ public static class DevelopmentSeeder
         managerRole.Grant(Find(Permissions.Expenses.Approve).Id, now, createdBy);
         managerRole.Grant(Find(Permissions.Assets.Read).Id, now, createdBy);
         managerRole.Grant(Find(Permissions.Licenses.Read).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Recruitment.ApproveRequisitions).Id, now, createdBy);
 
         employeeRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
         employeeRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
@@ -104,6 +110,7 @@ public static class DevelopmentSeeder
         financeRole.Grant(Find(Permissions.Payroll.Finalize).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Expenses.ManagePolicy).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Expenses.Settle).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Recruitment.ApproveRequisitions).Id, now, createdBy);
 
         dbContext.AddRange(adminRole, hrRole, managerRole, employeeRole, financeRole);
 
@@ -179,7 +186,11 @@ public static class DevelopmentSeeder
 
         dbContext.AddRange(
             ReportingRelationship.Create(tid, priya.Id, rohan.Id, priya.DateOfJoining, null).Value,
-            ReportingRelationship.Create(tid, ananya.Id, rohan.Id, ananya.DateOfJoining, null).Value);
+            ReportingRelationship.Create(tid, ananya.Id, rohan.Id, ananya.DateOfJoining, null).Value,
+            // Rohan (HR) submits job requisitions for approval; Vikram (Finance) signs off on the
+            // headcount budget — the same generic ReportingRelationship-based approver resolution
+            // every submission flow in this codebase uses, not a literal line-management claim.
+            ReportingRelationship.Create(tid, rohan.Id, vikram.Id, rohan.DateOfJoining, null).Value);
 
         var priyaUser = User.Create(tid, priya.WorkEmail, priya.Id, now, createdBy);
         priyaUser.AssignRole(employeeRole.Id, now, createdBy);
