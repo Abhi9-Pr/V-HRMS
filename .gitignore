@@ -66,5 +66,9 @@ desktop.ini
 # SqliteFallbackProvisioner's dev-only database (see AGENTS.md/Phase 3) — local only, never committed.
 .vespera/
 
+# LocalFileStorage's dev-only upload directory (receipts, signatures, ticket attachments) — local
+# only, never committed.
+Vespera.Api/.vespera-storage/
+
 # Build-time OpenAPI artifact (see Vespera.Api.csproj's GenerateOpenApiDocument target) — regenerated on every build.
 Vespera.Api/openapi.json
