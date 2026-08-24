@@ -80,11 +80,19 @@ public static class DevelopmentSeeder
         hrRole.Grant(Find(Permissions.Departments.Manage).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Expenses.Approve).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Write).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Assign).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Recover).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Licenses.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Licenses.Manage).Id, now, createdBy);
 
         managerRole.Grant(Find(Permissions.Employees.Read).Id, now, createdBy);
         managerRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
         managerRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
         managerRole.Grant(Find(Permissions.Expenses.Approve).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Assets.Read).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Licenses.Read).Id, now, createdBy);
 
         employeeRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
         employeeRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);

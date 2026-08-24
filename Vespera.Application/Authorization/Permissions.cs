@@ -50,6 +50,20 @@ public static class Permissions
         public const string Manage = "Users.Manage";
     }
 
+    public static class Assets
+    {
+        public const string Read = "Assets.Read";
+        public const string Write = "Assets.Write";
+        public const string Assign = "Assets.Assign";
+        public const string Recover = "Assets.Recover";
+    }
+
+    public static class Licenses
+    {
+        public const string Read = "Licenses.Read";
+        public const string Manage = "Licenses.Manage";
+    }
+
     /// <summary>The separation-of-duties permission behind the finance policy wall
     /// (<c>/api/v1/finance/*</c>). Deliberately not implied by any role name — see
     /// docs/data-protection.md-adjacent reasoning in the Phase 4 plan: granting it means adding it
