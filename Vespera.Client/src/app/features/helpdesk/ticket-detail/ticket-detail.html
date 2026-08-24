@@ -1,0 +1,84 @@
+<div class="ticket-detail-page">
+  @if (loading()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  } @else if (ticket()) {
+    <mat-card data-testid="ticket-header">
+      <mat-card-title>{{ ticket()!.subject }}</mat-card-title>
+      <mat-card-subtitle>
+        {{ priorityLabel(ticket()!.priority) }} · {{ statusLabel(ticket()!.status) }} · Due {{ ticket()!.dueAt | date: 'short' }}
+        @if (ticket()!.satisfactionRating) {
+          · Satisfaction: {{ ticket()!.satisfactionRating }}/5
+        }
+      </mat-card-subtitle>
+      <mat-card-content>
+        <p>{{ ticket()!.description }}</p>
+
+        <div class="actions">
+          @if (canAssign(ticket()!.status)) {
+            <form [formGroup]="assignForm" (ngSubmit)="assign()" class="inline-form">
+              <mat-form-field appearance="outline">
+                <mat-label>Employee id</mat-label>
+                <input matInput formControlName="employeeId" data-testid="assign-employee-id" />
+              </mat-form-field>
+              <button mat-flat-button type="submit" data-testid="action-assign">Assign</button>
+            </form>
+          }
+          @if (canResolve(ticket()!.status)) {
+            <button mat-flat-button (click)="resolve()" data-testid="action-resolve">Resolve</button>
+          }
+          @if (canClose(ticket()!.status)) {
+            <button mat-flat-button (click)="close()" data-testid="action-close">Close</button>
+          }
+          @if (canRate(ticket()!.status)) {
+            <form [formGroup]="satisfactionForm" (ngSubmit)="rateSatisfaction()" class="inline-form">
+              <mat-form-field appearance="outline">
+                <mat-label>Rating (1-5)</mat-label>
+                <input matInput type="number" formControlName="rating" data-testid="satisfaction-rating" />
+              </mat-form-field>
+              <button mat-flat-button type="submit" data-testid="action-rate">Rate</button>
+            </form>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-title>Comments</mat-card-title>
+      <mat-card-content>
+        <div class="comment-thread" data-testid="comment-thread">
+          @for (entry of threadedComments(ticket()!.comments); track entry.comment.id) {
+            <div class="comment" [style.margin-left.px]="entry.depth * 24" [attr.data-testid]="'comment-' + entry.comment.id">
+              @if (entry.comment.isInternal) {
+                <mat-chip class="internal-badge" data-testid="internal-badge">Internal note</mat-chip>
+              }
+              <p class="comment-body">{{ entry.comment.body }}</p>
+              <p class="comment-meta">{{ entry.comment.createdAt | date: 'short' }} · {{ entry.comment.authorId }}</p>
+              @if (entry.comment.attachmentReferences.length > 0) {
+                <p class="comment-attachments">Attachments: {{ entry.comment.attachmentReferences.join(', ') }}</p>
+              }
+              <button mat-button (click)="replyTo(entry.comment.id)" [attr.data-testid]="'reply-to-' + entry.comment.id">
+                Reply
+              </button>
+            </div>
+          }
+        </div>
+
+        <form [formGroup]="replyForm" (ngSubmit)="submitReply()" class="reply-form">
+          @if (replyForm.controls.parentCommentId.value) {
+            <p>
+              Replying to comment {{ replyForm.controls.parentCommentId.value }}
+              <button mat-button type="button" (click)="replyTo(null)">Cancel</button>
+            </p>
+          }
+          <mat-form-field appearance="outline">
+            <mat-label>Reply</mat-label>
+            <textarea matInput formControlName="body" data-testid="reply-body"></textarea>
+          </mat-form-field>
+          <mat-checkbox formControlName="isInternal" data-testid="reply-internal">Internal-only note</mat-checkbox>
+          <input type="file" (change)="onAttachmentSelected($event)" data-testid="reply-attachment" />
+          <button mat-flat-button color="primary" type="submit" data-testid="reply-submit">Post Reply</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

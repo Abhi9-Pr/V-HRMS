@@ -1,0 +1,77 @@
+<div class="ticket-list-page">
+  <h1>Tickets</h1>
+
+  <button mat-flat-button color="primary" (click)="toggleCreateForm()" data-testid="toggle-create">New Ticket</button>
+
+  @if (showCreateForm()) {
+    <mat-card data-testid="create-panel">
+      <mat-card-content>
+        <form [formGroup]="createForm" (ngSubmit)="submitCreate()">
+          <mat-form-field appearance="outline">
+            <mat-label>Category id</mat-label>
+            <input matInput formControlName="categoryId" data-testid="create-category" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Subject</mat-label>
+            <input matInput formControlName="subject" data-testid="create-subject" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" data-testid="create-description"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Priority</mat-label>
+            <mat-select formControlName="priority" data-testid="create-priority">
+              @for (option of priorityOptions; track option) {
+                <mat-option [value]="option">{{ priorityLabel(option) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="submit" data-testid="create-submit">Raise Ticket</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (loading()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  } @else {
+    <table mat-table [dataSource]="tickets()" data-testid="tickets-table">
+      <ng-container matColumnDef="subject">
+        <th mat-header-cell *matHeaderCellDef>Subject</th>
+        <td mat-cell *matCellDef="let ticket" (click)="openTicket(ticket.id)">{{ ticket.subject }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="priority">
+        <th mat-header-cell *matHeaderCellDef>Priority</th>
+        <td mat-cell *matCellDef="let ticket">{{ priorityLabel(ticket.priority) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let ticket">{{ statusLabel(ticket.status) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="dueAt">
+        <th mat-header-cell *matHeaderCellDef>Due</th>
+        <td mat-cell *matCellDef="let ticket">{{ ticket.dueAt | date: 'short' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="assignedTo">
+        <th mat-header-cell *matHeaderCellDef>Assigned To</th>
+        <td mat-cell *matCellDef="let ticket">{{ ticket.assignedTo || '—' }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let ticket; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalCount()"
+      [pageSize]="pageSize()"
+      [pageIndex]="pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPage($event)">
+    </mat-paginator>
+  }
+</div>

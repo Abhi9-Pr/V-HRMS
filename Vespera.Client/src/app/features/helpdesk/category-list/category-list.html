@@ -1,0 +1,51 @@
+<div class="category-list-page">
+  <h1>Ticket Categories</h1>
+
+  <form [formGroup]="createForm" (ngSubmit)="createCategory()">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" data-testid="category-name" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Department id</mat-label>
+      <input matInput formControlName="departmentId" data-testid="category-department" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Default SLA policy id (optional)</mat-label>
+      <input matInput formControlName="defaultSlaPolicyId" data-testid="category-sla-policy" />
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="submit" data-testid="create-category">Create Category</button>
+  </form>
+
+  @if (loading()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  } @else {
+    <table mat-table [dataSource]="categories()" data-testid="categories-table">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let category">{{ category.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="departmentId">
+        <th mat-header-cell *matHeaderCellDef>Department</th>
+        <td mat-cell *matCellDef="let category">{{ category.departmentId }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="defaultSlaPolicyId">
+        <th mat-header-cell *matHeaderCellDef>Default SLA Policy</th>
+        <td mat-cell *matCellDef="let category">{{ category.defaultSlaPolicyId || '—' }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let category; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalCount()"
+      [pageSize]="pageSize()"
+      [pageIndex]="pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPage($event)">
+    </mat-paginator>
+  }
+</div>

@@ -98,6 +98,32 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/recruitment/requisition-detail/requisition-detail').then((m) => m.RequisitionDetail),
       },
+      {
+        path: 'helpdesk/tickets',
+        loadComponent: () => import('./features/helpdesk/ticket-list/ticket-list').then((m) => m.TicketList),
+      },
+      {
+        path: 'helpdesk/sla-dashboard',
+        loadComponent: () => import('./features/helpdesk/sla-dashboard/sla-dashboard').then((m) => m.SlaDashboard),
+      },
+      {
+        path: 'helpdesk/categories',
+        loadComponent: () => import('./features/helpdesk/category-list/category-list').then((m) => m.CategoryList),
+      },
+      {
+        path: 'helpdesk/sla-policies',
+        loadComponent: () => import('./features/helpdesk/sla-policy-list/sla-policy-list').then((m) => m.SlaPolicyList),
+      },
+      {
+        path: 'helpdesk/holidays',
+        loadComponent: () =>
+          import('./features/helpdesk/public-holiday-list/public-holiday-list').then((m) => m.PublicHolidayList),
+      },
+      // Registered after the static 'helpdesk/tickets' etc. segments so those match first.
+      {
+        path: 'helpdesk/tickets/:id',
+        loadComponent: () => import('./features/helpdesk/ticket-detail/ticket-detail').then((m) => m.TicketDetail),
+      },
     ],
   },
   { path: '**', redirectTo: '' },
