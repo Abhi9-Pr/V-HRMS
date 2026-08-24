@@ -37,6 +37,14 @@ public static class Permissions
         public const string Manage = "Departments.Manage";
     }
 
+    public static class Expenses
+    {
+        public const string Submit = "Expenses.Submit";
+        public const string Approve = "Expenses.Approve";
+        public const string ManagePolicy = "Expenses.ManagePolicy";
+        public const string Settle = "Expenses.Settle";
+    }
+
     public static class Users
     {
         public const string Manage = "Users.Manage";

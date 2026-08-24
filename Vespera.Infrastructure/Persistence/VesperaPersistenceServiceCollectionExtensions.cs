@@ -3,14 +3,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Vespera.Application.Abstractions.Identity;
 using Vespera.Application.Abstractions.Persistence;
 using Vespera.Application.Abstractions.Provisioning;
 using Vespera.Application.Abstractions.Services;
+using Vespera.Infrastructure.CurrencyRates;
 using Vespera.Infrastructure.Identity;
 using Vespera.Infrastructure.Notifications;
+using Vespera.Infrastructure.Ocr;
 using Vespera.Infrastructure.Persistence.Idempotency;
 using Vespera.Infrastructure.Persistence.Interceptors;
 using Vespera.Infrastructure.Persistence.Outbox;
@@ -24,7 +27,7 @@ namespace Vespera.Infrastructure.Persistence;
 
 public static class VesperaPersistenceServiceCollectionExtensions
 {
-    public static IServiceCollection AddVesperaPersistence(this IServiceCollection services)
+    public static IServiceCollection AddVesperaPersistence(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHttpContextAccessor();
         services.AddScoped<ITenantContext, HttpTenantContext>();
@@ -38,6 +41,10 @@ public static class VesperaPersistenceServiceCollectionExtensions
         // which are skipped under Testing/IntegrationTesting) — command handlers like
         // ForgotPasswordCommandHandler need a dispatcher whether or not those hosted services run.
         services.AddSingleton<INotificationDispatcher, NotificationDispatcher>();
+
+        services.AddVesperaOcr();
+        services.AddOptions<CurrencyRateOptions>().Bind(configuration.GetSection(CurrencyRateOptions.SectionName));
+        services.AddScoped<ICurrencyRateProvider, StaticTableCurrencyRateProvider>();
 
         // Order matters: EF Core runs registered ISaveChangesInterceptor instances in
         // registration order. TenantGuard must reject a bad insert before anything else treats

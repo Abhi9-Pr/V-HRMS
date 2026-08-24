@@ -1,0 +1,20 @@
+.settlement-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 480px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.success {
+  color: #1b7f3a;
+}
+
+.error {
+  color: var(--mat-sys-error, #b3261e);
+}

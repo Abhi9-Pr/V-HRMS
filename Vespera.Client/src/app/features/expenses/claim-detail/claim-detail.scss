@@ -1,0 +1,35 @@
+.claim-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+table {
+  width: 100%;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+
+  mat-form-field {
+    min-width: 180px;
+  }
+}
+
+.receipt-upload {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  label {
+    font-size: 0.875rem;
+  }
+}
+
+.error {
+  color: var(--mat-sys-error, #b3261e);
+}

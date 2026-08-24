@@ -1,0 +1,40 @@
+<div class="approvals-page">
+  <h1>Pending Approvals</h1>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Decision comment</mat-label>
+    <input matInput [formControl]="commentControl" data-testid="comment" />
+  </mat-form-field>
+
+  @if (loading()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  } @else {
+    <table mat-table [dataSource]="claims()" data-testid="approvals-table">
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let claim">{{ statusLabel(claim.status) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="settlementCurrency">
+        <th mat-header-cell *matHeaderCellDef>Currency</th>
+        <td mat-cell *matCellDef="let claim">{{ currencyLabel(claim.settlementCurrency) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef>Total</th>
+        <td mat-cell *matCellDef="let claim">{{ claim.total }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let claim">
+          <button mat-button color="primary" (click)="decide(claim, true)" data-testid="approve">Approve</button>
+          <button mat-button color="warn" (click)="decide(claim, false)" data-testid="reject">Reject</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let claim; columns: displayedColumns"></tr>
+    </table>
+  }
+</div>

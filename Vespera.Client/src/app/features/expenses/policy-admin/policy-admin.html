@@ -1,0 +1,68 @@
+<div class="policy-admin-page">
+  <h1>Expense Policies</h1>
+
+  <table mat-table [dataSource]="policies()" data-testid="policies-table">
+    <ng-container matColumnDef="category">
+      <th mat-header-cell *matHeaderCellDef>Category</th>
+      <td mat-cell *matCellDef="let policy">{{ policy.category }}</td>
+    </ng-container>
+    <ng-container matColumnDef="maxAmountPerClaim">
+      <th mat-header-cell *matHeaderCellDef>Max / Claim</th>
+      <td mat-cell *matCellDef="let policy">{{ policy.maxAmountPerClaim }}</td>
+    </ng-container>
+    <ng-container matColumnDef="receiptRequiredAboveAmount">
+      <th mat-header-cell *matHeaderCellDef>Receipt Required Above</th>
+      <td mat-cell *matCellDef="let policy">{{ policy.receiptRequiredAboveAmount }}</td>
+    </ng-container>
+    <ng-container matColumnDef="currency">
+      <th mat-header-cell *matHeaderCellDef>Currency</th>
+      <td mat-cell *matCellDef="let policy">{{ currencyLabel(policy.currency) }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let policy; columns: displayedColumns"></tr>
+  </table>
+
+  <form [formGroup]="form" (ngSubmit)="create()">
+    <mat-form-field appearance="outline">
+      <mat-label>Category</mat-label>
+      <input matInput formControlName="category" data-testid="policy-category" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Max amount per claim</mat-label>
+      <input matInput type="number" formControlName="maxAmountPerClaim" data-testid="policy-max" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Receipt required above</mat-label>
+      <input matInput type="number" formControlName="receiptRequiredAboveAmount" data-testid="policy-receipt-threshold" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Currency</mat-label>
+      <mat-select formControlName="currency" data-testid="policy-currency">
+        @for (option of currencyOptions; track option) {
+          <mat-option [value]="option">{{ currencyLabel(option) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Max amount severity</mat-label>
+      <mat-select formControlName="maxAmountSeverity" data-testid="policy-max-severity">
+        <mat-option [value]="0">Warn</mat-option>
+        <mat-option [value]="1">Block</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Receipt-required severity</mat-label>
+      <mat-select formControlName="receiptRequiredSeverity" data-testid="policy-receipt-severity">
+        <mat-option [value]="0">Warn</mat-option>
+        <mat-option [value]="1">Block</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="submit" data-testid="create-policy">Create Policy</button>
+  </form>
+</div>

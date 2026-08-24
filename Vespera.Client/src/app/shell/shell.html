@@ -1,0 +1,20 @@
+<mat-toolbar color="primary">
+  <span>Vespera HRMS</span>
+  <span class="spacer"></span>
+  <button mat-button (click)="logout()" data-testid="logout">Sign out</button>
+</mat-toolbar>
+
+<mat-sidenav-container class="shell-container">
+  <mat-sidenav mode="side" opened class="shell-nav">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/expenses/claims" routerLinkActive="active-link">My Claims</a>
+      <a mat-list-item routerLink="/expenses/approvals" routerLinkActive="active-link">Approvals</a>
+      <a mat-list-item routerLink="/expenses/policies" routerLinkActive="active-link">Expense Policies</a>
+      <a mat-list-item routerLink="/expenses/settlement" routerLinkActive="active-link">Settlement</a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell-content">
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

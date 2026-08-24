@@ -22,11 +22,12 @@ public sealed class ExpenseClaim : AggregateRoot<ExpenseClaimId>, ITenantScoped
 {
     private readonly List<ExpenseLine> _lines = [];
 
-    private ExpenseClaim(ExpenseClaimId id, TenantId tenantId, EmployeeId employeeId)
+    private ExpenseClaim(ExpenseClaimId id, TenantId tenantId, EmployeeId employeeId, Currency settlementCurrency)
         : base(id)
     {
         TenantId = tenantId;
         EmployeeId = employeeId;
+        SettlementCurrency = settlementCurrency;
         Status = ExpenseClaimStatus.Draft;
     }
 
@@ -36,11 +37,14 @@ public sealed class ExpenseClaim : AggregateRoot<ExpenseClaimId>, ITenantScoped
 
     public ExpenseClaimStatus Status { get; private set; }
 
+    public Currency SettlementCurrency { get; }
+
     public string? RejectionReason { get; private set; }
 
     public IReadOnlyCollection<ExpenseLine> Lines => _lines.AsReadOnly();
 
-    public static ExpenseClaim Open(TenantId tenantId, EmployeeId employeeId) => new(ExpenseClaimId.New(), tenantId, employeeId);
+    public static ExpenseClaim Open(TenantId tenantId, EmployeeId employeeId, Currency settlementCurrency = Currency.Inr) =>
+        new(ExpenseClaimId.New(), tenantId, employeeId, settlementCurrency);
 
     public Money Total(Currency currency)
     {
@@ -48,13 +52,21 @@ public sealed class ExpenseClaim : AggregateRoot<ExpenseClaimId>, ITenantScoped
 
         foreach (var line in _lines)
         {
-            total += line.Amount;
+            total += line.ConvertedAmount ?? line.Amount;
         }
 
         return total;
     }
 
-    public Result AddLine(string category, Money amount, DateOnly expenseDate, string? receiptReference)
+    public Result AddLine(
+        string category,
+        Money amount,
+        DateOnly expenseDate,
+        string? receiptReference,
+        string? vendor = null,
+        Money? taxAmount = null,
+        Money? convertedAmount = null,
+        decimal? exchangeRate = null)
     {
         if (Status != ExpenseClaimStatus.Draft)
         {
@@ -66,7 +78,15 @@ public sealed class ExpenseClaim : AggregateRoot<ExpenseClaimId>, ITenantScoped
             return Result.Failure(Error.Validation("expense_claim.category_required", "Category is required."));
         }
 
-        _lines.Add(new ExpenseLine(ExpenseLineId.New(), category.Trim(), amount, expenseDate, receiptReference));
+        if (convertedAmount is not null && exchangeRate is not (> 0))
+        {
+            return Result.Failure(Error.Validation(
+                "expense_claim.exchange_rate_required", "An exchange rate is required when a converted amount is provided."));
+        }
+
+        _lines.Add(new ExpenseLine(
+            ExpenseLineId.New(), category.Trim(), amount, expenseDate, receiptReference,
+            vendor?.Trim(), taxAmount, convertedAmount, exchangeRate));
         return Result.Success();
     }
 

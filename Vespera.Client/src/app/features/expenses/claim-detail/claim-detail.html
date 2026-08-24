@@ -1,0 +1,110 @@
+@if (loading()) {
+  <mat-spinner diameter="32"></mat-spinner>
+} @else if (claim(); as c) {
+  <div class="claim-detail-page">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Claim {{ c.id }}</mat-card-title>
+        <mat-card-subtitle>
+          {{ statusLabel(c.status) }} · {{ currencyLabel(c.settlementCurrency) }} {{ c.total }}
+        </mat-card-subtitle>
+      </mat-card-header>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-title>Lines</mat-card-title>
+      <table mat-table [dataSource]="c.lines" data-testid="lines-table">
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Category</th>
+          <td mat-cell *matCellDef="let line">{{ line.category }}</td>
+        </ng-container>
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <td mat-cell *matCellDef="let line">{{ line.amount }}</td>
+        </ng-container>
+        <ng-container matColumnDef="currency">
+          <th mat-header-cell *matHeaderCellDef>Currency</th>
+          <td mat-cell *matCellDef="let line">{{ currencyLabel(line.currency) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="vendor">
+          <th mat-header-cell *matHeaderCellDef>Vendor</th>
+          <td mat-cell *matCellDef="let line">{{ line.vendor }}</td>
+        </ng-container>
+        <ng-container matColumnDef="expenseDate">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let line">{{ line.expenseDate }}</td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="lineColumns"></tr>
+        <tr mat-row *matRowDef="let line; columns: lineColumns"></tr>
+      </table>
+    </mat-card>
+
+    @if (c.status === 0) {
+      <mat-card>
+        <mat-card-title>Add Line</mat-card-title>
+        <mat-card-content>
+          <div class="receipt-upload">
+            <label for="receipt-input">Upload receipt (runs OCR and pre-fills the fields below — review before saving)</label>
+            <input id="receipt-input" type="file" (change)="onReceiptSelected($event)" data-testid="receipt-input" />
+            @if (uploadingReceipt()) {
+              <mat-spinner diameter="20"></mat-spinner>
+            }
+          </div>
+
+          <form [formGroup]="lineForm" (ngSubmit)="addLine()">
+            <mat-form-field appearance="outline">
+              <mat-label>Category</mat-label>
+              <input matInput formControlName="category" data-testid="line-category" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Amount</mat-label>
+              <input matInput type="number" formControlName="amount" data-testid="line-amount" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Currency</mat-label>
+              <mat-select formControlName="currency" data-testid="line-currency">
+                @for (option of currencyOptions; track option) {
+                  <mat-option [value]="option">{{ currencyLabel(option) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Expense date</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="expenseDate" data-testid="line-date" />
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Vendor</mat-label>
+              <input matInput formControlName="vendor" data-testid="line-vendor" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Tax amount</mat-label>
+              <input matInput type="number" formControlName="taxAmount" data-testid="line-tax" />
+            </mat-form-field>
+
+            <button mat-flat-button color="primary" type="submit" data-testid="add-line">Add Line</button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      @if (submitError()) {
+        <p class="error" data-testid="submit-error">{{ submitError() }}</p>
+      }
+
+      <button
+        mat-flat-button
+        color="accent"
+        [disabled]="c.lines.length === 0 || submitting()"
+        (click)="submitClaim()"
+        data-testid="submit-claim">
+        Submit for Approval
+      </button>
+    }
+  </div>
+}

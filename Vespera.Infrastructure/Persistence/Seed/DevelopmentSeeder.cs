@@ -78,17 +78,24 @@ public static class DevelopmentSeeder
         hrRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Departments.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Expenses.Approve).Id, now, createdBy);
 
         managerRole.Grant(Find(Permissions.Employees.Read).Id, now, createdBy);
         managerRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Expenses.Approve).Id, now, createdBy);
 
         employeeRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
 
         var financeRole = Role.Create(tid, "Finance", now, createdBy).Value;
         financeRole.Grant(Find(Permissions.Finance.Admin).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Payroll.Read).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Payroll.Write).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Payroll.Finalize).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Expenses.ManagePolicy).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Expenses.Settle).Id, now, createdBy);
 
         dbContext.AddRange(adminRole, hrRole, managerRole, employeeRole, financeRole);
 

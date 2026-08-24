@@ -27,6 +27,12 @@ public sealed class PayrollController : FinanceControllerBase
         _authorizationService = authorizationService;
     }
 
+    /// <response code="200">The new (Draft) payroll run's id.</response>
+    [HttpPost]
+    [HasPermission(Permissions.Payroll.Write)]
+    public async Task<IActionResult> Open([FromBody] OpenPayrollRunCommand command, CancellationToken cancellationToken) =>
+        (await _sender.Send(command, cancellationToken)).ToActionResult(this, id => Ok(new { id }));
+
     /// <summary>Maker-checker: requires Payroll.Finalize (on top of the Finance.Admin wall) and
     /// that the caller did not create this payroll run.</summary>
     /// <response code="204">Finalized.</response>

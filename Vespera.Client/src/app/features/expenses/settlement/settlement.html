@@ -1,0 +1,24 @@
+<div class="settlement-page">
+  <h1>Settle an Approved Claim into Payroll</h1>
+
+  <form [formGroup]="form" (ngSubmit)="settle()">
+    <mat-form-field appearance="outline">
+      <mat-label>Expense claim ID</mat-label>
+      <input matInput formControlName="expenseClaimId" data-testid="settle-claim-id" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Payroll run ID</mat-label>
+      <input matInput formControlName="payrollRunId" data-testid="settle-run-id" />
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="submit" data-testid="settle-submit">Settle</button>
+  </form>
+
+  @if (success()) {
+    <p class="success" data-testid="settle-success">{{ success() }}</p>
+  }
+  @if (error()) {
+    <p class="error" data-testid="settle-error">{{ error() }}</p>
+  }
+</div>

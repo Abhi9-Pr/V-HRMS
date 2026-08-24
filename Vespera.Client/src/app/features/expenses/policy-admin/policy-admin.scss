@@ -1,0 +1,19 @@
+.policy-admin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+table {
+  width: 100%;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  mat-form-field {
+    min-width: 180px;
+  }
+}
