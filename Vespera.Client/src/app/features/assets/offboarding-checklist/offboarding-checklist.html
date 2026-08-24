@@ -1,0 +1,32 @@
+<div class="checklist-page">
+  <h1>Offboarding Checklist</h1>
+
+  <form [formGroup]="employeeIdForm" (ngSubmit)="load()">
+    <mat-form-field appearance="outline">
+      <mat-label>Employee ID</mat-label>
+      <input matInput formControlName="employeeId" data-testid="checklist-employee-id" />
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="submit" data-testid="checklist-load">Load</button>
+  </form>
+
+  @if (loading()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  }
+
+  @if (notFound()) {
+    <p data-testid="checklist-not-found">No offboarding checklist exists for this employee.</p>
+  }
+
+  @if (checklist(); as c) {
+    <mat-list data-testid="checklist-items">
+      @for (item of c.items; track $index) {
+        <mat-list-item>
+          <span [class.complete]="item.isComplete">{{ item.description }}</span>
+          @if (!item.isComplete) {
+            <button mat-button (click)="completeItem($index)" data-testid="complete-item">Complete</button>
+          }
+        </mat-list-item>
+      }
+    </mat-list>
+  }
+</div>

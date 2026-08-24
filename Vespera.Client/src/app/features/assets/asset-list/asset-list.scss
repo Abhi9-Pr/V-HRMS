@@ -1,0 +1,19 @@
+.asset-list-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+table {
+  width: 100%;
+}
+
+.clickable-row {
+  cursor: pointer;
+}

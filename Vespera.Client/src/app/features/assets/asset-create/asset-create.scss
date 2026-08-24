@@ -1,0 +1,16 @@
+.asset-create-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+
+  mat-form-field {
+    min-width: 180px;
+  }
+}

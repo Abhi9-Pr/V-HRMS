@@ -29,6 +29,47 @@ export const routes: Routes = [
         path: 'expenses/settlement',
         loadComponent: () => import('./features/expenses/settlement/settlement').then((m) => m.Settlement),
       },
+      {
+        path: 'assets',
+        loadComponent: () => import('./features/assets/asset-list/asset-list').then((m) => m.AssetList),
+      },
+      {
+        path: 'assets/new',
+        loadComponent: () => import('./features/assets/asset-create/asset-create').then((m) => m.AssetCreate),
+      },
+      {
+        path: 'assets/assignments/:assignmentId',
+        loadComponent: () =>
+          import('./features/assets/assignment-handover/assignment-handover').then((m) => m.AssignmentHandover),
+      },
+      {
+        path: 'assets/licenses',
+        loadComponent: () => import('./features/assets/license-list/license-list').then((m) => m.LicenseList),
+      },
+      {
+        path: 'assets/licenses/unused-seats-report',
+        loadComponent: () =>
+          import('./features/assets/unused-seats-report/unused-seats-report').then((m) => m.UnusedSeatsReport),
+      },
+      {
+        path: 'assets/recoveries',
+        loadComponent: () =>
+          import('./features/assets/recovery-dashboard/recovery-dashboard').then((m) => m.RecoveryDashboard),
+      },
+      {
+        path: 'assets/offboarding-checklist',
+        loadComponent: () =>
+          import('./features/assets/offboarding-checklist/offboarding-checklist').then((m) => m.OffboardingChecklist),
+      },
+      {
+        path: 'assets/employee-exit',
+        loadComponent: () => import('./features/assets/employee-exit/employee-exit').then((m) => m.EmployeeExit),
+      },
+      // Registered after 'assets/new' etc. so the static segments above match first.
+      {
+        path: 'assets/:id',
+        loadComponent: () => import('./features/assets/asset-detail/asset-detail').then((m) => m.AssetDetail),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

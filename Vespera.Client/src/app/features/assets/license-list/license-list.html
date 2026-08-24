@@ -1,0 +1,79 @@
+<div class="license-list-page">
+  <h1>Software Licenses</h1>
+
+  <h2>New License</h2>
+  <form [formGroup]="createForm" (ngSubmit)="createLicense()">
+    <mat-form-field appearance="outline">
+      <mat-label>Product name</mat-label>
+      <input matInput formControlName="productName" data-testid="license-product" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Seat count</mat-label>
+      <input matInput type="number" formControlName="seatCount" data-testid="license-seats" />
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="submit" data-testid="create-license">Create License</button>
+  </form>
+
+  <h2>Allocate a Seat</h2>
+  <form [formGroup]="allocateForm">
+    <mat-form-field appearance="outline">
+      <mat-label>Employee ID</mat-label>
+      <input matInput formControlName="employeeId" data-testid="allocate-employee-id" />
+    </mat-form-field>
+  </form>
+
+  @if (loading()) {
+    <mat-spinner diameter="32"></mat-spinner>
+  } @else {
+    <table mat-table [dataSource]="licenses()" data-testid="licenses-table">
+      <ng-container matColumnDef="productName">
+        <th mat-header-cell *matHeaderCellDef>Product</th>
+        <td mat-cell *matCellDef="let license">{{ license.productName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="seatCount">
+        <th mat-header-cell *matHeaderCellDef>Seats</th>
+        <td mat-cell *matCellDef="let license">{{ license.seatCount }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="seatsUsed">
+        <th mat-header-cell *matHeaderCellDef>Used</th>
+        <td mat-cell *matCellDef="let license">{{ license.seatsUsed }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="expiresAt">
+        <th mat-header-cell *matHeaderCellDef>Expires</th>
+        <td mat-cell *matCellDef="let license">{{ license.expiresAt }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let license">
+          <button mat-button (click)="allocateSeat(license.id)" data-testid="allocate-seat">Allocate</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let license; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalCount()"
+      [pageSize]="pageSize()"
+      [pageIndex]="pageIndex()"
+      [pageSizeOptions]="[10, 20, 50]"
+      (page)="onPage($event)">
+    </mat-paginator>
+  }
+
+  <h2>Release a Seat</h2>
+  <form [formGroup]="releaseForm" (ngSubmit)="releaseSeat()">
+    <mat-form-field appearance="outline">
+      <mat-label>Allocation ID</mat-label>
+      <input matInput formControlName="allocationId" data-testid="release-allocation-id" />
+    </mat-form-field>
+    <button mat-stroked-button type="submit" data-testid="release-seat">Release</button>
+  </form>
+</div>

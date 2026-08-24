@@ -1,0 +1,55 @@
+<div class="asset-create-page">
+  <h1>New Asset</h1>
+
+  <form [formGroup]="form" (ngSubmit)="create()">
+    <mat-form-field appearance="outline">
+      <mat-label>Asset tag</mat-label>
+      <input matInput formControlName="assetTag" data-testid="asset-tag" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Category</mat-label>
+      <input matInput formControlName="category" data-testid="asset-category" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Purchase cost</mat-label>
+      <input matInput type="number" formControlName="purchaseCost" data-testid="asset-cost" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Currency</mat-label>
+      <mat-select formControlName="purchaseCostCurrency" data-testid="asset-currency">
+        @for (option of currencyOptions; track option) {
+          <mat-option [value]="option">{{ currencyLabel(option) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Purchase date</mat-label>
+      <input matInput [matDatepicker]="purchasePicker" formControlName="purchaseDate" data-testid="asset-purchase-date" />
+      <mat-datepicker-toggle matIconSuffix [for]="purchasePicker"></mat-datepicker-toggle>
+      <mat-datepicker #purchasePicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Serial number</mat-label>
+      <input matInput formControlName="serialNumber" data-testid="asset-serial" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>MAC address</mat-label>
+      <input matInput formControlName="macAddress" data-testid="asset-mac" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Warranty expiry</mat-label>
+      <input matInput [matDatepicker]="warrantyPicker" formControlName="warrantyExpiryDate" data-testid="asset-warranty" />
+      <mat-datepicker-toggle matIconSuffix [for]="warrantyPicker"></mat-datepicker-toggle>
+      <mat-datepicker #warrantyPicker></mat-datepicker>
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="submit" data-testid="create-asset">Create Asset</button>
+  </form>
+</div>

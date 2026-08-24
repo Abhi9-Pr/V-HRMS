@@ -1,0 +1,50 @@
+<div class="handover-page">
+  <h1>Assignment Handover</h1>
+
+  <mat-card>
+    <mat-card-title>Handover Signature</mat-card-title>
+    <mat-card-content>
+      <input type="file" (change)="onSignatureSelected($event)" data-testid="signature-input" />
+      @if (signatureReference()) {
+        <p data-testid="signature-reference">Captured: {{ signatureReference() }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-title>Condition Report</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="conditionReportForm" (ngSubmit)="recordCondition()">
+        <mat-form-field appearance="outline">
+          <mat-label>Rating</mat-label>
+          <mat-select formControlName="rating" data-testid="condition-rating">
+            @for (option of ratingOptions; track option) {
+              <mat-option [value]="option">{{ ratingLabel(option) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Notes</mat-label>
+          <input matInput formControlName="notes" data-testid="condition-notes" />
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="submit" data-testid="record-condition">Record Condition</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-title>Return Asset</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="returnForm" (ngSubmit)="returnAsset()">
+        <mat-form-field appearance="outline">
+          <mat-label>Condition</mat-label>
+          <input matInput formControlName="condition" data-testid="return-condition" />
+        </mat-form-field>
+
+        <button mat-flat-button color="accent" type="submit" data-testid="return-asset">Return Asset</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

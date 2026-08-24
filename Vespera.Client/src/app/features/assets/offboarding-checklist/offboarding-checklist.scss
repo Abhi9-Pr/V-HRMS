@@ -1,0 +1,17 @@
+.checklist-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.complete {
+  text-decoration: line-through;
+  opacity: 0.6;
+}

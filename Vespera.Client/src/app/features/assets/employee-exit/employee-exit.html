@@ -1,0 +1,35 @@
+<div class="employee-exit-page">
+  <h1>Record Employee Exit</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <mat-form-field appearance="outline">
+      <mat-label>Employee ID</mat-label>
+      <input matInput formControlName="employeeId" data-testid="exit-employee-id" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Exit date</mat-label>
+      <input matInput [matDatepicker]="exitPicker" formControlName="exitDate" data-testid="exit-date" />
+      <mat-datepicker-toggle matIconSuffix [for]="exitPicker"></mat-datepicker-toggle>
+      <mat-datepicker #exitPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Reason</mat-label>
+      <mat-select formControlName="reason" data-testid="exit-reason">
+        @for (option of reasonOptions; track option) {
+          <mat-option [value]="option">{{ reasonLabel(option) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-flat-button color="warn" type="submit" data-testid="exit-submit">Record Exit</button>
+  </form>
+
+  @if (success()) {
+    <p class="success" data-testid="exit-success">{{ success() }}</p>
+  }
+  @if (error()) {
+    <p class="error" data-testid="exit-error">{{ error() }}</p>
+  }
+</div>
