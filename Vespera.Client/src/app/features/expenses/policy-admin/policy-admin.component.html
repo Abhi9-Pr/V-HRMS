@@ -1,0 +1,69 @@
+<h1 class="mb-4 text-xl font-semibold">Expense policies</h1>
+
+<h2 class="mb-2 text-lg font-medium">New policy</h2>
+<form [formGroup]="form" (ngSubmit)="createPolicy()" class="mb-6 flex flex-col gap-1">
+  <mat-form-field appearance="outline">
+    <mat-label>Category</mat-label>
+    <input matInput formControlName="category" />
+  </mat-form-field>
+  <vespera-form-error [control]="form.controls.category" />
+
+  <mat-form-field appearance="outline">
+    <mat-label>Currency</mat-label>
+    <mat-select formControlName="currency">
+      @for (currency of currencies; track currency) {
+        <mat-option [value]="currency">{{ currencyLabel(currency) }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Max amount per claim</mat-label>
+    <input matInput type="number" formControlName="maxAmountPerClaim" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Cap severity</mat-label>
+    <mat-select formControlName="maxAmountSeverity">
+      @for (severity of severities; track severity) {
+        <mat-option [value]="severity">{{ severityLabel(severity) }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Receipt required above amount</mat-label>
+    <input matInput type="number" formControlName="receiptRequiredAboveAmount" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Receipt-required severity</mat-label>
+    <mat-select formControlName="receiptRequiredSeverity">
+      @for (severity of severities; track severity) {
+        <mat-option [value]="severity">{{ severityLabel(severity) }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (saveError()) {
+    <p class="text-sm text-danger" role="alert">{{ saveError() }}</p>
+  }
+
+  <div>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">Create policy</button>
+  </div>
+</form>
+
+<h2 class="mb-2 text-lg font-medium">Existing policies</h2>
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else {
+  <vespera-data-table
+    [columns]="columns"
+    [rows]="policies()"
+    [totalCount]="totalCount()"
+    [loading]="loading()"
+    emptyLabel="No expense policies configured yet."
+    (queryChange)="onQueryChange($event)"
+  />
+}

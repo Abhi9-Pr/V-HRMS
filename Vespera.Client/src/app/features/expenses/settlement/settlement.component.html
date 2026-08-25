@@ -1,0 +1,26 @@
+<h1 class="mb-4 text-xl font-semibold">Settle an expense claim</h1>
+
+<form [formGroup]="form" (ngSubmit)="settle()" class="flex max-w-md flex-col gap-1">
+  <mat-form-field appearance="outline">
+    <mat-label>Expense claim id</mat-label>
+    <input matInput formControlName="expenseClaimId" />
+  </mat-form-field>
+  <vespera-form-error [control]="form.controls.expenseClaimId" />
+
+  <mat-form-field appearance="outline">
+    <mat-label>Payroll run id</mat-label>
+    <input matInput formControlName="payrollRunId" />
+  </mat-form-field>
+  <vespera-form-error [control]="form.controls.payrollRunId" />
+
+  @if (error()) {
+    <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+  }
+  @if (settled()) {
+    <p class="text-sm text-success" role="status">Claim settled — it now carries a reimbursement line on that payroll run.</p>
+  }
+
+  <div>
+    <button mat-flat-button color="primary" type="submit" [disabled]="settling()">Settle</button>
+  </div>
+</form>

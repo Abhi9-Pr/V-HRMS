@@ -1,0 +1,137 @@
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else if (loading() && !claim()) {
+  <vespera-loading-state title="Loading claim…" />
+} @else if (claim()) {
+  @let currentClaim = claim()!;
+  <div class="mb-4 flex items-center justify-between">
+    <h1 class="text-xl font-semibold">Expense claim</h1>
+    <span class="text-sm font-medium">{{ statusLabel(currentClaim.status!) }}</span>
+  </div>
+
+  <p class="mb-4 text-sm">
+    Total: {{ currentClaim.total | vesperaCurrency: currencyLabel(currentClaim.settlementCurrency!) }}
+  </p>
+
+  <h2 class="mb-2 text-lg font-medium">Lines</h2>
+  @if (!currentClaim.lines || currentClaim.lines.length === 0) {
+    <p class="mb-4 text-sm text-text-muted">No lines yet — add one below.</p>
+  } @else {
+    <table class="mb-4 w-full text-sm">
+      <thead>
+        <tr class="text-left">
+          <th class="pb-1">Category</th>
+          <th class="pb-1">Amount</th>
+          <th class="pb-1">Date</th>
+          <th class="pb-1">Vendor</th>
+          <th class="pb-1">Receipt</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (line of currentClaim.lines; track line.id) {
+          <tr>
+            <td class="py-1">{{ line.category }}</td>
+            <td class="py-1">{{ line.amount | vesperaCurrency: currencyLabel(line.currency!) }}</td>
+            <td class="py-1">{{ line.expenseDate | vesperaDate: { dateStyle: 'medium' } }}</td>
+            <td class="py-1">{{ line.vendor || '—' }}</td>
+            <td class="py-1">{{ line.receiptReference ? 'Attached' : '—' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <div *vesperaHasPermission="Permissions.Expenses.Submit">
+    <p class="mb-1 text-sm font-medium">Attach a receipt (optional — pre-fills the fields below)</p>
+    <vespera-file-uploader (filesSelected)="onFilesSelected($event)" />
+  </div>
+
+  @if (uploading()) {
+    <p class="mt-2 text-sm text-text-muted">Uploading and reading the receipt…</p>
+  }
+  @if (uploadError()) {
+    <p class="mt-2 text-sm text-danger" role="alert">{{ uploadError() }}</p>
+  }
+  @if (ocrConfidence() !== null) {
+    <p class="mt-2 text-sm text-text-muted">
+      Suggestions pre-filled below (confidence {{ (ocrConfidence()! * 100).toFixed(0) }}%) — review and edit before adding the line.
+    </p>
+  }
+
+  <h2 class="mb-2 mt-4 text-lg font-medium">Add line</h2>
+  <form [formGroup]="lineForm" (ngSubmit)="addLine()" class="flex flex-col gap-1">
+    <mat-form-field appearance="outline">
+      <mat-label>Category</mat-label>
+      <input matInput formControlName="category" />
+    </mat-form-field>
+    <vespera-form-error [control]="lineForm.controls.category" />
+
+    <mat-form-field appearance="outline">
+      <mat-label>Amount</mat-label>
+      <input matInput type="number" formControlName="amount" />
+    </mat-form-field>
+    <vespera-form-error [control]="lineForm.controls.amount" />
+
+    <mat-form-field appearance="outline">
+      <mat-label>Currency</mat-label>
+      <mat-select formControlName="currency">
+        @for (currency of currencies; track currency) {
+          <mat-option [value]="currency">{{ currencyLabel(currency) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Expense date</mat-label>
+      <input matInput [matDatepicker]="expenseDatePicker" formControlName="expenseDate" />
+      <mat-datepicker-toggle matIconSuffix [for]="expenseDatePicker" />
+      <mat-datepicker #expenseDatePicker />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Vendor</mat-label>
+      <input matInput formControlName="vendor" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tax amount</mat-label>
+      <input matInput type="number" formControlName="taxAmount" />
+    </mat-form-field>
+
+    @if (addLineError()) {
+      <p class="text-sm text-danger" role="alert">{{ addLineError() }}</p>
+    }
+
+    <div>
+      <vespera-permission-button
+        [permission]="Permissions.Expenses.Submit"
+        variant="stroked"
+        [disabled]="addingLine()"
+        (clicked)="addLine()"
+      >
+        Add line
+      </vespera-permission-button>
+    </div>
+  </form>
+
+  <div class="mt-6">
+    @if (submitWarnings().length > 0) {
+      <ul class="mb-2 text-sm text-warning">
+        @for (warning of submitWarnings(); track warning) {
+          <li>{{ warning }}</li>
+        }
+      </ul>
+    }
+    @if (submitError()) {
+      <p class="mb-2 text-sm text-danger" role="alert">{{ submitError() }}</p>
+    }
+    <vespera-permission-button
+      [permission]="Permissions.Expenses.Submit"
+      variant="flat"
+      [disabled]="submitting() || !currentClaim.lines || currentClaim.lines.length === 0"
+      (clicked)="submitClaim()"
+    >
+      Submit for approval
+    </vespera-permission-button>
+  </div>
+}

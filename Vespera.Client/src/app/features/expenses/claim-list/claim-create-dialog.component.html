@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>New expense claim</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="flex flex-col gap-1">
+    <mat-form-field appearance="outline">
+      <mat-label>Settlement currency</mat-label>
+      <mat-select formControlName="settlementCurrency">
+        @for (currency of currencies; track currency) {
+          <mat-option [value]="currency">{{ currencyLabel(currency) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (error()) {
+      <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancel()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">Create</button>
+  </mat-dialog-actions>
+</form>

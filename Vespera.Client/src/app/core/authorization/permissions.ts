@@ -22,6 +22,12 @@ export const Permissions = {
     Read: 'Departments.Read',
     Manage: 'Departments.Manage',
   },
+  Expenses: {
+    Submit: 'Expenses.Submit',
+    Approve: 'Expenses.Approve',
+    ManagePolicy: 'Expenses.ManagePolicy',
+    Settle: 'Expenses.Settle',
+  },
   Users: {
     Manage: 'Users.Manage',
   },
