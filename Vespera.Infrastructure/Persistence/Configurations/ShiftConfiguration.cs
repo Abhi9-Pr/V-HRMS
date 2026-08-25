@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vespera.Domain.Attendance;
 
@@ -13,9 +12,10 @@ public sealed class ShiftConfiguration : TenantScopedEntityConfiguration<Shift, 
             .HasConversion(id => id.Value, value => new ShiftId(value))
             .ValueGeneratedNever();
 
-        builder.Property(e => e.Name).IsRequired().HasMaxLength(128);
+        builder.Property(e => e.Name).IsRequired().HasMaxLength(200);
         builder.Property(e => e.StartTime).IsRequired();
         builder.Property(e => e.EndTime).IsRequired();
         builder.Property(e => e.GraceMinutes).IsRequired();
+        builder.Property(e => e.BreakMinutes).IsRequired();
     }
 }

@@ -18,6 +18,9 @@
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
+    <!-- Bulk employee import (M7): CSV/Excel parsing lives at this layer, not Application -->
+    <PackageReference Include="CsvHelper" />
+    <PackageReference Include="ClosedXML" />
   </ItemGroup>
 
   <!--

@@ -1,0 +1,43 @@
+/**
+ * Design tokens — single source of truth for color/spacing/type/elevation. Tailwind's
+ * `theme.extend` (tailwind.config.js) and every hand-written component read these custom
+ * properties instead of a literal value. See docs/CONTRIBUTING-frontend.md.
+ *
+ * Angular Material's own M3 theme (material-theme.scss) is generated once from these same hex
+ * values — Sass and CSS custom properties can't share values across that boundary, so the two
+ * palettes are kept in sync by hand when a token color changes (documented, not automated).
+ */
+:root {
+  --vespera-color-primary: #4f46e5;
+  --vespera-color-primary-hover: #4338ca;
+  --vespera-color-surface: #ffffff;
+  --vespera-color-surface-alt: #f8fafc;
+  --vespera-color-border: #e2e8f0;
+  --vespera-color-text: #0f172a;
+  --vespera-color-text-muted: #64748b;
+  --vespera-color-danger: #dc2626;
+  --vespera-color-warning: #d97706;
+  --vespera-color-success: #16a34a;
+
+  --vespera-space-1: 4px;
+  --vespera-space-2: 8px;
+  --vespera-space-3: 12px;
+  --vespera-space-4: 16px;
+  --vespera-space-6: 24px;
+  --vespera-space-8: 32px;
+  --vespera-space-12: 48px;
+  --vespera-space-16: 64px;
+
+  --vespera-font-family:
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --vespera-font-size-xs: 0.75rem;
+  --vespera-font-size-sm: 0.875rem;
+  --vespera-font-size-base: 1rem;
+  --vespera-font-size-lg: 1.125rem;
+  --vespera-font-size-xl: 1.5rem;
+  --vespera-font-size-2xl: 2rem;
+
+  --vespera-elevation-1: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --vespera-elevation-2: 0 2px 8px rgba(15, 23, 42, 0.12);
+  --vespera-elevation-3: 0 8px 24px rgba(15, 23, 42, 0.16);
+}

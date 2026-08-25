@@ -35,6 +35,14 @@
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="8.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+    <!-- Infrastructure: EIS document handling (OCR, bulk import parsing) -->
+    <PackageVersion Include="Tesseract" Version="5.2.0" />
+    <PackageVersion Include="Azure.AI.DocumentIntelligence" Version="1.0.0" />
+    <PackageVersion Include="CsvHelper" Version="33.0.1" />
+    <PackageVersion Include="ClosedXML" Version="0.104.2" />
+    <!-- Attendance: DST-correct timezone conversion -->
+    <PackageVersion Include="NodaTime" Version="3.2.0" />
+    <PackageVersion Include="NodaTime.Testing" Version="3.2.0" />
     <!-- Test infrastructure (all test projects) -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.9.0" />

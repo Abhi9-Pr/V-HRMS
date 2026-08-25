@@ -84,6 +84,14 @@ public sealed class Employee : AuditableTenantAggregateRoot<EmployeeId>
 
     public EmployeeExitReason? ExitReason { get; private set; }
 
+    public Money? CurrentAnnualCtc { get; private set; }
+
+    /// <summary>The raw user id configured on a biometric device for this employee — not
+    /// necessarily related to any other identifier this system assigns. Null until an HR admin
+    /// maps the device-side id to this employee, either up front or retroactively via a
+    /// <c>QuarantinedBiometricPunch</c>.</summary>
+    public string? BiometricDeviceUserId { get; private set; }
+
     public IReadOnlyCollection<EmploymentHistory> EmploymentHistory => _employmentHistory.AsReadOnly();
 
     public IReadOnlyCollection<EmployeeDocument> Documents => _documents.AsReadOnly();
@@ -154,6 +162,41 @@ public sealed class Employee : AuditableTenantAggregateRoot<EmployeeId>
         return Result.Success();
     }
 
+    public Result UpdateCompensation(Money? annualCtc, DateTimeOffset occurredOn, string modifiedBy)
+    {
+        CurrentAnnualCtc = annualCtc;
+        Touch(occurredOn, modifiedBy);
+        return Result.Success();
+    }
+
+    public Result UpdatePersonalDetails(
+        string firstName, string lastName, EmailAddress workEmail, PhoneNumber phone, DateTimeOffset occurredOn, string modifiedBy)
+    {
+        if (string.IsNullOrWhiteSpace(firstName))
+        {
+            return Result.Failure(Error.Validation("employee.first_name_required", "First name is required."));
+        }
+
+        if (string.IsNullOrWhiteSpace(lastName))
+        {
+            return Result.Failure(Error.Validation("employee.last_name_required", "Last name is required."));
+        }
+
+        FirstName = firstName.Trim();
+        LastName = lastName.Trim();
+        WorkEmail = workEmail;
+        Phone = phone;
+        Touch(occurredOn, modifiedBy);
+        return Result.Success();
+    }
+
+    public Result AssignBiometricDeviceUserId(string? deviceUserId, DateTimeOffset occurredOn, string modifiedBy)
+    {
+        BiometricDeviceUserId = string.IsNullOrWhiteSpace(deviceUserId) ? null : deviceUserId.Trim();
+        Touch(occurredOn, modifiedBy);
+        return Result.Success();
+    }
+
     public EmployeeDocument AddDocument(EmployeeDocumentType documentType, string fileReference, DateTimeOffset uploadedAt)
     {
         var document = new EmployeeDocument(EmployeeDocumentId.New(), documentType, fileReference, uploadedAt);
@@ -161,10 +204,32 @@ public sealed class Employee : AuditableTenantAggregateRoot<EmployeeId>
         return document;
     }
 
+    public Result RemoveDocument(EmployeeDocumentId documentId)
+    {
+        var document = _documents.FirstOrDefault(d => d.Id == documentId);
+        if (document is null)
+        {
+            return Result.Failure(Error.NotFound("employee_document.not_found", "Document not found."));
+        }
+
+        _documents.Remove(document);
+        return Result.Success();
+    }
+
     public ConsentRecord RecordConsent(ConsentType consentType, DateTimeOffset grantedAt)
     {
         var consent = new ConsentRecord(ConsentRecordId.New(), consentType, grantedAt);
         _consentRecords.Add(consent);
         return consent;
+    }
+
+    /// <summary>Hands an <see cref="OnboardingDraft"/>'s already-built documents/consents to the
+    /// newly-converted employee, preserving whatever scan/OCR/verification state they
+    /// accumulated during the draft phase rather than re-creating them from scratch. Only
+    /// <see cref="OnboardingDraft.ConvertToEmployee"/> calls this.</summary>
+    internal void AttachOnboardingArtifacts(IReadOnlyCollection<EmployeeDocument> documents, IReadOnlyCollection<ConsentRecord> consentRecords)
+    {
+        _documents.AddRange(documents);
+        _consentRecords.AddRange(consentRecords);
     }
 }

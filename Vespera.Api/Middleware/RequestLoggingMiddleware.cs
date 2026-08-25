@@ -23,13 +23,20 @@ public sealed class RequestLoggingMiddleware
         _logger = logger;
     }
 
-    public async Task InvokeAsync(HttpContext context, ITenantContext tenantContext)
+    // Deliberately NOT an ITenantContext parameter here: this middleware runs before
+    // UseAuthentication(), and ASP.NET Core resolves every InvokeAsync parameter before the
+    // method body runs (i.e. before next() is even called) — that would permanently freeze the
+    // scoped ITenantContext as unauthenticated for the rest of the request. Resolving it manually
+    // after next() has completed is what makes it see the real, authenticated tenant — see the
+    // CAUTION note on HttpTenantContext.
+    public async Task InvokeAsync(HttpContext context)
     {
         var stopwatch = Stopwatch.StartNew();
 
         await _next(context);
 
         stopwatch.Stop();
+        var tenantContext = context.RequestServices.GetRequiredService<ITenantContext>();
         var tenantId = tenantContext.HasTenant ? tenantContext.TenantId.Value.ToString() : null;
 
         LogRequest(

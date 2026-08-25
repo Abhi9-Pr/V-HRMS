@@ -13,6 +13,18 @@ namespace Vespera.Infrastructure.Identity;
 /// before any credential has been verified. Outside an HTTP request (background jobs),
 /// <see cref="HasTenant"/> is always false — by design, since those flows either don't touch
 /// tenant-scoped data or use <c>IReadRepositoryAdmin{T}</c> to cross tenants deliberately.
+///
+/// CAUTION: this reads <c>HttpContext.User</c> once, in the constructor, and never again — it is
+/// only correct if nothing resolves <c>ITenantContext</c> (directly or transitively) before
+/// <c>UseAuthentication()</c> has run for the request. A middleware registered earlier in the
+/// pipeline that takes <c>ITenantContext</c> as an <c>InvokeAsync</c> *parameter* would trigger
+/// that resolution too early — ASP.NET Core resolves all of a middleware's extra parameters
+/// before its body runs, i.e. before that middleware even calls <c>next()</c> — silently freezing
+/// this instance as unauthenticated for the rest of the request's DI scope. If a middleware
+/// genuinely needs the tenant *after* the pipeline has run (e.g. for a post-request log line), it
+/// must resolve it explicitly via <c>context.RequestServices.GetRequiredService&lt;ITenantContext&gt;()</c>
+/// after <c>await next(context)</c>, not as an <c>InvokeAsync</c> parameter — see
+/// RequestLoggingMiddleware for the fixed pattern.
 /// </summary>
 public sealed class HttpTenantContext : ITenantContext
 {

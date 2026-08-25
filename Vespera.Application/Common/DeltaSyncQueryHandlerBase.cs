@@ -29,11 +29,18 @@ public abstract class DeltaSyncQueryHandlerBase<TRequest, TEntity, TDto> : IRequ
     /// <summary>Extracts the paging/since cursor from the concrete request DTO.</summary>
     protected abstract DeltaSyncRequest GetDeltaSyncRequest(TRequest request);
 
-    /// <summary>Builds the "changed since, tenant-scoped, page-sized, IgnoreQueryFilters-for-soft-deleted"
-    /// specification — soft-deleted rows must still be returned (as tombstones), so a concrete
-    /// implementation typically needs <c>IReadRepositoryAdmin{TEntity}</c> rather than this base's
-    /// injected <c>IReadRepository{TEntity}</c> if tombstones are required; see the interface docs.</summary>
-    protected abstract ISpecification<TEntity> BuildSpecification(TRequest request, DeltaSyncRequest deltaSync);
+    /// <summary>Builds the "tenant-scoped (plus whatever else identifies the caller's own record
+    /// set), IgnoreQueryFilters-for-soft-deleted" specification — soft-deleted rows must still be
+    /// returned (as tombstones), so a concrete implementation typically needs
+    /// <c>IReadRepositoryAdmin{TEntity}</c> rather than this base's injected
+    /// <c>IReadRepository{TEntity}</c> if tombstones are required; see the interface docs.
+    /// Deliberately does NOT filter on <see cref="DeltaSyncRequest.Since"/>, and does not set the
+    /// specification's own <c>Paging</c>/<c>OrderBy</c> — see <see cref="Handle"/>'s comment on why
+    /// the since-cutoff, ordering, and paging all happen in memory here, not in SQL. Async so a
+    /// concrete handler can resolve request-scoped context (e.g. "which entity id does the calling
+    /// user's own record correspond to") via a repository call before building the specification's
+    /// criteria.</summary>
+    protected abstract Task<ISpecification<TEntity>> BuildSpecification(TRequest request, DeltaSyncRequest deltaSync, CancellationToken cancellationToken);
 
     protected abstract Guid GetId(TEntity entity);
 
@@ -44,15 +51,26 @@ public abstract class DeltaSyncQueryHandlerBase<TRequest, TEntity, TDto> : IRequ
     public async Task<Result<DeltaSyncResult<TDto>>> Handle(TRequest request, CancellationToken cancellationToken)
     {
         var deltaSync = GetDeltaSyncRequest(request);
-        var specification = BuildSpecification(request, deltaSync);
+        var specification = await BuildSpecification(request, deltaSync, cancellationToken);
 
         var entities = await _repository.ListAsync(specification, cancellationToken);
 
-        var upserts = entities.Where(e => !e.IsDeleted).Select(MapToDto).ToList();
-        var tombstonedIds = entities.Where(e => e.IsDeleted).Select(GetId).ToList();
+        // Filtered by the since-cutoff, ordered, and paged here, in memory, rather than via the
+        // specification's own Criteria/OrderBy/Paging — every concrete handler already supplies
+        // GetLastChanged, so comparing/sorting on it in LINQ-to-objects is free of any provider-
+        // specific SQL-translation risk (this codebase's test/dev-fallback provider can't translate
+        // a WHERE or ORDER BY expression over a DateTimeOffset column at all). The entity set a
+        // delta-sync query matches (one caller's own records) is small enough that fetching the
+        // whole set unfiltered-by-date and slicing in memory is the safer choice.
+        var changedSince = entities.Where(e => GetLastChanged(e) > deltaSync.Since);
+        var ordered = changedSince.OrderBy(GetLastChanged).ToList();
+        var page = ordered.Take(deltaSync.PageSize).ToList();
 
-        var hasMore = entities.Count >= deltaSync.PageSize;
-        var nextCursor = hasMore ? GetLastChanged(entities[^1]).ToString("O") : null;
+        var upserts = page.Where(e => !e.IsDeleted).Select(MapToDto).ToList();
+        var tombstonedIds = page.Where(e => e.IsDeleted).Select(GetId).ToList();
+
+        var hasMore = ordered.Count > page.Count;
+        var nextCursor = hasMore ? GetLastChanged(page[^1]).ToString("O") : null;
 
         return Result.Success(new DeltaSyncResult<TDto>(upserts, tombstonedIds, _dateTimeProvider.UtcNow, nextCursor));
     }

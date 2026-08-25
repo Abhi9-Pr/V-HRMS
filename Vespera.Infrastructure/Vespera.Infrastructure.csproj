@@ -24,6 +24,9 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="Tesseract" />
+    <PackageReference Include="Azure.AI.DocumentIntelligence" />
+    <PackageReference Include="NodaTime" />
   </ItemGroup>
 
   <ItemGroup>

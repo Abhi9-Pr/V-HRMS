@@ -77,12 +77,41 @@ public static class DevelopmentSeeder
         hrRole.Grant(Find(Permissions.Employees.Write).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Departments.Read).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Departments.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Designations.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Designations.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Locations.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Locations.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.EmployeeDocuments.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.EmployeeDocuments.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.ReportingRelationships.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.ReportingRelationships.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.OrgChart.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Onboarding.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Onboarding.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.EmployeeImport.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Offboarding.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Offboarding.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Shifts.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Shifts.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.RotationPatterns.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.RotationPatterns.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Holidays.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Holidays.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Rosters.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Rosters.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Rosters.Publish).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Attendance.ManageTeam).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Regularizations.Approve).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Regularizations.ReadTeam).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.BiometricDevices.Manage).Id, now, createdBy);
 
         managerRole.Grant(Find(Permissions.Employees.Read).Id, now, createdBy);
         managerRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
 
         employeeRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Regularizations.Request).Id, now, createdBy);
 
         var financeRole = Role.Create(tid, "Finance", now, createdBy).Value;
         financeRole.Grant(Find(Permissions.Finance.Admin).Id, now, createdBy);

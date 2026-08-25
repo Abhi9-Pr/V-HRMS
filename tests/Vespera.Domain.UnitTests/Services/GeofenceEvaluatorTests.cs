@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using Vespera.Domain.Attendance;
 using Vespera.Domain.Common;
+using Vespera.Domain.Eis;
 using Vespera.Domain.Services;
 using Vespera.Domain.ValueObjects;
 
@@ -49,6 +50,6 @@ public class GeofenceEvaluatorTests
     private static GeofenceZone CreateZone(double radiusMetres)
     {
         var center = GeoCoordinate.Create(12.9716, 77.5946).Value;
-        return GeofenceZone.Create(TenantId.New(), "HQ", center, radiusMetres, Now, "admin@vespera.test").Value;
+        return GeofenceZone.Create(TenantId.New(), LocationId.New(), "HQ", center, radiusMetres, Now, "admin@vespera.test").Value;
     }
 }

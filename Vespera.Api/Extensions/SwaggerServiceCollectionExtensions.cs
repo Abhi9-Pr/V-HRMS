@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi.Models;
 
 namespace Vespera.Api.Extensions;
@@ -11,6 +12,12 @@ public static class SwaggerServiceCollectionExtensions
         builder.Services.AddSwaggerGen(options =>
         {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "Vespera HRMS API", Version = "v1" });
+
+            // Without an explicit operationId, NSwag falls back to "{route-segment}{HTTPMETHOD}"
+            // (e.g. "departmentsGET2") for the generated TypeScript client — the action's own
+            // method name is already a good, unique-per-controller identifier.
+            options.CustomOperationIds(description =>
+                description.ActionDescriptor is ControllerActionDescriptor controllerAction ? controllerAction.MethodInfo.Name : null);
 
             var xmlPath = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
             if (File.Exists(xmlPath))

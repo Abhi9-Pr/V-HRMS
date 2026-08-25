@@ -2,10 +2,12 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Vespera.Application.Abstractions.Services;
 using Vespera.Domain.IdentityAccess;
 using Vespera.Infrastructure.Persistence;
 using Vespera.Infrastructure.Persistence.Seed;
@@ -29,6 +31,13 @@ public sealed class VesperaWebApplicationFactory : WebApplicationFactory<Program
         builder.UseEnvironment("IntegrationTesting");
         builder.ConfigureAppConfiguration((_, configBuilder) => configBuilder.AddInMemoryCollection(
             new Dictionary<string, string?> { ["Vespera:Database:Fallback:DatabaseFileName"] = _databaseFileName }));
+
+        // Neither real OCR adapter (TesseractDocumentOcrService needs native binaries + a
+        // .traineddata file on disk; AzureDocumentIntelligenceOcrService needs a real Azure
+        // endpoint) can run in CI — swap in a canned fake so tests can exercise the onboarding
+        // OCR-extract/confirm flow over real HTTP without either dependency.
+        builder.ConfigureTestServices(services =>
+            services.AddScoped<IDocumentOcrService, FakeDocumentOcrService>());
     }
 
     public async Task<Guid> GetDemoTenantIdAsync()
@@ -49,7 +58,11 @@ public sealed class VesperaWebApplicationFactory : WebApplicationFactory<Program
     }
 
     /// <summary>Logs in as a seeded demo user via the real /api/v1/auth/login endpoint and
-    /// returns a client with the resulting bearer token attached.</summary>
+    /// returns a client with the resulting bearer token attached — and the header removed, so
+    /// every subsequent request genuinely exercises the JWT-only authenticated path a real
+    /// client uses post-login (see HttpTenantContext's own doc comment: the header is a
+    /// pre-auth-only fallback, and leaving it on every request here would silently mask a bug in
+    /// that JWT-only path, which it once did).</summary>
     public async Task<(HttpClient Client, LoginResponse Login)> CreateAuthenticatedClientAsync(
         string email, string password, string deviceId, string? totpCode = null)
     {
@@ -62,6 +75,7 @@ public sealed class VesperaWebApplicationFactory : WebApplicationFactory<Program
         var login = await response.Content.ReadFromJsonAsync<LoginResponse>()
             ?? throw new InvalidOperationException("Login did not return a body.");
 
+        client.DefaultRequestHeaders.Remove("X-Tenant-Id");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
         return (client, login);
     }
@@ -103,3 +117,12 @@ public sealed class VesperaWebApplicationFactory : WebApplicationFactory<Program
 }
 
 public sealed record LoginResponse(string AccessToken, string RefreshToken, DateTimeOffset AccessTokenExpiresAt);
+
+/// <summary>Canned <see cref="IDocumentOcrService"/> for the IntegrationTesting environment —
+/// see <see cref="VesperaWebApplicationFactory.ConfigureWebHost"/>.</summary>
+public sealed class FakeDocumentOcrService : IDocumentOcrService
+{
+    public Task<OcrResult> ExtractAsync(Stream document, CancellationToken cancellationToken) =>
+        Task.FromResult(new OcrResult(
+            "FAKE OCR TEXT", new Dictionary<string, string> { ["firstName"] = "OcrSuggested" }, 0.9));
+}

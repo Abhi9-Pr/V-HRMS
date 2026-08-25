@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>{{ data.mode === 'create' ? 'New department' : 'Edit department' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="flex flex-col gap-1">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+    <vespera-form-error [control]="form.controls.name" />
+
+    <mat-form-field appearance="outline">
+      <mat-label>Code</mat-label>
+      <input matInput formControlName="code" />
+    </mat-form-field>
+    <vespera-form-error [control]="form.controls.code" />
+
+    <mat-form-field appearance="outline">
+      <mat-label>Parent department</mat-label>
+      <mat-select formControlName="parentDepartmentId">
+        <mat-option [value]="null">None</mat-option>
+        @for (parent of availableParents; track parent.id) {
+          <mat-option [value]="parent.id">{{ parent.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (error()) {
+      <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancel()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">Save</button>
+  </mat-dialog-actions>
+</form>

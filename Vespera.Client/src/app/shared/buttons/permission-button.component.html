@@ -1,0 +1,21 @@
+<ng-template #content><ng-content /></ng-template>
+
+@if (allowed()) {
+  @switch (variant) {
+    @case ('flat') {
+      <button mat-flat-button [color]="color" [disabled]="disabled" (click)="clicked.emit()">
+        <ng-container *ngTemplateOutlet="content" />
+      </button>
+    }
+    @case ('icon') {
+      <button mat-icon-button [color]="color" [disabled]="disabled" (click)="clicked.emit()">
+        <ng-container *ngTemplateOutlet="content" />
+      </button>
+    }
+    @default {
+      <button mat-stroked-button [color]="color" [disabled]="disabled" (click)="clicked.emit()">
+        <ng-container *ngTemplateOutlet="content" />
+      </button>
+    }
+  }
+}

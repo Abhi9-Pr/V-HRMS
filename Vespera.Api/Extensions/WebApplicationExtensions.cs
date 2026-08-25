@@ -35,14 +35,17 @@ public static class WebApplicationExtensions
         app.MapControllers();
         app.MapHub<NotificationHub>("/hubs/notifications");
 
-        app.MapGet("/health/live", () => Results.Ok(new { status = "ok" }));
+        // Excluded from the OpenAPI doc (and so from the generated TypeScript client) — these are
+        // operational endpoints, not part of the versioned API surface a feature client calls.
+        app.MapGet("/health/live", () => Results.Ok(new { status = "ok" })).ExcludeFromDescription();
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
         {
             Predicate = check => check.Tags.Contains("ready"),
             ResponseWriter = WriteHealthCheckResponseAsync,
-        });
+        }).ExcludeFromDescription();
 
-        app.MapGet("/version", () => Results.Ok(new { version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown" }));
+        app.MapGet("/version", () => Results.Ok(new { version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown" }))
+            .ExcludeFromDescription();
 
         if (app.Environment.IsDevelopment())
         {

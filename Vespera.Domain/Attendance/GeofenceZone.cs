@@ -1,4 +1,5 @@
 using Vespera.Domain.Common;
+using Vespera.Domain.Eis;
 using Vespera.Domain.ValueObjects;
 
 namespace Vespera.Domain.Attendance;
@@ -11,14 +12,21 @@ public readonly record struct GeofenceZoneId(Guid Value)
 public sealed class GeofenceZone : AuditableTenantAggregateRoot<GeofenceZoneId>
 {
     private GeofenceZone(
-        GeofenceZoneId id, TenantId tenantId, string name, GeoCoordinate center, double radiusMetres,
-        DateTimeOffset createdAt, string createdBy)
+        GeofenceZoneId id, TenantId tenantId, LocationId locationId, string name, GeoCoordinate center,
+        double radiusMetres, DateTimeOffset createdAt, string createdBy)
         : base(id, tenantId, createdAt, createdBy)
     {
+        LocationId = locationId;
         Name = name;
         Center = center;
         RadiusMetres = radiusMetres;
     }
+
+    /// <summary>The location this geofence is assigned to — a punch's "assigned GeofenceZone" is
+    /// resolved via the punching employee's own <c>Employee.LocationId</c>. Set only at creation;
+    /// reassigning a geofence to a different location is a delete-and-recreate, not a move
+    /// (moving the zone's own coordinates is <see cref="Relocate"/>).</summary>
+    public LocationId LocationId { get; }
 
     public string Name { get; private set; }
 
@@ -27,7 +35,8 @@ public sealed class GeofenceZone : AuditableTenantAggregateRoot<GeofenceZoneId>
     public double RadiusMetres { get; private set; }
 
     public static Result<GeofenceZone> Create(
-        TenantId tenantId, string name, GeoCoordinate center, double radiusMetres, DateTimeOffset occurredOn, string createdBy)
+        TenantId tenantId, LocationId locationId, string name, GeoCoordinate center, double radiusMetres,
+        DateTimeOffset occurredOn, string createdBy)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -39,7 +48,7 @@ public sealed class GeofenceZone : AuditableTenantAggregateRoot<GeofenceZoneId>
             return Result.Failure<GeofenceZone>(Error.Validation("geofence_zone.invalid_radius", "Radius must be positive."));
         }
 
-        return Result.Success(new GeofenceZone(GeofenceZoneId.New(), tenantId, name.Trim(), center, radiusMetres, occurredOn, createdBy));
+        return Result.Success(new GeofenceZone(GeofenceZoneId.New(), tenantId, locationId, name.Trim(), center, radiusMetres, occurredOn, createdBy));
     }
 
     public Result Resize(double radiusMetres, DateTimeOffset occurredOn, string modifiedBy)

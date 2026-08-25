@@ -1,3 +1,4 @@
+using Vespera.Domain.Attendance.Events;
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
 
@@ -18,13 +19,19 @@ public enum RegularizationStatus
 public sealed class RegularizationRequest : AggregateRoot<RegularizationRequestId>, ITenantScoped
 {
     private RegularizationRequest(
-        RegularizationRequestId id, TenantId tenantId, EmployeeId employeeId, AttendanceDayId attendanceDayId, string reason)
+        RegularizationRequestId id,
+        TenantId tenantId,
+        EmployeeId employeeId,
+        AttendanceDayId attendanceDayId,
+        string reason,
+        string? evidenceFileReference)
         : base(id)
     {
         TenantId = tenantId;
         EmployeeId = employeeId;
         AttendanceDayId = attendanceDayId;
         Reason = reason;
+        EvidenceFileReference = evidenceFileReference;
         Status = RegularizationStatus.Pending;
     }
 
@@ -36,6 +43,10 @@ public sealed class RegularizationRequest : AggregateRoot<RegularizationRequestI
 
     public string Reason { get; }
 
+    /// <summary>Storage key from <c>IFileStorage</c>, when the employee attached evidence at
+    /// submission time. Null when no evidence was provided — evidence is optional.</summary>
+    public string? EvidenceFileReference { get; }
+
     public RegularizationStatus Status { get; private set; }
 
     public EmployeeId? ApproverId { get; private set; }
@@ -43,7 +54,7 @@ public sealed class RegularizationRequest : AggregateRoot<RegularizationRequestI
     public string? RejectionReason { get; private set; }
 
     public static Result<RegularizationRequest> Submit(
-        TenantId tenantId, EmployeeId employeeId, AttendanceDayId attendanceDayId, string reason)
+        TenantId tenantId, EmployeeId employeeId, AttendanceDayId attendanceDayId, string reason, string? evidenceFileReference = null)
     {
         if (string.IsNullOrWhiteSpace(reason))
         {
@@ -52,10 +63,10 @@ public sealed class RegularizationRequest : AggregateRoot<RegularizationRequestI
         }
 
         return Result.Success(new RegularizationRequest(
-            RegularizationRequestId.New(), tenantId, employeeId, attendanceDayId, reason.Trim()));
+            RegularizationRequestId.New(), tenantId, employeeId, attendanceDayId, reason.Trim(), evidenceFileReference));
     }
 
-    public Result Approve(EmployeeId approverId)
+    public Result Approve(EmployeeId approverId, DateTimeOffset occurredOn)
     {
         if (Status != RegularizationStatus.Pending)
         {
@@ -64,10 +75,11 @@ public sealed class RegularizationRequest : AggregateRoot<RegularizationRequestI
 
         Status = RegularizationStatus.Approved;
         ApproverId = approverId;
+        Raise(new RegularizationApproved(Id, TenantId, EmployeeId, AttendanceDayId, occurredOn));
         return Result.Success();
     }
 
-    public Result Reject(EmployeeId approverId, string reason)
+    public Result Reject(EmployeeId approverId, string reason, DateTimeOffset occurredOn)
     {
         if (Status != RegularizationStatus.Pending)
         {
@@ -82,6 +94,7 @@ public sealed class RegularizationRequest : AggregateRoot<RegularizationRequestI
         Status = RegularizationStatus.Rejected;
         ApproverId = approverId;
         RejectionReason = reason.Trim();
+        Raise(new RegularizationRejected(Id, EmployeeId, occurredOn));
         return Result.Success();
     }
 }
