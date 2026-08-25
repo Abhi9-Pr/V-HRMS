@@ -64,7 +64,7 @@ public class AssetOffboardingFlowTests : IClassFixture<VesperaWebApplicationFact
         allocateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var exitResponse = await rohanClient.PostAsJsonAsync(
-            $"/api/v1/employees/{ananyaId}/exit", new { exitDate = new DateOnly(2026, 6, 1), reason = 0 });
+            $"/api/v1/employees/{ananyaId}/exit", new { exitDate = new DateOnly(2026, 6, 1), reason = "Resignation" });
         exitResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         await DrainOutboxAsync();

@@ -2,9 +2,9 @@ using FluentAssertions;
 using NSubstitute;
 using Vespera.Application.Abstractions.Persistence;
 using Vespera.Application.Features.Assets;
-using Vespera.Domain.Assets;
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
+using OffboardingChecklist = Vespera.Domain.Assets.OffboardingChecklist;
 
 namespace Vespera.Application.UnitTests.Features.Assets;
 

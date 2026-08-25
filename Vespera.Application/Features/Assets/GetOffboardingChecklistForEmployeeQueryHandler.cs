@@ -1,9 +1,9 @@
 using MediatR;
 using Vespera.Application.Abstractions.Identity;
 using Vespera.Application.Abstractions.Persistence;
-using Vespera.Domain.Assets;
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
+using OffboardingChecklist = Vespera.Domain.Assets.OffboardingChecklist;
 
 namespace Vespera.Application.Features.Assets;
 

@@ -8,6 +8,7 @@ using Vespera.Domain.Assets;
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
 using Vespera.Domain.Eis.Events;
+using OffboardingChecklist = Vespera.Domain.Assets.OffboardingChecklist;
 
 namespace Vespera.Application.UnitTests.Features.Assets;
 
