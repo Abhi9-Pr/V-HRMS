@@ -1,0 +1,163 @@
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else if (loading() && !ticket()) {
+  <vespera-loading-state title="Loading ticket…" />
+} @else if (ticket()) {
+  @let currentTicket = ticket()!;
+
+  <div class="mb-4 flex items-center justify-between">
+    <h1 class="text-xl font-semibold">{{ currentTicket.subject }}</h1>
+    <div class="flex items-center gap-2 text-sm">
+      <span>{{ priorityLabel(currentTicket.priority!) }}</span>
+      <span>·</span>
+      <span>{{ statusLabel(currentTicket.status!) }}</span>
+    </div>
+  </div>
+
+  <p class="mb-2 text-sm">{{ currentTicket.description }}</p>
+  <p class="mb-4 text-sm text-text-muted">
+    Due {{ currentTicket.dueAt ? (currentTicket.dueAt | vesperaDate) : '—' }}
+    @if (currentTicket.satisfactionRating !== undefined) {
+      · Satisfaction: {{ currentTicket.satisfactionRating }}/5
+    }
+  </p>
+
+  <h2 class="mb-2 text-lg font-medium">Actions</h2>
+  @if (actionError()) {
+    <p class="mb-2 text-sm text-danger" role="alert">{{ actionError() }}</p>
+  }
+
+  <div class="mb-6 flex flex-col gap-3">
+    @if (canAssign(currentTicket)) {
+      <form [formGroup]="assignForm" (ngSubmit)="assign()" class="flex items-end gap-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Employee ID</mat-label>
+          <input matInput formControlName="employeeId" />
+        </mat-form-field>
+        <vespera-permission-button
+          data-testid="assign-action"
+          [permission]="Permissions.Helpdesk.ManageTickets"
+          variant="stroked"
+          [disabled]="assigning()"
+          (clicked)="assign()"
+        >
+          Assign
+        </vespera-permission-button>
+      </form>
+      <vespera-form-error [control]="assignForm.controls.employeeId" />
+      @if (assignError()) {
+        <p class="text-sm text-danger" role="alert">{{ assignError() }}</p>
+      }
+    }
+
+    @if (canResolve(currentTicket)) {
+      <vespera-permission-button
+        data-testid="resolve-action"
+        [permission]="Permissions.Helpdesk.ManageTickets"
+        variant="flat"
+        [disabled]="actionInFlight()"
+        (clicked)="resolve()"
+      >
+        Resolve
+      </vespera-permission-button>
+    }
+
+    @if (canClose(currentTicket)) {
+      <vespera-permission-button
+        data-testid="close-action"
+        [permission]="Permissions.Helpdesk.ManageTickets"
+        variant="flat"
+        [disabled]="actionInFlight()"
+        (clicked)="close()"
+      >
+        Close
+      </vespera-permission-button>
+    }
+
+    @if (canRate(currentTicket)) {
+      <form [formGroup]="ratingForm" (ngSubmit)="rate()" class="flex items-end gap-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Rating (1-5)</mat-label>
+          <input matInput type="number" min="1" max="5" formControlName="rating" />
+        </mat-form-field>
+        <vespera-permission-button
+          data-testid="rate-satisfaction-action"
+          [permission]="Permissions.Helpdesk.RaiseTickets"
+          variant="stroked"
+          [disabled]="actionInFlight()"
+          (clicked)="rate()"
+        >
+          Rate satisfaction
+        </vespera-permission-button>
+      </form>
+    }
+  </div>
+
+  <h2 class="mb-2 text-lg font-medium">Comments</h2>
+  @if (threadedComments().length === 0) {
+    <p class="mb-4 text-sm text-text-muted">No comments yet.</p>
+  } @else {
+    <ul class="mb-4 flex flex-col gap-2">
+      @for (entry of threadedComments(); track entry.comment.id) {
+        <li [style.margin-left.px]="entry.depth * 24" class="rounded border p-2 text-sm">
+          <div class="flex items-center gap-2">
+            <span class="font-medium">{{ entry.comment.authorId }}</span>
+            @if (entry.comment.isInternal) {
+              <span class="rounded bg-warn px-1.5 py-0.5 text-xs text-white" data-testid="internal-note-badge">Internal only</span>
+            }
+            <span class="text-xs text-text-muted">{{ entry.comment.createdAt | vesperaDate: { dateStyle: 'short', timeStyle: 'short' } }}</span>
+          </div>
+          <p class="mt-1">{{ entry.comment.body }}</p>
+          @if (entry.comment.attachmentReferences && entry.comment.attachmentReferences.length > 0) {
+            <p class="mt-1 text-xs text-text-muted">{{ entry.comment.attachmentReferences.length }} attachment(s)</p>
+          }
+          <button mat-button type="button" class="mt-1" (click)="startReply(entry.comment.id!)">Reply</button>
+        </li>
+      }
+    </ul>
+  }
+
+  @if (replyingToId()) {
+    <p class="mb-1 text-sm text-text-muted">
+      Replying to a comment.
+      <button mat-button type="button" (click)="cancelReply()">Cancel</button>
+    </p>
+  }
+
+  <p class="mb-1 text-sm font-medium">Attach a file (optional)</p>
+  <vespera-file-uploader (filesSelected)="onFilesSelected($event)" />
+  @if (uploading()) {
+    <p class="mt-1 text-sm text-text-muted">Uploading…</p>
+  }
+  @if (uploadError()) {
+    <p class="mt-1 text-sm text-danger" role="alert">{{ uploadError() }}</p>
+  }
+  @if (pendingAttachmentReference()) {
+    <p class="mt-1 text-sm text-text-muted">Attachment ready — will be included with the next comment.</p>
+  }
+
+  <form [formGroup]="commentForm" (ngSubmit)="postComment()" class="mt-4 flex flex-col gap-1">
+    <mat-form-field appearance="outline">
+      <mat-label>Reply</mat-label>
+      <textarea matInput formControlName="body" rows="2"></textarea>
+    </mat-form-field>
+    <vespera-form-error [control]="commentForm.controls.body" />
+
+    <mat-checkbox formControlName="isInternal">Internal note (not visible to the requester)</mat-checkbox>
+
+    @if (commentError()) {
+      <p class="text-sm text-danger" role="alert">{{ commentError() }}</p>
+    }
+
+    <div>
+      <vespera-permission-button
+        [permission]="Permissions.Helpdesk.RaiseTickets"
+        variant="flat"
+        [disabled]="postingComment()"
+        (clicked)="postComment()"
+      >
+        Post comment
+      </vespera-permission-button>
+    </div>
+  </form>
+}

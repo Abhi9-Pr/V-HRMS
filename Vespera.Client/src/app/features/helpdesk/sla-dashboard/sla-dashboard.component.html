@@ -1,0 +1,53 @@
+<h1 class="mb-4 text-xl font-semibold">SLA compliance</h1>
+
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else if (loading()) {
+  <vespera-loading-state title="Loading report…" />
+} @else if (report()) {
+  @let currentReport = report()!;
+
+  <div class="mb-6 flex gap-6">
+    <div class="rounded border p-4">
+      <p class="text-sm text-text-muted">Overall compliance</p>
+      <p class="text-2xl font-semibold">{{ currentReport.compliancePercentage | number: '1.0-1' }}%</p>
+    </div>
+    <div class="rounded border p-4">
+      <p class="text-sm text-text-muted">Resolved or closed</p>
+      <p class="text-2xl font-semibold">{{ currentReport.totalResolvedOrClosed }}</p>
+    </div>
+    <div class="rounded border p-4">
+      <p class="text-sm text-text-muted">On time</p>
+      <p class="text-2xl font-semibold">{{ currentReport.onTimeCount }}</p>
+    </div>
+    <div class="rounded border p-4">
+      <p class="text-sm text-text-muted">Breached</p>
+      <p class="text-2xl font-semibold text-danger">{{ currentReport.breachedCount }}</p>
+    </div>
+  </div>
+
+  @if (!currentReport.byCategory || currentReport.byCategory.length === 0) {
+    <vespera-empty-state icon="assessment" title="No category data" description="No resolved or closed tickets yet." />
+  } @else {
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left">
+          <th class="pb-1">Category</th>
+          <th class="pb-1">Total</th>
+          <th class="pb-1">Breached</th>
+          <th class="pb-1">Compliance</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of currentReport.byCategory; track row.categoryId) {
+          <tr>
+            <td class="py-1">{{ row.categoryName }}</td>
+            <td class="py-1">{{ row.total }}</td>
+            <td class="py-1">{{ row.breached }}</td>
+            <td class="py-1">{{ row.compliancePercentage | number: '1.0-1' }}%</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+}

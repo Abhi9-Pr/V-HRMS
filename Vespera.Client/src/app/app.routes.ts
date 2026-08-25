@@ -41,6 +41,10 @@ export const routes: Routes = [
         path: 'recruitment',
         loadChildren: () => import('./features/recruitment/recruitment.routes').then((m) => m.RECRUITMENT_ROUTES),
       },
+      {
+        path: 'helpdesk',
+        loadChildren: () => import('./features/helpdesk/helpdesk.routes').then((m) => m.HELPDESK_ROUTES),
+      },
     ],
   },
   {

@@ -46,6 +46,12 @@ export const Permissions = {
     ManageOffers: 'Recruitment.ManageOffers',
     ConvertToEmployee: 'Recruitment.ConvertToEmployee',
   },
+  Helpdesk: {
+    RaiseTickets: 'Helpdesk.RaiseTickets',
+    ManageTickets: 'Helpdesk.ManageTickets',
+    ManageConfiguration: 'Helpdesk.ManageConfiguration',
+    ViewReports: 'Helpdesk.ViewReports',
+  },
   Users: {
     Manage: 'Users.Manage',
   },
