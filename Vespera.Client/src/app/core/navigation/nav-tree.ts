@@ -5,6 +5,12 @@ import {
   expensesApprovalsNavItem,
   expensesClaimsNavItem,
 } from '../../features/expenses/expenses.nav';
+import {
+  assetRecoveryDashboardNavItem,
+  assetsListNavItem,
+  licensesNavItem,
+  unusedSeatsReportNavItem,
+} from '../../features/assets/assets.nav';
 import { NavItem } from './nav-item.model';
 
 /** Assembled from each feature's own `<feature>.nav.ts` — see nav-item.model.ts for why this
@@ -16,4 +22,8 @@ export const NAV_TREE: NavItem[] = [
   expensesApprovalsNavItem,
   expensePoliciesNavItem,
   expenseSettlementNavItem,
+  assetsListNavItem,
+  licensesNavItem,
+  unusedSeatsReportNavItem,
+  assetRecoveryDashboardNavItem,
 ];

@@ -28,6 +28,16 @@ export const Permissions = {
     ManagePolicy: 'Expenses.ManagePolicy',
     Settle: 'Expenses.Settle',
   },
+  Assets: {
+    Read: 'Assets.Read',
+    Write: 'Assets.Write',
+    Assign: 'Assets.Assign',
+    Recover: 'Assets.Recover',
+  },
+  Licenses: {
+    Read: 'Licenses.Read',
+    Manage: 'Licenses.Manage',
+  },
   Users: {
     Manage: 'Users.Manage',
   },

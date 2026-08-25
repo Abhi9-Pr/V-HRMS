@@ -1,0 +1,160 @@
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else if (loading() && !asset()) {
+  <vespera-loading-state title="Loading asset…" />
+} @else if (asset()) {
+  @let currentAsset = asset()!;
+  <div class="mb-4 flex items-center justify-between">
+    <h1 class="text-xl font-semibold">{{ currentAsset.assetTag }}</h1>
+    <span class="text-sm font-medium">{{ statusLabel(currentAsset.status!) }}</span>
+  </div>
+
+  <p class="mb-1 text-sm">Category: {{ currentAsset.category }}</p>
+  <p class="mb-1 text-sm">
+    Purchase cost: {{ currentAsset.purchaseCost | vesperaCurrency: currencyLabel(currentAsset.purchaseCostCurrency!) }}
+  </p>
+  <p class="mb-1 text-sm">Purchase date: {{ currentAsset.purchaseDate | vesperaDate: { dateStyle: 'medium' } }}</p>
+  @if (currentAsset.serialNumber) {
+    <p class="mb-1 text-sm">Serial number: {{ currentAsset.serialNumber }}</p>
+  }
+  @if (currentAsset.macAddress) {
+    <p class="mb-1 text-sm">MAC address: {{ currentAsset.macAddress }}</p>
+  }
+  @if (currentAsset.warrantyExpiryDate) {
+    <p class="mb-4 text-sm">Warranty until: {{ currentAsset.warrantyExpiryDate | vesperaDate: { dateStyle: 'medium' } }}</p>
+  }
+
+  <h2 class="mb-2 mt-4 text-lg font-medium">Depreciation</h2>
+  @if (currentAsset.depreciation; as schedule) {
+    <p class="mb-1 text-sm">Method: {{ depreciationMethodLabel(schedule.method!) }}</p>
+    <p class="mb-1 text-sm">Useful life: {{ schedule.usefulLifeMonths }} months</p>
+    <p class="mb-1 text-sm">
+      Salvage value: {{ schedule.salvageValue | vesperaCurrency: currencyLabel(schedule.salvageValueCurrency!) }}
+    </p>
+    @if (currentAsset.bookValue !== undefined) {
+      <p class="mb-4 text-sm font-medium">
+        Book value today: {{ currentAsset.bookValue | vesperaCurrency: currencyLabel(currentAsset.bookValueCurrency!) }}
+      </p>
+    }
+  } @else {
+    <div *vesperaHasPermission="Permissions.Assets.Write">
+      <p class="mb-2 text-sm text-text-muted">No depreciation schedule configured yet.</p>
+      <form [formGroup]="depreciationForm" (ngSubmit)="configureDepreciation()" class="flex flex-col gap-1">
+        <mat-form-field appearance="outline">
+          <mat-label>Method</mat-label>
+          <mat-select formControlName="method">
+            @for (method of depreciationMethods; track method) {
+              <mat-option [value]="method">{{ depreciationMethodLabel(method) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Useful life (months)</mat-label>
+          <input matInput type="number" formControlName="usefulLifeMonths" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Salvage value</mat-label>
+          <input matInput type="number" formControlName="salvageValue" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Currency</mat-label>
+          <mat-select formControlName="salvageValueCurrency">
+            @for (currency of currencies; track currency) {
+              <mat-option [value]="currency">{{ currencyLabel(currency) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (depreciationError()) {
+          <p class="text-sm text-danger" role="alert">{{ depreciationError() }}</p>
+        }
+
+        <div>
+          <vespera-permission-button
+            [permission]="Permissions.Assets.Write"
+            variant="stroked"
+            [disabled]="depreciationSaving()"
+            (clicked)="configureDepreciation()"
+          >
+            Configure depreciation
+          </vespera-permission-button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <h2 class="mb-2 mt-4 text-lg font-medium">Assignment history</h2>
+  @if (!currentAsset.assignments || currentAsset.assignments.length === 0) {
+    <p class="mb-4 text-sm text-text-muted">No assignment history.</p>
+  } @else {
+    <table class="mb-4 w-full text-sm">
+      <thead>
+        <tr class="text-left">
+          <th class="pb-1">Employee</th>
+          <th class="pb-1">Assigned</th>
+          <th class="pb-1">Returned</th>
+          <th class="pb-1">Condition</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (assignment of currentAsset.assignments; track assignment.id) {
+          <tr>
+            <td class="py-1">{{ assignment.employeeId }}</td>
+            <td class="py-1">{{ assignment.assignedAt | vesperaDate: { dateStyle: 'medium' } }}</td>
+            <td class="py-1">{{ assignment.returnedAt ? (assignment.returnedAt | vesperaDate: { dateStyle: 'medium' }) : '—' }}</td>
+            <td class="py-1">{{ assignment.returnCondition || '—' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <div class="mt-4 flex flex-wrap gap-2">
+    @if (currentAsset.status !== AssetStatus._3) {
+      <vespera-permission-button
+        [permission]="Permissions.Assets.Write"
+        variant="stroked"
+        [disabled]="actionInFlight()"
+        (clicked)="markUnderRepair()"
+      >
+        Mark under repair
+      </vespera-permission-button>
+      <vespera-permission-button
+        [permission]="Permissions.Assets.Write"
+        variant="stroked"
+        color="warn"
+        [disabled]="actionInFlight()"
+        (clicked)="retire()"
+      >
+        Retire
+      </vespera-permission-button>
+    }
+  </div>
+  @if (actionError()) {
+    <p class="mt-2 text-sm text-danger" role="alert">{{ actionError() }}</p>
+  }
+
+  @if (currentAsset.status === AssetStatus._0) {
+    <h2 class="mb-2 mt-4 text-lg font-medium">Assign</h2>
+    <form [formGroup]="assignForm" (ngSubmit)="assign()" class="flex flex-col gap-1">
+      <mat-form-field appearance="outline">
+        <mat-label>Employee ID</mat-label>
+        <input matInput formControlName="employeeId" />
+      </mat-form-field>
+      <vespera-form-error [control]="assignForm.controls.employeeId" />
+
+      @if (assignError()) {
+        <p class="text-sm text-danger" role="alert">{{ assignError() }}</p>
+      }
+
+      <div>
+        <vespera-permission-button [permission]="Permissions.Assets.Assign" variant="flat" [disabled]="assigning()" (clicked)="assign()">
+          Assign
+        </vespera-permission-button>
+      </div>
+    </form>
+  }
+}

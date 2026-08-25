@@ -1,0 +1,81 @@
+<h1 class="mb-4 text-xl font-semibold">Assignment handover</h1>
+
+<section class="mb-6">
+  <h2 class="mb-2 text-lg font-medium">Signature</h2>
+  <vespera-file-uploader (filesSelected)="onFilesSelected($event)" />
+  @if (uploading()) {
+    <p class="mt-2 text-sm text-text-muted">Uploading…</p>
+  }
+  @if (uploadError()) {
+    <p class="mt-2 text-sm text-danger" role="alert">{{ uploadError() }}</p>
+  }
+  @if (signatureReference()) {
+    <p class="mt-2 text-sm text-text-muted">Signature captured ({{ signatureReference() }}).</p>
+  }
+</section>
+
+<section class="mb-6">
+  <h2 class="mb-2 text-lg font-medium">Condition report</h2>
+  <form [formGroup]="conditionForm" (ngSubmit)="recordCondition()" class="flex flex-col gap-1">
+    <mat-form-field appearance="outline">
+      <mat-label>Rating</mat-label>
+      <mat-select formControlName="rating">
+        @for (rating of conditionRatings; track rating) {
+          <mat-option [value]="rating">{{ conditionRatingLabel(rating) }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Notes (optional)</mat-label>
+      <input matInput formControlName="notes" />
+    </mat-form-field>
+
+    @if (conditionError()) {
+      <p class="text-sm text-danger" role="alert">{{ conditionError() }}</p>
+    }
+    @if (conditionRecorded()) {
+      <p class="text-sm text-text-muted">Condition report recorded.</p>
+    }
+
+    <div>
+      <vespera-permission-button
+        [permission]="Permissions.Assets.Assign"
+        variant="stroked"
+        [disabled]="recordingCondition()"
+        (clicked)="recordCondition()"
+      >
+        Record condition
+      </vespera-permission-button>
+    </div>
+  </form>
+</section>
+
+<section>
+  <h2 class="mb-2 text-lg font-medium">Return asset</h2>
+  <form [formGroup]="returnForm" (ngSubmit)="returnAsset()" class="flex flex-col gap-1">
+    <mat-form-field appearance="outline">
+      <mat-label>Return condition</mat-label>
+      <input matInput formControlName="condition" />
+    </mat-form-field>
+    <vespera-form-error [control]="returnForm.controls.condition" />
+
+    @if (returnError()) {
+      <p class="text-sm text-danger" role="alert">{{ returnError() }}</p>
+    }
+    @if (returned()) {
+      <p class="text-sm text-text-muted">Asset returned to stock.</p>
+    }
+
+    <div>
+      <vespera-permission-button
+        [permission]="Permissions.Assets.Assign"
+        variant="flat"
+        [disabled]="returning() || returned()"
+        (clicked)="returnAsset()"
+      >
+        Return asset
+      </vespera-permission-button>
+    </div>
+  </form>
+</section>
