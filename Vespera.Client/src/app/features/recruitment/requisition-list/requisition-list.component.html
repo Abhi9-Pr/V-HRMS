@@ -1,0 +1,27 @@
+<div class="mb-4 flex items-center justify-between">
+  <h1 class="text-xl font-semibold">Job requisitions</h1>
+  <vespera-permission-button [permission]="Permissions.Recruitment.ManageRequisitions" variant="flat" (clicked)="openCreateDialog()">
+    New requisition
+  </vespera-permission-button>
+</div>
+
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else {
+  <vespera-data-table
+    [columns]="columns"
+    [rows]="requisitions()"
+    [totalCount]="totalCount()"
+    [loading]="loading()"
+    emptyLabel="No requisitions yet — create the first one."
+    (queryChange)="onQueryChange($event)"
+  />
+}
+
+<ng-template #actionsCell let-requisition>
+  <div class="flex justify-end">
+    <vespera-permission-button [permission]="Permissions.Recruitment.ManageRequisitions" variant="icon" (clicked)="openRequisition(requisition)">
+      <mat-icon>chevron_right</mat-icon>
+    </vespera-permission-button>
+  </div>
+</ng-template>

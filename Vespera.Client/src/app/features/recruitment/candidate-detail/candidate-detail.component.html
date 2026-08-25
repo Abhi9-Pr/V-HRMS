@@ -1,0 +1,166 @@
+@if (candidateError(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else if (candidateLoading() && !candidate()) {
+  <vespera-loading-state title="Loading candidate…" />
+} @else if (candidate()) {
+  @let currentCandidate = candidate()!;
+
+  <div class="mb-4">
+    <h1 class="text-xl font-semibold">{{ currentCandidate.fullName }}</h1>
+    <p class="text-sm text-text-muted">{{ currentCandidate.email }} · {{ currentCandidate.phone }}</p>
+    <p class="text-sm">{{ candidateStatusLabel(currentCandidate.status) }}</p>
+  </div>
+
+  @if (actionError()) {
+    <p class="mb-2 text-sm text-danger" role="alert">{{ actionError() }}</p>
+  }
+
+  <h2 class="mb-2 text-lg font-medium">Interviews</h2>
+  <form [formGroup]="interviewForm" (ngSubmit)="scheduleInterview()" class="mb-4 flex flex-wrap items-end gap-2">
+    <mat-form-field appearance="outline">
+      <mat-label>Pipeline stage id</mat-label>
+      <input matInput formControlName="pipelineStageId" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Scheduled at</mat-label>
+      <input matInput [matDatepicker]="scheduledAtPicker" formControlName="scheduledAt" />
+      <mat-datepicker-toggle matIconSuffix [for]="scheduledAtPicker" />
+      <mat-datepicker #scheduledAtPicker />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Interviewer ids (comma-separated)</mat-label>
+      <input matInput formControlName="interviewerIds" />
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="submit" [disabled]="scheduling()">Schedule</button>
+  </form>
+  @if (scheduleError()) {
+    <p class="mb-4 text-sm text-danger" role="alert">{{ scheduleError() }}</p>
+  }
+
+  @if (interviews().length === 0) {
+    <p class="mb-4 text-sm text-text-muted">No interviews yet.</p>
+  } @else {
+    <ul class="mb-4 flex flex-col gap-3">
+      @for (interview of interviews(); track interview.id) {
+        <li class="rounded border border-border p-2 text-sm">
+          <div>{{ interview.scheduledAt | vesperaDate }} — {{ interviewStatusLabel(interview.status) }}</div>
+
+          <div class="mt-2 flex flex-wrap items-end gap-1">
+            <input #scorecardInterviewer placeholder="Interviewer id" class="w-32 border-b" />
+            <input #scorecardRating type="number" min="1" max="5" placeholder="Rating" class="w-16 border-b" />
+            <input #scorecardNotes placeholder="Notes" class="w-32 border-b" />
+            <button
+              mat-button
+              type="button"
+              [disabled]="actionInFlight() === interview.id"
+              (click)="submitScorecard(interview, scorecardInterviewer.value, +scorecardRating.value, scorecardNotes.value)"
+            >
+              Submit scorecard
+            </button>
+          </div>
+
+          <div class="mt-1 flex flex-wrap items-end gap-1">
+            <input #completeFeedback placeholder="Feedback" class="w-32 border-b" />
+            <input #completeRating type="number" min="1" max="5" placeholder="Rating" class="w-16 border-b" />
+            <button
+              mat-button
+              type="button"
+              [disabled]="actionInFlight() === interview.id"
+              (click)="completeInterview(interview, completeFeedback.value, +completeRating.value)"
+            >
+              Complete
+            </button>
+            <button mat-button type="button" [disabled]="actionInFlight() === interview.id" (click)="cancelInterview(interview)">Cancel</button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
+  <h2 class="mb-2 text-lg font-medium">Offers</h2>
+  <form [formGroup]="offerForm" (ngSubmit)="createOffer()" class="mb-4 flex flex-wrap items-end gap-2">
+    <mat-form-field appearance="outline">
+      <mat-label>Designation id</mat-label>
+      <input matInput formControlName="proposedDesignationId" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Proposed CTC</mat-label>
+      <input matInput type="number" formControlName="proposedCtc" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Currency</mat-label>
+      <mat-select formControlName="currency">
+        @for (currency of currencies; track currency) {
+          <mat-option [value]="currency">{{ currency }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Joining date</mat-label>
+      <input matInput [matDatepicker]="joiningDatePicker" formControlName="joiningDate" />
+      <mat-datepicker-toggle matIconSuffix [for]="joiningDatePicker" />
+      <mat-datepicker #joiningDatePicker />
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="submit" [disabled]="creatingOffer()">Create offer</button>
+  </form>
+  @if (offerError()) {
+    <p class="mb-4 text-sm text-danger" role="alert">{{ offerError() }}</p>
+  }
+
+  @if (offers().length === 0) {
+    <p class="mb-4 text-sm text-text-muted">No offers yet.</p>
+  } @else {
+    <ul class="flex flex-col gap-2">
+      @for (offer of offers(); track offer.id) {
+        <li class="rounded border border-border p-2 text-sm">
+          <div>{{ offer.proposedCtc }} {{ offer.currency }} — {{ offerStatusLabel(offer.status) }}</div>
+          <div class="mt-1 flex flex-wrap gap-1">
+            <button
+              mat-button
+              type="button"
+              [disabled]="actionInFlight() === offer.id"
+              (click)="sendOffer(offer)"
+            >
+              Send
+            </button>
+            @if (offer.status === OfferLetterStatus._1) {
+              <button mat-button type="button" [disabled]="actionInFlight() === offer.id" (click)="acceptOffer(offer)">Accept</button>
+              <button mat-button type="button" [disabled]="actionInFlight() === offer.id" (click)="declineOffer(offer)">Decline</button>
+            }
+            <button mat-button type="button" [disabled]="actionInFlight() === offer.id" (click)="withdrawOffer(offer)">Withdraw</button>
+            <button mat-button type="button" (click)="downloadOfferPdf(offer)">Download PDF</button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
+  <h2 class="mb-2 mt-4 text-lg font-medium">Convert to employee</h2>
+  <form [formGroup]="convertForm" (ngSubmit)="convertToEmployee()" class="flex flex-wrap items-end gap-2">
+    <mat-form-field appearance="outline">
+      <mat-label>Offer letter id</mat-label>
+      <input matInput formControlName="offerLetterId" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Employee code</mat-label>
+      <input matInput formControlName="employeeCode" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Date of birth</mat-label>
+      <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth" />
+      <mat-datepicker-toggle matIconSuffix [for]="dobPicker" />
+      <mat-datepicker #dobPicker />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Location id</mat-label>
+      <input matInput formControlName="locationId" />
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="submit" [disabled]="converting()">Convert</button>
+  </form>
+  @if (convertError()) {
+    <p class="mt-2 text-sm text-danger" role="alert">{{ convertError() }}</p>
+  }
+  @if (convertedEmployeeId()) {
+    <p class="mt-2 text-sm text-success">Converted — new employee id: {{ convertedEmployeeId() }}</p>
+  }
+}

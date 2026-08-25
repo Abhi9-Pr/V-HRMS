@@ -38,6 +38,14 @@ export const Permissions = {
     Read: 'Licenses.Read',
     Manage: 'Licenses.Manage',
   },
+  Recruitment: {
+    ManageRequisitions: 'Recruitment.ManageRequisitions',
+    ApproveRequisitions: 'Recruitment.ApproveRequisitions',
+    ManageCandidates: 'Recruitment.ManageCandidates',
+    ManageInterviews: 'Recruitment.ManageInterviews',
+    ManageOffers: 'Recruitment.ManageOffers',
+    ConvertToEmployee: 'Recruitment.ConvertToEmployee',
+  },
   Users: {
     Manage: 'Users.Manage',
   },

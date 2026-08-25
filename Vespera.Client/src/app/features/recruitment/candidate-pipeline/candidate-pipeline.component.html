@@ -1,0 +1,59 @@
+<h1 class="mb-4 text-xl font-semibold">Candidate pipeline</h1>
+
+<form [formGroup]="candidateForm" (ngSubmit)="addCandidate()" class="mb-4 flex items-end gap-2">
+  <mat-form-field appearance="outline">
+    <mat-label>Full name</mat-label>
+    <input matInput formControlName="fullName" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput formControlName="email" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Phone</mat-label>
+    <input matInput formControlName="phone" />
+  </mat-form-field>
+  <button mat-flat-button color="primary" type="submit" [disabled]="addingCandidate()">New candidate</button>
+</form>
+@if (addCandidateError()) {
+  <p class="mb-4 text-sm text-danger" role="alert">{{ addCandidateError() }}</p>
+}
+
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else if (loading() && columns().length === 0) {
+  <vespera-loading-state title="Loading pipeline…" />
+} @else {
+  @if (dropError()) {
+    <p class="mb-2 text-sm text-danger" role="alert">{{ dropError() }}</p>
+  }
+
+  <div cdkDropListGroup class="flex gap-3 overflow-x-auto pb-4" data-testid="pipeline-board">
+    @for (column of columns(); track column.id) {
+      <div class="w-64 shrink-0 rounded border border-border bg-surface p-2" [attr.data-testid]="'column-' + column.id">
+        <h2 class="mb-2 text-sm font-medium">{{ column.name }} ({{ column.candidates.length }})</h2>
+        <div
+          cdkDropList
+          [cdkDropListData]="column.candidates"
+          (cdkDropListDropped)="onDrop($event, column.id)"
+          class="flex min-h-[3rem] flex-col gap-2"
+        >
+          @for (candidate of column.candidates; track candidate.id) {
+            <div
+              cdkDrag
+              role="button"
+              tabindex="0"
+              [attr.data-testid]="'candidate-' + candidate.id"
+              class="cursor-move rounded border border-border bg-white p-2 text-sm shadow-sm"
+              (click)="openCandidate(candidate)"
+              (keydown.enter)="openCandidate(candidate)"
+            >
+              <div class="font-medium">{{ candidate.fullName }}</div>
+              <div class="text-xs text-text-muted">{{ statusLabel(candidate.status) }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}
