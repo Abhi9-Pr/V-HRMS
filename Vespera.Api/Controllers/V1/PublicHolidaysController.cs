@@ -24,16 +24,21 @@ public sealed class PublicHolidaysController : ControllerBase
     /// <response code="200">The new holiday's id.</response>
     [HttpPost]
     [HasPermission(Permissions.Helpdesk.ManageConfiguration)]
+    [ProducesResponseType(typeof(CreatePublicHolidayResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Create(
         [FromBody] CreatePublicHolidayRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
         CancellationToken cancellationToken) =>
         (await _sender.Send(new CreatePublicHolidayCommand(request.Date, request.Name, idempotencyKey), cancellationToken))
-            .ToActionResult(this, id => Ok(new { id }));
+            .ToActionResult(this, id => Ok(new CreatePublicHolidayResponse(id)));
 
+    /// <response code="200">A page of public holidays.</response>
     [HttpGet]
     [HasPermission(Permissions.Helpdesk.ManageConfiguration)]
+    [ProducesResponseType(typeof(PagedResult<PublicHolidayDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHolidays([FromQuery] PagedRequest paging, CancellationToken cancellationToken) =>
         (await _sender.Send(new GetPublicHolidaysQuery(paging), cancellationToken)).ToActionResult(this);
 }
+
+public sealed record CreatePublicHolidayResponse(Guid Id);
 
 public sealed record CreatePublicHolidayRequest(DateOnly Date, string Name);

@@ -23,8 +23,10 @@ public sealed class ExpensePoliciesController : FinanceControllerBase
         _sender = sender;
     }
 
+    /// <response code="200">The new policy's id.</response>
     [HttpPost]
     [HasPermission(Permissions.Expenses.ManagePolicy)]
+    [ProducesResponseType(typeof(CreateExpensePolicyResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Create(
         [FromBody] CreateExpensePolicyRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
         CancellationToken cancellationToken)
@@ -32,14 +34,18 @@ public sealed class ExpensePoliciesController : FinanceControllerBase
         var command = new CreateExpensePolicyCommand(
             request.Category, request.MaxAmountPerClaim, request.ReceiptRequiredAboveAmount, request.Currency,
             request.ApplicableDesignationId, request.MaxAmountSeverity, request.ReceiptRequiredSeverity, idempotencyKey);
-        return (await _sender.Send(command, cancellationToken)).ToActionResult(this, id => Ok(new { id }));
+        return (await _sender.Send(command, cancellationToken)).ToActionResult(this, id => Ok(new CreateExpensePolicyResponse(id)));
     }
 
+    /// <response code="200">A page of expense policies.</response>
     [HttpGet]
     [HasPermission(Permissions.Expenses.ManagePolicy)]
+    [ProducesResponseType(typeof(PagedResult<ExpensePolicyDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Get([FromQuery] PagedRequest paging, CancellationToken cancellationToken) =>
         (await _sender.Send(new GetExpensePoliciesQuery(paging), cancellationToken)).ToActionResult(this);
 }
+
+public sealed record CreateExpensePolicyResponse(Guid Id);
 
 public sealed record CreateExpensePolicyRequest(
     string Category,

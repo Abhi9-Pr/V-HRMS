@@ -25,6 +25,7 @@ public sealed class ExpenseSettlementsController : FinanceControllerBase
     /// <response code="204">Settled — the claim is now Reimbursed and the payroll run carries a new reimbursement line.</response>
     [HttpPost]
     [HasPermission(Permissions.Expenses.Settle)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Settle(
         [FromBody] SettleExpenseClaimRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
         CancellationToken cancellationToken) =>

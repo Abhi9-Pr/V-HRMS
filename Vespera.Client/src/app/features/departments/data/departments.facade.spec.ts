@@ -5,11 +5,18 @@ import { ApiError } from '../../../core/http/api-error.model';
 import { DepartmentsFacade } from './departments.facade';
 
 describe('DepartmentsFacade', () => {
-  let client: jest.Mocked<Pick<DepartmentsClient, 'list' | 'create' | 'update' | 'delete'>>;
+  let client: jest.Mocked<
+    Pick<DepartmentsClient, 'departments_List' | 'departments_Create' | 'departments_Update' | 'departments_Delete'>
+  >;
   let facade: DepartmentsFacade;
 
   beforeEach(() => {
-    client = { list: jest.fn(), create: jest.fn(), update: jest.fn(), delete: jest.fn() };
+    client = {
+      departments_List: jest.fn(),
+      departments_Create: jest.fn(),
+      departments_Update: jest.fn(),
+      departments_Delete: jest.fn(),
+    };
 
     TestBed.configureTestingModule({
       providers: [DepartmentsFacade, { provide: DepartmentsClient, useValue: client }],
@@ -19,7 +26,7 @@ describe('DepartmentsFacade', () => {
   });
 
   it('load() should populate departments/totalCount on success', () => {
-    client.list.mockReturnValue(
+    client.departments_List.mockReturnValue(
       of({ items: [{ id: '1', name: 'Engineering', code: 'ENG' }], page: 1, pageSize: 20, totalCount: 1 } as never),
     );
 
@@ -29,12 +36,12 @@ describe('DepartmentsFacade', () => {
     expect(facade.error()).toBeNull();
     expect(facade.departments()).toHaveLength(1);
     expect(facade.totalCount()).toBe(1);
-    expect(client.list).toHaveBeenCalledWith(1, 20, undefined, false);
+    expect(client.departments_List).toHaveBeenCalledWith(1, 20, undefined, false);
   });
 
   it('load() should populate error on failure and stop loading', () => {
     const apiError: ApiError = { status: 403, code: 'forbidden', message: 'no access' };
-    client.list.mockReturnValue(throwError(() => apiError));
+    client.departments_List.mockReturnValue(throwError(() => apiError));
 
     facade.load({ page: 1, pageSize: 20, sortDescending: false });
 
@@ -44,20 +51,20 @@ describe('DepartmentsFacade', () => {
   });
 
   it('create() should delegate straight to the generated client', (done) => {
-    client.create.mockReturnValue(of({ id: 'new-id' } as never));
+    client.departments_Create.mockReturnValue(of({ id: 'new-id' } as never));
 
     facade.create({ name: 'Sales', code: 'SLS' }).subscribe((result) => {
       expect(result.id).toBe('new-id');
-      expect(client.create).toHaveBeenCalledWith({ name: 'Sales', code: 'SLS' });
+      expect(client.departments_Create).toHaveBeenCalledWith({ name: 'Sales', code: 'SLS' });
       done();
     });
   });
 
   it('remove() should delegate to the generated client delete method', (done) => {
-    client.delete.mockReturnValue(of(undefined));
+    client.departments_Delete.mockReturnValue(of(undefined));
 
     facade.remove('dept-1').subscribe(() => {
-      expect(client.delete).toHaveBeenCalledWith('dept-1');
+      expect(client.departments_Delete).toHaveBeenCalledWith('dept-1');
       done();
     });
   });

@@ -28,9 +28,11 @@ public sealed class PublicJobsController : ControllerBase
         _sender = sender;
     }
 
+    /// <response code="200">The published, open job postings.</response>
     [HttpGet]
     [AllowAnonymous]
     [OutputCache(PolicyName = ObservabilityServiceCollectionExtensions.PublicJobsOutputCachePolicyName)]
+    [ProducesResponseType(typeof(IReadOnlyList<PublicJobDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPublicJobs(CancellationToken cancellationToken) =>
         (await _sender.Send(new GetPublicJobsQuery(), cancellationToken)).ToActionResult(this);
 }

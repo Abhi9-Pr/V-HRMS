@@ -8,7 +8,7 @@ using OffboardingChecklist = Vespera.Domain.Assets.OffboardingChecklist;
 namespace Vespera.Application.Features.Assets;
 
 public sealed class GetOffboardingChecklistForEmployeeQueryHandler
-    : IRequestHandler<GetOffboardingChecklistForEmployeeQuery, Result<OffboardingChecklistDto>>
+    : IRequestHandler<GetOffboardingChecklistForEmployeeQuery, Result<AssetOffboardingChecklistDto>>
 {
     private readonly IReadRepository<OffboardingChecklist> _checklists;
     private readonly ITenantContext _tenantContext;
@@ -20,7 +20,7 @@ public sealed class GetOffboardingChecklistForEmployeeQueryHandler
         _tenantContext = tenantContext;
     }
 
-    public async Task<Result<OffboardingChecklistDto>> Handle(
+    public async Task<Result<AssetOffboardingChecklistDto>> Handle(
         GetOffboardingChecklistForEmployeeQuery request, CancellationToken cancellationToken)
     {
         var checklist = await _checklists.FirstOrDefaultAsync(
@@ -28,15 +28,15 @@ public sealed class GetOffboardingChecklistForEmployeeQueryHandler
 
         if (checklist is null)
         {
-            return Result.Failure<OffboardingChecklistDto>(
+            return Result.Failure<AssetOffboardingChecklistDto>(
                 Error.NotFound("offboarding_checklist.not_found", "No offboarding checklist exists for this employee."));
         }
 
-        var dto = new OffboardingChecklistDto(
+        var dto = new AssetOffboardingChecklistDto(
             checklist.Id.Value,
             checklist.EmployeeId.Value,
             checklist.IsComplete,
-            checklist.Items.Select(item => new OffboardingChecklistItemDto(item.Description, item.IsComplete)).ToList());
+            checklist.Items.Select(item => new AssetOffboardingChecklistItemDto(item.Description, item.IsComplete)).ToList());
 
         return Result.Success(dto);
     }

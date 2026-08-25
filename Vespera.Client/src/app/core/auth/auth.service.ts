@@ -31,7 +31,7 @@ export class AuthService {
   login(email: string, password: string, totpCode?: string): Observable<void> {
     const deviceId = this.tokenStorage.getOrCreateDeviceId();
     return this.authClient
-      .login({ email, password, deviceId, totpCode })
+      .auth_Login({ email, password, deviceId, totpCode })
       .pipe(map((result) => this.applyLoginResult(result)));
   }
 
@@ -59,12 +59,12 @@ export class AuthService {
       throw new Error('No refresh token available.');
     }
 
-    return this.authClient.refresh({ refreshToken, deviceId }).pipe(map((result) => this.applyLoginResult(result)));
+    return this.authClient.auth_Refresh({ refreshToken, deviceId }).pipe(map((result) => this.applyLoginResult(result)));
   }
 
   logout(): Observable<void> {
     const refreshToken = this.tokenStorage.getRefreshToken();
-    const request = refreshToken ? this.authClient.logout({ refreshToken }) : of(undefined);
+    const request = refreshToken ? this.authClient.auth_Logout({ refreshToken }) : of(undefined);
 
     return request.pipe(
       tap(() => this.clearSession()),
@@ -76,7 +76,7 @@ export class AuthService {
   }
 
   logoutAllDevices(): Observable<void> {
-    return this.authClient.logoutAllDevices().pipe(tap(() => this.clearSession()));
+    return this.authClient.auth_LogoutAllDevices().pipe(tap(() => this.clearSession()));
   }
 
   private applyLoginResult(result: LoginResult): void {

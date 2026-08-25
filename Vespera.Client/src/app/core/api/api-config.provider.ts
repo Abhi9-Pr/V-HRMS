@@ -1,6 +1,27 @@
 import { Provider } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { API_BASE_URL, AuthClient, DepartmentsClient, TenantsClient } from './generated/api-client';
+import {
+  API_BASE_URL,
+  AssetRecoveriesClient,
+  AssetsClient,
+  AuthClient,
+  CandidatesClient,
+  DepartmentsClient,
+  ExpensePoliciesClient,
+  ExpenseSettlementsClient,
+  ExpensesClient,
+  InterviewsClient,
+  LicensesClient,
+  OffboardingChecklistsClient,
+  OffersClient,
+  PublicHolidaysClient,
+  PublicJobsClient,
+  RequisitionsClient,
+  SlaPoliciesClient,
+  TenantsClient,
+  TicketCategoriesClient,
+  TicketsClient,
+} from './generated/api-client';
 
 /**
  * NSwag's Angular template emits each `*Client` with a bare `@Injectable()` — no `providedIn`
@@ -10,5 +31,27 @@ import { API_BASE_URL, AuthClient, DepartmentsClient, TenantsClient } from './ge
  * a facade starts using it, not on first-use-discovers-it-'s-broken.
  */
 export function provideVesperaApiClients(): Provider[] {
-  return [{ provide: API_BASE_URL, useValue: environment.apiBaseUrl }, AuthClient, DepartmentsClient, TenantsClient];
+  return [
+    { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
+    AuthClient,
+    DepartmentsClient,
+    TenantsClient,
+    // Phase 11
+    ExpensesClient,
+    ExpensePoliciesClient,
+    ExpenseSettlementsClient,
+    AssetsClient,
+    LicensesClient,
+    AssetRecoveriesClient,
+    OffboardingChecklistsClient,
+    RequisitionsClient,
+    CandidatesClient,
+    InterviewsClient,
+    OffersClient,
+    PublicJobsClient,
+    TicketsClient,
+    TicketCategoriesClient,
+    SlaPoliciesClient,
+    PublicHolidaysClient,
+  ];
 }

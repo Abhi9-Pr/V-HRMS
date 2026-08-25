@@ -20,13 +20,18 @@ public sealed class OffboardingChecklistsController : ControllerBase
         _sender = sender;
     }
 
+    /// <response code="200">The employee's offboarding checklist.</response>
+    /// <response code="404">No checklist exists for this employee.</response>
     [HttpGet("employees/{employeeId:guid}")]
     [HasPermission(Permissions.Assets.Recover)]
+    [ProducesResponseType(typeof(AssetOffboardingChecklistDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetForEmployee(Guid employeeId, CancellationToken cancellationToken) =>
         (await _sender.Send(new GetOffboardingChecklistForEmployeeQuery(employeeId), cancellationToken)).ToActionResult(this);
 
+    /// <response code="204">Item completed.</response>
     [HttpPost("{checklistId:guid}/items/{itemIndex:int}/complete")]
     [HasPermission(Permissions.Assets.Recover)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> CompleteItem(
         Guid checklistId, int itemIndex, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, CancellationToken cancellationToken) =>
         (await _sender.Send(new CompleteOffboardingChecklistItemCommand(checklistId, itemIndex, idempotencyKey), cancellationToken))

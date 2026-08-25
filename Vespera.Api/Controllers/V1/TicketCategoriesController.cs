@@ -24,16 +24,21 @@ public sealed class TicketCategoriesController : ControllerBase
     /// <response code="200">The new category's id.</response>
     [HttpPost]
     [HasPermission(Permissions.Helpdesk.ManageConfiguration)]
+    [ProducesResponseType(typeof(CreateTicketCategoryResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Create(
         [FromBody] CreateTicketCategoryRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
         CancellationToken cancellationToken) =>
         (await _sender.Send(new CreateTicketCategoryCommand(request.Name, request.DepartmentId, request.DefaultSlaPolicyId, idempotencyKey), cancellationToken))
-            .ToActionResult(this, id => Ok(new { id }));
+            .ToActionResult(this, id => Ok(new CreateTicketCategoryResponse(id)));
 
+    /// <response code="200">A page of ticket categories.</response>
     [HttpGet]
     [HasPermission(Permissions.Helpdesk.ManageConfiguration)]
+    [ProducesResponseType(typeof(PagedResult<TicketCategoryDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCategories([FromQuery] PagedRequest paging, CancellationToken cancellationToken) =>
         (await _sender.Send(new GetTicketCategoriesQuery(paging), cancellationToken)).ToActionResult(this);
 }
+
+public sealed record CreateTicketCategoryResponse(Guid Id);
 
 public sealed record CreateTicketCategoryRequest(string Name, Guid DepartmentId, Guid? DefaultSlaPolicyId);
