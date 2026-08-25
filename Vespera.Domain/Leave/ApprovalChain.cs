@@ -13,6 +13,7 @@ public enum ApprovalSubjectType
     LeaveRequest,
     ExpenseClaim,
     RegularizationRequest,
+    JobRequisition,
 }
 
 public enum ApprovalChainStatus

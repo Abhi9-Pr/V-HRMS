@@ -1,4 +1,5 @@
 using Vespera.Domain.Common;
+using Vespera.Domain.Eis;
 
 namespace Vespera.Domain.Helpdesk;
 
@@ -10,27 +11,30 @@ public readonly record struct TicketCategoryId(Guid Value)
 public sealed class TicketCategory : AuditableTenantAggregateRoot<TicketCategoryId>
 {
     private TicketCategory(
-        TicketCategoryId id, TenantId tenantId, string name, SlaPolicyId? defaultSlaPolicyId,
+        TicketCategoryId id, TenantId tenantId, string name, DepartmentId departmentId, SlaPolicyId? defaultSlaPolicyId,
         DateTimeOffset createdAt, string createdBy)
         : base(id, tenantId, createdAt, createdBy)
     {
         Name = name;
+        DepartmentId = departmentId;
         DefaultSlaPolicyId = defaultSlaPolicyId;
     }
 
     public string Name { get; private set; }
 
+    public DepartmentId DepartmentId { get; }
+
     public SlaPolicyId? DefaultSlaPolicyId { get; private set; }
 
     public static Result<TicketCategory> Create(
-        TenantId tenantId, string name, SlaPolicyId? defaultSlaPolicyId, DateTimeOffset occurredOn, string createdBy)
+        TenantId tenantId, string name, DepartmentId departmentId, SlaPolicyId? defaultSlaPolicyId, DateTimeOffset occurredOn, string createdBy)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             return Result.Failure<TicketCategory>(Error.Validation("ticket_category.name_required", "Category name is required."));
         }
 
-        return Result.Success(new TicketCategory(TicketCategoryId.New(), tenantId, name.Trim(), defaultSlaPolicyId, occurredOn, createdBy));
+        return Result.Success(new TicketCategory(TicketCategoryId.New(), tenantId, name.Trim(), departmentId, defaultSlaPolicyId, occurredOn, createdBy));
     }
 
     public Result Rename(string name, DateTimeOffset occurredOn, string modifiedBy)

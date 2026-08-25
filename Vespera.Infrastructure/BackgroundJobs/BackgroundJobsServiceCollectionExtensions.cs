@@ -25,6 +25,7 @@ public static class BackgroundJobsServiceCollectionExtensions
         services.AddHostedService<OffboardingAccessRevocationHostedService>();
         services.AddHostedService<AttendanceDayComputationHostedService>();
         services.AddHostedService<BiometricPunchPollerHostedService>();
+        services.AddHostedService<SlaEscalationHostedService>();
 
         return services;
     }

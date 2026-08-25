@@ -39,6 +39,19 @@ public sealed class PayrollRunConfiguration : TenantScopedEntityConfiguration<Pa
 
             lines.Property(l => l.LossOfPayDays).HasPrecision(5, 2);
         });
+
+        builder.OwnsMany(e => e.Reimbursements, reimbursements =>
+        {
+            reimbursements.ToTable("PayrollReimbursements");
+            reimbursements.HasKey(r => r.Id);
+            reimbursements.Property(r => r.Id)
+                .HasConversion(id => id.Value, value => new PayrollReimbursementId(value))
+                .ValueGeneratedNever();
+
+            reimbursements.Property(r => r.EmployeeId).HasConversion(id => id.Value, value => new EmployeeId(value));
+            reimbursements.Property(r => r.Amount).HasConversion(MoneyConverter.Instance).HasMaxLength(64);
+            reimbursements.Property(r => r.SourceExpenseClaimId).IsRequired();
+        });
     }
 
     private static class MoneyConverter

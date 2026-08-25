@@ -106,18 +106,48 @@ public static class DevelopmentSeeder
         hrRole.Grant(Find(Permissions.Regularizations.Approve).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Regularizations.ReadTeam).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.BiometricDevices.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Expenses.Approve).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Write).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Assign).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Recover).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Licenses.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Licenses.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageRequisitions).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageCandidates).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageInterviews).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageOffers).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ConvertToEmployee).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Helpdesk.RaiseTickets).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Helpdesk.ManageTickets).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Helpdesk.ManageConfiguration).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Helpdesk.ViewReports).Id, now, createdBy);
 
         managerRole.Grant(Find(Permissions.Employees.Read).Id, now, createdBy);
         managerRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Expenses.Approve).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Assets.Read).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Licenses.Read).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Recruitment.ApproveRequisitions).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Helpdesk.RaiseTickets).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Helpdesk.ManageTickets).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Helpdesk.ViewReports).Id, now, createdBy);
 
         employeeRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
         employeeRole.Grant(Find(Permissions.Regularizations.Request).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Helpdesk.RaiseTickets).Id, now, createdBy);
 
         var financeRole = Role.Create(tid, "Finance", now, createdBy).Value;
         financeRole.Grant(Find(Permissions.Finance.Admin).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Payroll.Read).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Payroll.Write).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Payroll.Finalize).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Expenses.ManagePolicy).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Expenses.Settle).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Recruitment.ApproveRequisitions).Id, now, createdBy);
 
         dbContext.AddRange(adminRole, hrRole, managerRole, employeeRole, financeRole);
 
@@ -189,11 +219,21 @@ public static class DevelopmentSeeder
             EmailAddress.Create("fatima.khan@demo.vespera.test").Value, PhoneNumber.Create("+919812345005").Value,
             new DateOnly(1990, 9, 5), new DateOnly(2021, 1, 10), finance.Id, financeManager.Id, headOffice.Id, now, createdBy).Value;
 
+        // Rohan is HR's head — Helpdesk's routing engine and SLA-breach escalation both need a
+        // department with a real HeadEmployeeId to route/escalate to; no AssignHead command/API
+        // exists yet (Departments only ever got the minimal Phase 3 reference slice), so this is
+        // seeded directly, the same way the payroll run fixture below is.
+        humanResources.AssignHead(rohan.Id, now, createdBy);
+
         dbContext.AddRange(priya, rohan, ananya, vikram, fatima);
 
         dbContext.AddRange(
             ReportingRelationship.Create(tid, priya.Id, rohan.Id, priya.DateOfJoining, null).Value,
-            ReportingRelationship.Create(tid, ananya.Id, rohan.Id, ananya.DateOfJoining, null).Value);
+            ReportingRelationship.Create(tid, ananya.Id, rohan.Id, ananya.DateOfJoining, null).Value,
+            // Rohan (HR) submits job requisitions for approval; Vikram (Finance) signs off on the
+            // headcount budget — the same generic ReportingRelationship-based approver resolution
+            // every submission flow in this codebase uses, not a literal line-management claim.
+            ReportingRelationship.Create(tid, rohan.Id, vikram.Id, rohan.DateOfJoining, null).Value);
 
         var priyaUser = User.Create(tid, priya.WorkEmail, priya.Id, now, createdBy);
         priyaUser.AssignRole(employeeRole.Id, now, createdBy);

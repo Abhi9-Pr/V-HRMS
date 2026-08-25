@@ -20,10 +20,11 @@ public enum CandidateStatus
 
 public sealed class Candidate : AggregateRoot<CandidateId>, ITenantScoped
 {
-    private Candidate(CandidateId id, TenantId tenantId, string fullName, EmailAddress email, PhoneNumber phone)
+    private Candidate(CandidateId id, TenantId tenantId, JobRequisitionId jobRequisitionId, string fullName, EmailAddress email, PhoneNumber phone)
         : base(id)
     {
         TenantId = tenantId;
+        JobRequisitionId = jobRequisitionId;
         FullName = fullName;
         Email = email;
         Phone = phone;
@@ -31,6 +32,8 @@ public sealed class Candidate : AggregateRoot<CandidateId>, ITenantScoped
     }
 
     public TenantId TenantId { get; }
+
+    public JobRequisitionId JobRequisitionId { get; }
 
     public string FullName { get; }
 
@@ -42,14 +45,15 @@ public sealed class Candidate : AggregateRoot<CandidateId>, ITenantScoped
 
     public PipelineStageId? CurrentPipelineStageId { get; private set; }
 
-    public static Result<Candidate> Create(TenantId tenantId, string fullName, EmailAddress email, PhoneNumber phone)
+    public static Result<Candidate> Create(
+        TenantId tenantId, JobRequisitionId jobRequisitionId, string fullName, EmailAddress email, PhoneNumber phone)
     {
         if (string.IsNullOrWhiteSpace(fullName))
         {
             return Result.Failure<Candidate>(Error.Validation("candidate.full_name_required", "Full name is required."));
         }
 
-        return Result.Success(new Candidate(CandidateId.New(), tenantId, fullName.Trim(), email, phone));
+        return Result.Success(new Candidate(CandidateId.New(), tenantId, jobRequisitionId, fullName.Trim(), email, phone));
     }
 
     public Result MoveToStage(PipelineStageId stageId)

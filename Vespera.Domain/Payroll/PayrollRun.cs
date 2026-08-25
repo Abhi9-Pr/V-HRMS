@@ -21,6 +21,7 @@ public enum PayrollRunStatus
 public sealed class PayrollRun : AuditableTenantAggregateRoot<PayrollRunId>
 {
     private readonly List<PayrollLine> _lines = [];
+    private readonly List<PayrollReimbursement> _reimbursements = [];
 
     private PayrollRun(PayrollRunId id, TenantId tenantId, int month, int year, DateTimeOffset createdAt, string createdBy)
         : base(id, tenantId, createdAt, createdBy)
@@ -37,6 +38,8 @@ public sealed class PayrollRun : AuditableTenantAggregateRoot<PayrollRunId>
     public PayrollRunStatus Status { get; private set; }
 
     public IReadOnlyCollection<PayrollLine> Lines => _lines.AsReadOnly();
+
+    public IReadOnlyCollection<PayrollReimbursement> Reimbursements => _reimbursements.AsReadOnly();
 
     public static Result<PayrollRun> Open(TenantId tenantId, int month, int year, DateTimeOffset occurredOn, string createdBy)
     {
@@ -56,6 +59,23 @@ public sealed class PayrollRun : AuditableTenantAggregateRoot<PayrollRunId>
         }
 
         _lines.Add(new PayrollLine(PayrollLineId.New(), employeeId, gross, deductions, net, lossOfPayDays));
+        return Result.Success();
+    }
+
+    public Result AddReimbursement(EmployeeId employeeId, Money amount, Guid sourceExpenseClaimId)
+    {
+        if (Status != PayrollRunStatus.Draft)
+        {
+            return Result.Failure(Error.Conflict("payroll_run.not_draft", "Reimbursements can only be added while the run is in Draft."));
+        }
+
+        if (_reimbursements.Any(r => r.SourceExpenseClaimId == sourceExpenseClaimId))
+        {
+            return Result.Failure(Error.Conflict(
+                "payroll_run.reimbursement_already_added", "This expense claim has already been added to a payroll run."));
+        }
+
+        _reimbursements.Add(new PayrollReimbursement(PayrollReimbursementId.New(), employeeId, amount, sourceExpenseClaimId));
         return Result.Success();
     }
 
