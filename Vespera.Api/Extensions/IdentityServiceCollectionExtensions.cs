@@ -50,6 +50,7 @@ public static class IdentityServiceCollectionExtensions
         builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
         builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
         builder.Services.AddScoped<IAuthorizationHandler, NotCreatorAuthorizationHandler>();
+        builder.Services.AddScoped<IAuthorizationHandler, NotDryRunExecutorAuthorizationHandler>();
         builder.Services.AddScoped<IAuthorizationHandler, SubordinateOrSelfAuthorizationHandler>();
         builder.Services.AddAuthorization();
 

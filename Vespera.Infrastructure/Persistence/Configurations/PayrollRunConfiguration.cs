@@ -19,6 +19,9 @@ public sealed class PayrollRunConfiguration : TenantScopedEntityConfiguration<Pa
         builder.Property(e => e.Month).IsRequired();
         builder.Property(e => e.Year).IsRequired();
         builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(32);
+        builder.Property(e => e.DryRunExecutedBy).HasMaxLength(256);
+        builder.Property(e => e.FreezeOverriddenBy).HasMaxLength(256);
+        builder.Property(e => e.FreezeOverrideReason).HasMaxLength(1000);
 
         builder.OwnsMany(e => e.Lines, lines =>
         {

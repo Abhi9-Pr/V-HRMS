@@ -26,8 +26,7 @@ public class PayrollRunReimbursementTests
     public void AddReimbursement_Should_Fail_Once_The_Run_Is_No_Longer_Draft()
     {
         var run = PayrollRun.Open(TenantId.New(), 1, 2026, Now, "seed").Value;
-        run.AddLine(EmployeeId.New(), Money.Of(50000m, Currency.Inr), Money.Of(5000m, Currency.Inr), Money.Of(45000m, Currency.Inr), 0m);
-        run.Finalize(Now);
+        run.FreezeAttendance(DateOnly.FromDateTime(Now.UtcDateTime), freezeDay: 1, Now, "seed");
 
         var result = run.AddReimbursement(EmployeeId.New(), Money.Of(1500m, Currency.Inr), Guid.NewGuid());
 

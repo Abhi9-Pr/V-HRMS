@@ -37,7 +37,8 @@ public class DecideExpenseApprovalCommandHandlerTests
         claim.AddLine("Travel", Money.Of(1500m, Currency.Inr), new DateOnly(2026, 1, 10), null);
         claim.Submit();
 
-        var chain = ApprovalChain.Create(_tenantId, ApprovalSubjectType.ExpenseClaim, claim.Id.Value, [_approverId]).Value;
+        var chain = ApprovalChain.Create(
+            _tenantId, ApprovalSubjectType.ExpenseClaim, claim.Id.Value, [_approverId], _dateTimeProvider.UtcNow).Value;
 
         _expenseClaims.FirstOrDefaultAsync(Arg.Any<ExpenseClaimByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(claim);
         _approvalChains.FirstOrDefaultAsync(Arg.Any<ApprovalChainBySubjectSpecification>(), Arg.Any<CancellationToken>()).Returns(chain);

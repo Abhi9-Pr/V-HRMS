@@ -112,7 +112,7 @@ public sealed class SubmitExpenseClaimCommandHandler : IRequestHandler<SubmitExp
         var resolvedApproverId = new ApprovalChainResolver().ResolveApprover(manager.ManagerId, today, delegations);
 
         var chainResult = ApprovalChain.Create(
-            _tenantContext.TenantId, ApprovalSubjectType.ExpenseClaim, claim.Id.Value, [resolvedApproverId]);
+            _tenantContext.TenantId, ApprovalSubjectType.ExpenseClaim, claim.Id.Value, [resolvedApproverId], _dateTimeProvider.UtcNow);
         if (chainResult.IsFailure)
         {
             return Result.Failure<SubmitExpenseClaimResultDto>(chainResult.Error);

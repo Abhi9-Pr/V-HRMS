@@ -1,0 +1,56 @@
+<div class="p-6 max-w-4xl mx-auto">
+  <h1 class="text-2xl font-semibold mb-4">Investment Declaration Review Queue</h1>
+
+  @if (error()) {
+    <div class="mb-4 rounded bg-red-50 text-red-800 px-4 py-3">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <vespera-loading-state title="Loading queue…" />
+  } @else if (items().length === 0) {
+    <vespera-empty-state title="Nothing to review" description="Every submitted declaration has been fully reviewed." />
+  } @else {
+    <table mat-table [dataSource]="items()" class="w-full">
+      <ng-container matColumnDef="employeeId">
+        <th mat-header-cell *matHeaderCellDef>Employee</th>
+        <td mat-cell *matCellDef="let item">{{ item.employeeId }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="financialYear">
+        <th mat-header-cell *matHeaderCellDef>FY</th>
+        <td mat-cell *matCellDef="let item">{{ item.financialYear }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="lineCount">
+        <th mat-header-cell *matHeaderCellDef>Lines</th>
+        <td mat-cell *matCellDef="let item">{{ item.lineCount }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="pendingLineCount">
+        <th mat-header-cell *matHeaderCellDef>Pending</th>
+        <td mat-cell *matCellDef="let item">{{ item.pendingLineCount }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Review next pending line</th>
+        <td mat-cell *matCellDef="let item">
+          <div class="flex gap-2 items-center py-2">
+            <mat-form-field class="w-56">
+              <mat-label>Comment</mat-label>
+              <input matInput #comment />
+            </mat-form-field>
+            <button mat-icon-button color="primary" (click)="review(item.id, item.lineCount - item.pendingLineCount, true, comment.value)" aria-label="Approve">
+              Approve
+            </button>
+            <button mat-icon-button color="warn" (click)="review(item.id, item.lineCount - item.pendingLineCount, false, comment.value)" aria-label="Reject">
+              Reject
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  }
+</div>

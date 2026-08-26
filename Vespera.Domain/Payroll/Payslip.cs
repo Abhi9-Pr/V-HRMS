@@ -1,5 +1,6 @@
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
+using Vespera.Domain.Payroll.Events;
 using Vespera.Domain.ValueObjects;
 
 namespace Vespera.Domain.Payroll;
@@ -11,6 +12,11 @@ public readonly record struct PayslipId(Guid Value)
 
 public sealed class Payslip : AggregateRoot<PayslipId>, ITenantScoped
 {
+    private readonly List<PayrollComponentLine> _lines;
+
+    // No `lines` constructor parameter: EF Core cannot constructor-bind an owned-collection
+    // navigation (see PayrollRun's constructor for the same shape) — Generate() below populates
+    // _lines after construction instead.
     private Payslip(PayslipId id, TenantId tenantId, PayrollRunId payrollRunId, EmployeeId employeeId, Money netPay, DateTimeOffset generatedAt)
         : base(id)
     {
@@ -18,6 +24,7 @@ public sealed class Payslip : AggregateRoot<PayslipId>, ITenantScoped
         PayrollRunId = payrollRunId;
         EmployeeId = employeeId;
         NetPay = netPay;
+        _lines = [];
         GeneratedAt = generatedAt;
         IsPublished = false;
     }
@@ -30,12 +37,28 @@ public sealed class Payslip : AggregateRoot<PayslipId>, ITenantScoped
 
     public Money NetPay { get; }
 
+    public IReadOnlyList<PayrollComponentLine> Lines => _lines.AsReadOnly();
+
     public DateTimeOffset GeneratedAt { get; }
 
     public bool IsPublished { get; private set; }
 
-    public static Payslip Generate(TenantId tenantId, PayrollRunId payrollRunId, EmployeeId employeeId, Money netPay, DateTimeOffset generatedAt) =>
-        new(PayslipId.New(), tenantId, payrollRunId, employeeId, netPay, generatedAt);
+    /// <summary>Where the rendered PDF was uploaded via <c>IFileStorage</c> — null until
+    /// <see cref="AttachDocument"/> is called. Downloads go through a short-lived signed URL over
+    /// this key, never a direct path (see /docs/security-notes.md).</summary>
+    public string? StorageKey { get; private set; }
+
+    /// <summary>SHA-256 of the rendered PDF bytes, for tamper detection — not for access control.</summary>
+    public string? DocumentHash { get; private set; }
+
+    public static Payslip Generate(
+        TenantId tenantId, PayrollRunId payrollRunId, EmployeeId employeeId, Money netPay,
+        IReadOnlyList<PayrollComponentLine> lines, DateTimeOffset generatedAt)
+    {
+        var payslip = new Payslip(PayslipId.New(), tenantId, payrollRunId, employeeId, netPay, generatedAt);
+        payslip._lines.AddRange(lines);
+        return payslip;
+    }
 
     public Result MarkPublished()
     {
@@ -45,6 +68,23 @@ public sealed class Payslip : AggregateRoot<PayslipId>, ITenantScoped
         }
 
         IsPublished = true;
+        return Result.Success();
+    }
+
+    /// <summary>Records where the rendered, (obfuscation-only) password-protected PDF was stored
+    /// and its content hash — the tamper-detection value the brief asks for. Real download
+    /// authorization is enforced separately, per request, via the signed URL that serves
+    /// <see cref="StorageKey"/> (see /docs/security-notes.md).</summary>
+    public Result AttachDocument(string storageKey, string documentHash, DateTimeOffset occurredOn)
+    {
+        if (string.IsNullOrWhiteSpace(storageKey) || string.IsNullOrWhiteSpace(documentHash))
+        {
+            return Result.Failure(Error.Validation("payslip.document_reference_required", "Storage key and document hash are required."));
+        }
+
+        StorageKey = storageKey;
+        DocumentHash = documentHash;
+        Raise(new PayslipDocumentAttached(Id, TenantId, EmployeeId, PayrollRunId, occurredOn));
         return Result.Success();
     }
 }

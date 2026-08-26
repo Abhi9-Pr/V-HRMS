@@ -64,7 +64,7 @@ public class ExpenseSettlementFlowTests : IClassFixture<VesperaWebApplicationFac
 
         var openRunResponse = await fatimaClient.PostAsJsonAsync("/api/v1/finance/payroll-runs", new { month = 2, year = 2026 });
         openRunResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var payrollRunId = (await openRunResponse.Content.ReadFromJsonAsync<IdResponse>())!.Id;
+        var payrollRunId = await openRunResponse.Content.ReadFromJsonAsync<Guid>();
 
         var settleResponse = await fatimaClient.PostAsJsonAsync(
             "/api/v1/finance/expense-settlements", new { expenseClaimId = claimId, payrollRunId });

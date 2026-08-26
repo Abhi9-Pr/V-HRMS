@@ -1,27 +1,28 @@
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
+using Vespera.Domain.Services;
 using Vespera.Domain.ValueObjects;
 
 namespace Vespera.Domain.Payroll;
 
 public sealed class SalaryStructureLine : ValueObject
 {
-    private SalaryStructureLine(SalaryComponentId componentId, Money amount)
+    private SalaryStructureLine(SalaryComponentId componentId, SalaryComponentFormula formula)
     {
         ComponentId = componentId;
-        Amount = amount;
+        Formula = formula;
     }
 
     public SalaryComponentId ComponentId { get; }
 
-    public Money Amount { get; }
+    public SalaryComponentFormula Formula { get; }
 
-    public static SalaryStructureLine Of(SalaryComponentId componentId, Money amount) => new(componentId, amount);
+    public static SalaryStructureLine Of(SalaryComponentId componentId, SalaryComponentFormula formula) => new(componentId, formula);
 
     protected override IEnumerable<object?> GetEqualityComponents()
     {
         yield return ComponentId;
-        yield return Amount;
+        yield return Formula;
     }
 }
 
@@ -34,35 +35,47 @@ public sealed class SalaryStructure : EffectiveDated<SalaryStructureId>, ITenant
 {
     private readonly List<SalaryStructureLine> _lines;
 
-    private SalaryStructure(
-        SalaryStructureId id, TenantId tenantId, EmployeeId employeeId, IReadOnlyList<SalaryStructureLine> lines,
-        DateOnly validFrom, DateOnly? validTo)
+    // No `lines` constructor parameter: EF Core cannot constructor-bind an owned-collection
+    // navigation. Create() below populates _lines after construction instead.
+    private SalaryStructure(SalaryStructureId id, TenantId tenantId, EmployeeId employeeId, Money monthlyCtc, DateOnly validFrom, DateOnly? validTo)
         : base(id, validFrom, validTo)
     {
         TenantId = tenantId;
         EmployeeId = employeeId;
-        _lines = [.. lines];
+        MonthlyCtc = monthlyCtc;
+        _lines = [];
     }
 
     public TenantId TenantId { get; }
 
     public EmployeeId EmployeeId { get; }
 
+    /// <summary>The CTC-down target <see cref="Services.SalaryStructureResolver"/> resolves lines
+    /// against — specifically what a lone <see cref="SalaryComponentFormulaKind.RemainderOfCtc"/>
+    /// line's leftover is computed from. Fixed/percentage/sum lines don't need this at all; it only
+    /// matters when a structure has a remainder line.</summary>
+    public Money MonthlyCtc { get; }
+
     public IReadOnlyList<SalaryStructureLine> Lines => _lines.AsReadOnly();
 
     public static Result<SalaryStructure> Create(
-        TenantId tenantId, EmployeeId employeeId, IReadOnlyList<SalaryStructureLine> lines, DateOnly validFrom, DateOnly? validTo)
+        TenantId tenantId, EmployeeId employeeId, Money monthlyCtc, IReadOnlyList<SalaryStructureLine> lines, DateOnly validFrom, DateOnly? validTo)
     {
         if (lines is null || lines.Count == 0)
         {
             return Result.Failure<SalaryStructure>(Error.Validation("salary_structure.no_lines", "A salary structure needs at least one line."));
         }
 
-        return Result.Success(new SalaryStructure(SalaryStructureId.New(), tenantId, employeeId, lines, validFrom, validTo));
-    }
+        var graphResult = SalaryComponentGraphValidator.Validate(lines);
+        if (graphResult.IsFailure)
+        {
+            return Result.Failure<SalaryStructure>(graphResult.Error);
+        }
 
-    /// <summary>Sum of all lines. Currency-mismatched lines throw via Money's own guard.</summary>
-    public Money GrossMonthly() => _lines.Skip(1).Aggregate(_lines[0].Amount, (total, line) => total + line.Amount);
+        var structure = new SalaryStructure(SalaryStructureId.New(), tenantId, employeeId, monthlyCtc, validFrom, validTo);
+        structure._lines.AddRange(lines);
+        return Result.Success(structure);
+    }
 
     public Result EndOn(DateOnly validTo) => Close(validTo);
 }

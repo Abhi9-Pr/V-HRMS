@@ -1,0 +1,33 @@
+{
+  "Gross": 70000,
+  "Deductions": 3106.67,
+  "Net": 66893.33,
+  "LossOfPayDays": 0,
+  "Lines": [
+    {
+      "ComponentName": "Basic",
+      "Direction": "Earning",
+      "Amount": 50000
+    },
+    {
+      "ComponentName": "HRA",
+      "Direction": "Earning",
+      "Amount": 20000
+    },
+    {
+      "ComponentName": "Income Tax (TDS)",
+      "Direction": "Deduction",
+      "Amount": 1166.67
+    },
+    {
+      "ComponentName": "Professional Tax",
+      "Direction": "Deduction",
+      "Amount": 140.0
+    },
+    {
+      "ComponentName": "Provident Fund",
+      "Direction": "Deduction",
+      "Amount": 1800
+    }
+  ]
+}

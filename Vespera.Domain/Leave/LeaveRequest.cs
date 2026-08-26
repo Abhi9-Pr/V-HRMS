@@ -88,7 +88,7 @@ public sealed class LeaveRequest : AggregateRoot<LeaveRequestId>, IAuditable, IT
 
         Status = LeaveRequestStatus.Approved;
         Touch(occurredOn, approvedBy);
-        Raise(new LeaveApproved(Id, EmployeeId, Period, approverId, occurredOn));
+        Raise(new LeaveApproved(Id, TenantId, EmployeeId, Period, approverId, occurredOn));
         return Result.Success();
     }
 
@@ -106,7 +106,7 @@ public sealed class LeaveRequest : AggregateRoot<LeaveRequestId>, IAuditable, IT
 
         Status = LeaveRequestStatus.Rejected;
         Touch(occurredOn, rejectedBy);
-        Raise(new LeaveRejected(Id, EmployeeId, approverId, reason.Trim(), occurredOn));
+        Raise(new LeaveRejected(Id, TenantId, EmployeeId, approverId, reason.Trim(), occurredOn));
         return Result.Success();
     }
 

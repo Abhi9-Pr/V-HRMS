@@ -1,0 +1,50 @@
+<div class="p-6 max-w-2xl mx-auto">
+  <h1 class="text-2xl font-semibold mb-1">Investment Declaration</h1>
+  <p class="text-sm text-gray-600 mb-4">Financial year {{ financialYear }}</p>
+
+  @if (error()) {
+    <div class="mb-4 rounded bg-red-50 text-red-800 px-4 py-3">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <vespera-loading-state title="Loading your declaration…" />
+  } @else {
+    @if (declaration()) {
+      <p class="text-sm mb-2">
+        Status: <strong>{{ declaration()!.status }}</strong>
+      </p>
+      <div class="flex flex-col gap-2 mb-4">
+        @for (line of declaration()!.lines ?? []; track $index) {
+          <div class="flex items-center justify-between border rounded px-3 py-2">
+            <span>{{ line.section }} — {{ line.amount }}</span>
+            <mat-chip [highlighted]="line.reviewStatus === 'Approved'">{{ line.reviewStatus }}</mat-chip>
+          </div>
+        }
+      </div>
+    } @else {
+      <vespera-empty-state title="No declaration yet" description="Add your first line below to start one." />
+    }
+
+    @if (!declaration() || declaration()!.status === 'Draft') {
+      <form [formGroup]="lineForm" (ngSubmit)="addLine()" class="flex items-end gap-3 mb-4">
+        <mat-form-field class="flex-1">
+          <mat-label>Section</mat-label>
+          <input matInput formControlName="section" />
+        </mat-form-field>
+        <mat-form-field class="w-32">
+          <mat-label>Amount</mat-label>
+          <input matInput type="number" formControlName="amount" />
+        </mat-form-field>
+        <mat-form-field class="flex-1">
+          <mat-label>Proof reference</mat-label>
+          <input matInput formControlName="proofFileReference" />
+        </mat-form-field>
+        <button mat-stroked-button type="submit" [disabled]="submitting()">Add line</button>
+      </form>
+
+      @if (declaration() && (declaration()!.lines?.length ?? 0) > 0) {
+        <button mat-flat-button color="primary" [disabled]="submitting()" (click)="submitDeclaration()">Submit for review</button>
+      }
+    }
+  }
+</div>

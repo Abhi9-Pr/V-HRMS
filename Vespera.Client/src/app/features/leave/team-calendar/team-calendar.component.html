@@ -1,0 +1,28 @@
+<h1 class="mb-4 text-xl font-semibold">Team leave calendar</h1>
+
+<vespera-date-range-picker label="Range" (rangeChange)="onRangeChange($event)" class="mb-4 block max-w-md" />
+
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else if (!loading()) {
+  <div class="flex flex-col gap-1">
+    @for (day of days(); track day.date) {
+      <div class="flex items-center justify-between rounded border border-subtle p-2" [class.border-warning]="day.conflictWarning">
+        <span class="font-medium">{{ day.date | date: 'EEE, MMM d' }}</span>
+        <span class="text-sm text-muted">
+          {{ day.employeeIdsOnLeave?.length ?? 0 }} out
+        </span>
+        @if (day.conflictWarning) {
+          <mat-chip color="warn">
+            <mat-icon matChipAvatar>warning</mat-icon>
+            Too many out at once
+          </mat-chip>
+        }
+      </div>
+    }
+
+    @if (days().length === 0) {
+      <p class="text-sm text-muted">No approved leave in this range.</p>
+    }
+  </div>
+}

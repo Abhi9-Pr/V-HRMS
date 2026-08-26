@@ -6,10 +6,10 @@ using Vespera.Domain.Leave;
 
 namespace Vespera.Infrastructure.Persistence.Configurations;
 
-/// <summary>ApprovalChain is AggregateRoot+ITenantScoped, not AuditableTenantAggregateRoot, so it's
-/// configured directly (same shape as ExpenseClaimConfiguration). This is the generic engine
-/// LeaveRequest and ExpenseClaim both submit through — first persisted by the Expenses slice
-/// (11a), reusable unchanged by Leave later.</summary>
+/// <summary>
+/// <see cref="ApprovalChain"/> is a plain <c>AggregateRoot&lt;TId&gt;</c> + <c>ITenantScoped</c>,
+/// owning its <see cref="ApprovalStep"/> collection exactly like <c>AttendanceDay.Punches</c>.
+/// </summary>
 public sealed class ApprovalChainConfiguration : IEntityTypeConfiguration<ApprovalChain>
 {
     public void Configure(EntityTypeBuilder<ApprovalChain> builder)
@@ -22,16 +22,17 @@ public sealed class ApprovalChainConfiguration : IEntityTypeConfiguration<Approv
         builder.Property(e => e.TenantId)
             .HasConversion(id => id.Value, value => new TenantId(value))
             .IsRequired();
-        builder.HasIndex(e => e.TenantId);
 
-        builder.Property(e => e.SubjectType).HasConversion<string>().HasMaxLength(32);
+        builder.Property(e => e.SubjectType).HasConversion<string>().HasMaxLength(32).IsRequired();
         builder.Property(e => e.SubjectId).IsRequired();
-        builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(32);
+        builder.HasIndex(e => new { e.TenantId, e.SubjectType, e.SubjectId }).IsUnique();
+
+        builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(16).IsRequired();
         builder.Property(e => e.CurrentStepIndex).IsRequired();
 
         builder.Property(e => e.RowVersion).IsConcurrencyToken();
-
         builder.Ignore(e => e.DomainEvents);
+        builder.Ignore(e => e.CurrentStep);
 
         builder.OwnsMany(e => e.Steps, steps =>
         {
@@ -43,11 +44,14 @@ public sealed class ApprovalChainConfiguration : IEntityTypeConfiguration<Approv
 
             steps.Property(s => s.SequenceNumber).IsRequired();
             steps.Property(s => s.ApproverId).HasConversion(id => id.Value, value => new EmployeeId(value));
-            steps.Property(s => s.Status).HasConversion<string>().HasMaxLength(32);
-            steps.Property(s => s.DecidedBy)
-                .HasConversion(id => id != null ? id.Value.Value : (Guid?)null, value => value != null ? new EmployeeId(value.Value) : (EmployeeId?)null);
+            steps.Property(s => s.Status).HasConversion<string>().HasMaxLength(16).IsRequired();
+            steps.Property(s => s.DecidedBy).HasConversion(
+                id => id == null ? (Guid?)null : id.Value.Value,
+                value => value == null ? (EmployeeId?)null : new EmployeeId(value.Value));
             steps.Property(s => s.DecidedAt);
-            steps.Property(s => s.Comment).HasMaxLength(1024);
+            steps.Property(s => s.Comment).HasMaxLength(1000);
+
+            steps.HasIndex("ApprovalChainId", nameof(ApprovalStep.SequenceNumber)).IsUnique();
         });
     }
 }

@@ -1,5 +1,6 @@
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
+using Vespera.Domain.Leave.Events;
 
 namespace Vespera.Domain.Leave;
 
@@ -21,6 +22,7 @@ public enum ApprovalChainStatus
     InProgress,
     Approved,
     Rejected,
+    Cancelled,
 }
 
 public sealed class ApprovalChain : AggregateRoot<ApprovalChainId>, ITenantScoped
@@ -52,7 +54,8 @@ public sealed class ApprovalChain : AggregateRoot<ApprovalChainId>, ITenantScope
     public ApprovalStep CurrentStep => _steps[CurrentStepIndex];
 
     public static Result<ApprovalChain> Create(
-        TenantId tenantId, ApprovalSubjectType subjectType, Guid subjectId, IReadOnlyList<EmployeeId> approverSequence)
+        TenantId tenantId, ApprovalSubjectType subjectType, Guid subjectId, IReadOnlyList<EmployeeId> approverSequence,
+        DateTimeOffset occurredOn)
     {
         if (approverSequence is null || approverSequence.Count == 0)
         {
@@ -66,6 +69,9 @@ public sealed class ApprovalChain : AggregateRoot<ApprovalChainId>, ITenantScope
         {
             chain._steps.Add(new ApprovalStep(ApprovalStepId.New(), i, approverSequence[i]));
         }
+
+        chain.Raise(new ApprovalStepAssigned(
+            chain.Id, tenantId, subjectType, subjectId, chain.CurrentStepIndex, chain.CurrentStep.ApproverId, occurredOn));
 
         return Result.Success(chain);
     }
@@ -86,10 +92,12 @@ public sealed class ApprovalChain : AggregateRoot<ApprovalChainId>, ITenantScope
         if (CurrentStepIndex == _steps.Count - 1)
         {
             Status = ApprovalChainStatus.Approved;
+            Raise(new ApprovalChainApproved(Id, TenantId, SubjectType, SubjectId, occurredOn));
         }
         else
         {
             CurrentStepIndex++;
+            Raise(new ApprovalStepAssigned(Id, TenantId, SubjectType, SubjectId, CurrentStepIndex, CurrentStep.ApproverId, occurredOn));
         }
 
         return Result.Success();
@@ -109,6 +117,21 @@ public sealed class ApprovalChain : AggregateRoot<ApprovalChainId>, ITenantScope
         }
 
         Status = ApprovalChainStatus.Rejected;
+        Raise(new ApprovalChainRejected(Id, TenantId, SubjectType, SubjectId, decidedBy, comment, occurredOn));
+        return Result.Success();
+    }
+
+    /// <summary>Withdraws the chain before it reaches a terminal decision — e.g. the requester
+    /// withdraws a still-pending leave request. No event is raised: the caller (the command handler
+    /// that also cancels the subject aggregate) is the one place that needs to know.</summary>
+    public Result Cancel()
+    {
+        if (Status != ApprovalChainStatus.InProgress)
+        {
+            return Result.Failure(Error.Conflict("approval_chain.not_in_progress", "This approval chain is no longer in progress."));
+        }
+
+        Status = ApprovalChainStatus.Cancelled;
         return Result.Success();
     }
 }

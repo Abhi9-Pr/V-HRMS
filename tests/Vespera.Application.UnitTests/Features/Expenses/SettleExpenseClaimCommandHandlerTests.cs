@@ -67,8 +67,7 @@ public class SettleExpenseClaimCommandHandlerTests
     {
         var claim = CreateApprovedClaim();
         var payrollRun = PayrollRun.Open(_tenantId, 1, 2026, DateTimeOffset.UtcNow, "system").Value;
-        payrollRun.AddLine(EmployeeId.New(), Money.Of(1000m, Currency.Inr), Money.Of(0m, Currency.Inr), Money.Of(1000m, Currency.Inr), 0m);
-        payrollRun.Finalize(DateTimeOffset.UtcNow);
+        payrollRun.FreezeAttendance(DateOnly.FromDateTime(DateTimeOffset.UtcNow.UtcDateTime), freezeDay: 1, DateTimeOffset.UtcNow, "system");
 
         _expenseClaims.FirstOrDefaultAsync(Arg.Any<ExpenseClaimByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(claim);
         _payrollRuns.FirstOrDefaultAsync(Arg.Any<PayrollRunByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(payrollRun);

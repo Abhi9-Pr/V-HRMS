@@ -24,12 +24,23 @@ public static class Permissions
         public const string Read = "Payroll.Read";
         public const string Write = "Payroll.Write";
         public const string Finalize = "Payroll.Finalize";
+
+        /// <summary>Every employee's own investment declaration (submit, add a line) - distinct
+        /// from <see cref="Read"/>/<see cref="Write"/>, which are Finance-only and cover every
+        /// employee's payroll data, not just the caller's own.</summary>
+        public const string SelfService = "Payroll.SelfService";
     }
 
     public static class Leave
     {
         public const string Request = "Leave.Request";
         public const string Approve = "Leave.Approve";
+        public const string Cancel = "Leave.Cancel";
+        public const string Encash = "Leave.Encash";
+        public const string ReadTeam = "Leave.ReadTeam";
+        public const string ManagePolicy = "Leave.ManagePolicy";
+        public const string ManageBlackout = "Leave.ManageBlackout";
+        public const string ManageDelegation = "Leave.ManageDelegation";
     }
 
     public static class Departments

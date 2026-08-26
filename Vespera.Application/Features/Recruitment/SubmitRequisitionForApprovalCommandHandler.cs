@@ -87,7 +87,7 @@ public sealed class SubmitRequisitionForApprovalCommandHandler : IRequestHandler
         var resolvedApproverId = new ApprovalChainResolver().ResolveApprover(manager.ManagerId, today, delegations);
 
         var chainResult = ApprovalChain.Create(
-            _tenantContext.TenantId, ApprovalSubjectType.JobRequisition, requisition.Id.Value, [resolvedApproverId]);
+            _tenantContext.TenantId, ApprovalSubjectType.JobRequisition, requisition.Id.Value, [resolvedApproverId], now);
         if (chainResult.IsFailure)
         {
             return chainResult;

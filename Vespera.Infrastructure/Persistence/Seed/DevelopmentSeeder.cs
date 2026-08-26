@@ -139,6 +139,19 @@ public static class DevelopmentSeeder
         employeeRole.Grant(Find(Permissions.Regularizations.Request).Id, now, createdBy);
         employeeRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
         employeeRole.Grant(Find(Permissions.Helpdesk.RaiseTickets).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ReadTeam).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ManagePolicy).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ManageBlackout).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ManageDelegation).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.Encash).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.Cancel).Id, now, createdBy);
+
+        managerRole.Grant(Find(Permissions.Leave.ReadTeam).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Leave.ManageDelegation).Id, now, createdBy);
+
+        employeeRole.Grant(Find(Permissions.Leave.Cancel).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Leave.Encash).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Payroll.SelfService).Id, now, createdBy);
 
         var financeRole = Role.Create(tid, "Finance", now, createdBy).Value;
         financeRole.Grant(Find(Permissions.Finance.Admin).Id, now, createdBy);
@@ -177,13 +190,30 @@ public static class DevelopmentSeeder
         var casualLeave = LeaveType.Create(tid, "Casual Leave", isPaid: true, carryForwardLimit: 5, now, createdBy).Value;
         var sickLeave = LeaveType.Create(tid, "Sick Leave", isPaid: true, carryForwardLimit: 0, now, createdBy).Value;
         var earnedLeave = LeaveType.Create(tid, "Earned Leave", isPaid: true, carryForwardLimit: 15, now, createdBy).Value;
+        earnedLeave.UpdateEligibilityRules(
+            applicableGender: null, minimumTenureMonths: 0, isEncashable: true, maxEncashableDays: 10, now, createdBy);
         dbContext.AddRange(casualLeave, sickLeave, earnedLeave);
 
         var policyValidFrom = new DateOnly(2026, 1, 1);
-        dbContext.AddRange(
-            LeavePolicy.Create(tid, casualLeave.Id, annualEntitlementDays: 12, accrualRatePerMonth: 1, maxCarryForwardDays: 5, policyValidFrom, null).Value,
-            LeavePolicy.Create(tid, sickLeave.Id, annualEntitlementDays: 10, accrualRatePerMonth: 0.83m, maxCarryForwardDays: 0, policyValidFrom, null).Value,
-            LeavePolicy.Create(tid, earnedLeave.Id, annualEntitlementDays: 18, accrualRatePerMonth: 1.5m, maxCarryForwardDays: 15, policyValidFrom, null).Value);
+        var casualPolicy = LeavePolicy.Create(
+            tid, casualLeave.Id, annualEntitlementDays: 12, accrualRatePerMonth: 1, maxCarryForwardDays: 5, policyValidFrom, null).Value;
+        var sickPolicy = LeavePolicy.Create(
+            tid, sickLeave.Id, annualEntitlementDays: 10, accrualRatePerMonth: 0.83m, maxCarryForwardDays: 0, policyValidFrom, null).Value;
+        var earnedPolicy = LeavePolicy.Create(
+            tid, earnedLeave.Id, annualEntitlementDays: 18, accrualRatePerMonth: 1.5m, maxCarryForwardDays: 15, policyValidFrom, null).Value;
+
+        // Earned Leave demonstrates the full multi-tier chain: direct manager, then (once the
+        // request exceeds 3 days) the manager's manager, then a final HR sign-off.
+        earnedPolicy.ConfigureApprovalChain(requiresSkipLevelApproval: false, skipLevelThresholdDays: 3m, requiresHrApproval: true);
+        earnedPolicy.ConfigureBalanceRules(NegativeBalancePolicy.AllowWithLop, maxNegativeBalanceDays: 0m, sandwichLeaveEnabled: true);
+        casualPolicy.ConfigureBalanceRules(NegativeBalancePolicy.AllowWithLop, maxNegativeBalanceDays: 0m, sandwichLeaveEnabled: false);
+        sickPolicy.ConfigureBalanceRules(NegativeBalancePolicy.AllowNegative, maxNegativeBalanceDays: 3m, sandwichLeaveEnabled: false);
+
+        dbContext.AddRange(casualPolicy, sickPolicy, earnedPolicy);
+
+        dbContext.Add(BlackoutPeriod.Create(
+            tid, DateRange.Create(new DateOnly(2026, 12, 24), new DateOnly(2027, 1, 2)).Value,
+            "Year-end freeze", leaveTypeId: null, now, createdBy).Value);
 
         // Indian FY 2026-27 (1 Apr 2026 - 31 Mar 2027) statutory rates.
         var fyStart = new DateOnly(2026, 4, 1);
@@ -275,11 +305,19 @@ public static class DevelopmentSeeder
             applicationUser.TwoFactorEnabled = true;
         }
 
-        // A draft payroll run "created" by Vikram — used by FinancePolicyWallTests to prove
-        // maker-checker: Vikram (the creator) must not be able to finalize his own run, but
-        // Fatima (a different Finance.Admin) can.
-        var payrollRun = PayrollRun.Open(tid, DateTime.UtcNow.Month, DateTime.UtcNow.Year, now, vikramUser.Id.Value.ToString()).Value;
-        payrollRun.AddLine(priya.Id, Money.Of(80000m, Currency.Inr), Money.Of(8000m, Currency.Inr), Money.Of(72000m, Currency.Inr), 0m);
+        // A payroll run "created" and dry-run by Vikram, driven through the real domain
+        // transitions to Approved — used by FinancePolicyWallTests to prove maker-checker: Vikram
+        // (the creator) must not be able to finalize his own run, but Fatima (a different
+        // Finance.Admin) can. freezeDay: 1 keeps FreezeAttendance's "before the configured day"
+        // branch (which requires an override reason) unreachable regardless of what day seeding runs on.
+        var vikramId = vikramUser.Id.Value.ToString();
+        var payrollRun = PayrollRun.Open(tid, DateTime.UtcNow.Month, DateTime.UtcNow.Year, now, vikramId).Value;
+        payrollRun.FreezeAttendance(DateOnly.FromDateTime(now.UtcDateTime), freezeDay: 1, now, vikramId);
+        payrollRun.RecomputeLines(
+            [new PayrollLineInput(priya.Id, Money.Of(80000m, Currency.Inr), Money.Of(8000m, Currency.Inr), Money.Of(72000m, Currency.Inr), 0m)],
+            vikramId, now);
+        payrollRun.SubmitForReview();
+        payrollRun.Approve(fatimaUser.Id.Value.ToString(), now);
         dbContext.Add(payrollRun);
 
         dbContext.AddRange(

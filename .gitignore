@@ -72,3 +72,6 @@ Vespera.Api/.vespera-storage/
 
 # Build-time OpenAPI artifact (see Vespera.Api.csproj's GenerateOpenApiDocument target) — regenerated on every build.
 Vespera.Api/openapi.json
+
+# LocalFileStorage's dev-only upload target — local only, never committed.
+Vespera.Api/.vespera-storage/

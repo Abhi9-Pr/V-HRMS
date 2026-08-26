@@ -37,7 +37,8 @@ public class DecideRequisitionApprovalCommandHandlerTests
         var requisition = JobRequisition.Create(_tenantId, "Senior Engineer", DepartmentId.New(), 1, DateTimeOffset.UtcNow, "system").Value;
         requisition.SubmitForApproval(DateTimeOffset.UtcNow, "system");
 
-        var chain = ApprovalChain.Create(_tenantId, ApprovalSubjectType.JobRequisition, requisition.Id.Value, [_approverId]).Value;
+        var chain = ApprovalChain.Create(
+            _tenantId, ApprovalSubjectType.JobRequisition, requisition.Id.Value, [_approverId], DateTimeOffset.UtcNow).Value;
 
         _requisitionReads.FirstOrDefaultAsync(Arg.Any<JobRequisitionByIdSpecification>(), Arg.Any<CancellationToken>()).Returns(requisition);
         _approvalChains.FirstOrDefaultAsync(Arg.Any<ApprovalChainBySubjectSpecification>(), Arg.Any<CancellationToken>()).Returns(chain);

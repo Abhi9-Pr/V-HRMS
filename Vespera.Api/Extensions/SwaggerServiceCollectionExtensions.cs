@@ -22,7 +22,12 @@ public static class SwaggerServiceCollectionExtensions
             // enumerates actions, which shifts unpredictably every time a new colliding action is
             // added anywhere in the API and has already broken existing generated-client callers
             // (Vespera.Client/src/app/features/departments/data/departments.facade.ts) once.
-            // Qualifying by controller name guarantees global uniqueness deterministically.
+            // Qualifying by controller name guarantees global uniqueness deterministically. This
+            // does mean every generated client method reads as e.g.
+            // "expensesClient.expenses_OpenClaim(...)" rather than a bare "openClaim(...)" — a
+            // deliberate trade against relying on every controller across the whole API surface
+            // keeping its action names collision-free by convention, which doesn't scale as more
+            // features are added and already broke once even with careful naming.
             options.CustomOperationIds(description =>
                 description.ActionDescriptor is ControllerActionDescriptor controllerAction
                     ? $"{controllerAction.ControllerName}_{controllerAction.MethodInfo.Name}"

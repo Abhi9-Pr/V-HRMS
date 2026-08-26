@@ -7,6 +7,9 @@ using Vespera.Application.Features.Auth;
 using Vespera.Application.Features.Expenses;
 using Vespera.Application.Features.Expenses.Policy;
 using Vespera.Application.Features.Helpdesk.Routing;
+using Vespera.Application.Features.Leave;
+using Vespera.Application.Features.Payroll;
+using Vespera.Application.Features.Payroll.Rules;
 using Vespera.Application.Features.Recruitment.Rules;
 using Vespera.Domain.Services;
 
@@ -22,6 +25,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddValidatorsFromAssembly(assembly);
         services.AddScoped<PermissionResolver>();
         services.AddScoped<RegularizationApproverResolver>();
+        services.AddScoped<LeaveApprovalChainBuilder>();
+        services.AddScoped<LeaveApprovalStepAuthorizer>();
 
         // Haversine today; Vincenty (or another IDistanceCalculator) can swap in later behind the
         // same registration line — see GeofenceEvaluator's callers, none of which know which one
@@ -36,6 +41,20 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IStageTransitionRule, RequiresCompletedInterviewBeforeOfferStageRule>();
         services.AddScoped<TicketRoutingEvaluator>();
         services.AddScoped<ITicketRoutingRule, DefaultToDepartmentHeadRoutingRule>();
+
+        // The payroll rules pipeline: adding a component means adding one new IPayrollComponentRule
+        // class and one registration line here, nothing else — see PayrollComponentRuleRegistrationTests
+        // in Vespera.Architecture.Tests for the mechanical proof.
+        services.AddScoped<PayrollComputationEngine>();
+        services.AddScoped<IPayrollComponentRule, EarningsRule>();
+        services.AddScoped<IPayrollComponentRule, AttendanceLopRule>();
+        services.AddScoped<IPayrollComponentRule, ProvidentFundRule>();
+        services.AddScoped<IPayrollComponentRule, EmployeeStateInsuranceRule>();
+        services.AddScoped<IPayrollComponentRule, ProfessionalTaxRule>();
+        services.AddScoped<IPayrollComponentRule, IncomeTaxRule>();
+        services.AddScoped<IPayrollComponentRule, VoluntaryDeductionsRule>();
+        services.AddScoped<IPayrollComponentRule, ReimbursementsRule>();
+        services.AddScoped<IPayrollComponentRule, NetPayRule>();
 
         // Order matters: outermost first. See docs/CONTRIBUTING-slices.md for the rationale.
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
