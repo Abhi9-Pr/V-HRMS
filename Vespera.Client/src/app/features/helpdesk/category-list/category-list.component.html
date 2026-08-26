@@ -1,0 +1,19 @@
+<div class="mb-4 flex items-center justify-between">
+  <h1 class="text-xl font-semibold">Ticket categories</h1>
+  <vespera-permission-button [permission]="Permissions.Helpdesk.ManageConfiguration" variant="flat" (clicked)="openCreateDialog()">
+    New category
+  </vespera-permission-button>
+</div>
+
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else {
+  <vespera-data-table
+    [columns]="columns"
+    [rows]="categories()"
+    [totalCount]="totalCount()"
+    [loading]="loading()"
+    emptyLabel="No ticket categories yet — create the first one."
+    (queryChange)="onQueryChange($event)"
+  />
+}

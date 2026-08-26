@@ -22,6 +22,36 @@ export const Permissions = {
     Read: 'Departments.Read',
     Manage: 'Departments.Manage',
   },
+  Expenses: {
+    Submit: 'Expenses.Submit',
+    Approve: 'Expenses.Approve',
+    ManagePolicy: 'Expenses.ManagePolicy',
+    Settle: 'Expenses.Settle',
+  },
+  Assets: {
+    Read: 'Assets.Read',
+    Write: 'Assets.Write',
+    Assign: 'Assets.Assign',
+    Recover: 'Assets.Recover',
+  },
+  Licenses: {
+    Read: 'Licenses.Read',
+    Manage: 'Licenses.Manage',
+  },
+  Recruitment: {
+    ManageRequisitions: 'Recruitment.ManageRequisitions',
+    ApproveRequisitions: 'Recruitment.ApproveRequisitions',
+    ManageCandidates: 'Recruitment.ManageCandidates',
+    ManageInterviews: 'Recruitment.ManageInterviews',
+    ManageOffers: 'Recruitment.ManageOffers',
+    ConvertToEmployee: 'Recruitment.ConvertToEmployee',
+  },
+  Helpdesk: {
+    RaiseTickets: 'Helpdesk.RaiseTickets',
+    ManageTickets: 'Helpdesk.ManageTickets',
+    ManageConfiguration: 'Helpdesk.ManageConfiguration',
+    ViewReports: 'Helpdesk.ViewReports',
+  },
   Users: {
     Manage: 'Users.Manage',
   },

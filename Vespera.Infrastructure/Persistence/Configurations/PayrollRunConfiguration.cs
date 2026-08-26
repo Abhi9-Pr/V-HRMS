@@ -19,6 +19,9 @@ public sealed class PayrollRunConfiguration : TenantScopedEntityConfiguration<Pa
         builder.Property(e => e.Month).IsRequired();
         builder.Property(e => e.Year).IsRequired();
         builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(32);
+        builder.Property(e => e.DryRunExecutedBy).HasMaxLength(256);
+        builder.Property(e => e.FreezeOverriddenBy).HasMaxLength(256);
+        builder.Property(e => e.FreezeOverrideReason).HasMaxLength(1000);
 
         builder.OwnsMany(e => e.Lines, lines =>
         {
@@ -38,6 +41,19 @@ public sealed class PayrollRunConfiguration : TenantScopedEntityConfiguration<Pa
             lines.Property(l => l.Net).HasConversion(MoneyConverter.Instance).HasMaxLength(64);
 
             lines.Property(l => l.LossOfPayDays).HasPrecision(5, 2);
+        });
+
+        builder.OwnsMany(e => e.Reimbursements, reimbursements =>
+        {
+            reimbursements.ToTable("PayrollReimbursements");
+            reimbursements.HasKey(r => r.Id);
+            reimbursements.Property(r => r.Id)
+                .HasConversion(id => id.Value, value => new PayrollReimbursementId(value))
+                .ValueGeneratedNever();
+
+            reimbursements.Property(r => r.EmployeeId).HasConversion(id => id.Value, value => new EmployeeId(value));
+            reimbursements.Property(r => r.Amount).HasConversion(MoneyConverter.Instance).HasMaxLength(64);
+            reimbursements.Property(r => r.SourceExpenseClaimId).IsRequired();
         });
     }
 

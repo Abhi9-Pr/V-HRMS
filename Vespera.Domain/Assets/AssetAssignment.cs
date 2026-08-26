@@ -11,6 +11,8 @@ public readonly record struct AssetAssignmentId(Guid Value)
 
 public sealed class AssetAssignment : AggregateRoot<AssetAssignmentId>, ITenantScoped
 {
+    private readonly List<AssetConditionReport> _conditionReports = [];
+
     private AssetAssignment(AssetAssignmentId id, TenantId tenantId, AssetId assetId, EmployeeId employeeId, DateTimeOffset assignedAt)
         : base(id)
     {
@@ -32,6 +34,10 @@ public sealed class AssetAssignment : AggregateRoot<AssetAssignmentId>, ITenantS
 
     public string? ReturnCondition { get; private set; }
 
+    public string? HandoverSignatureReference { get; private set; }
+
+    public IReadOnlyList<AssetConditionReport> ConditionReports => _conditionReports.AsReadOnly();
+
     public static AssetAssignment Assign(TenantId tenantId, AssetId assetId, EmployeeId employeeId, DateTimeOffset occurredOn)
     {
         var assignment = new AssetAssignment(AssetAssignmentId.New(), tenantId, assetId, employeeId, occurredOn);
@@ -48,6 +54,23 @@ public sealed class AssetAssignment : AggregateRoot<AssetAssignmentId>, ITenantS
 
         ReturnedAt = occurredOn;
         ReturnCondition = condition;
+        return Result.Success();
+    }
+
+    public Result CaptureHandoverSignature(string signatureReference)
+    {
+        if (string.IsNullOrWhiteSpace(signatureReference))
+        {
+            return Result.Failure(Error.Validation("asset_assignment.signature_reference_required", "Signature reference is required."));
+        }
+
+        HandoverSignatureReference = signatureReference.Trim();
+        return Result.Success();
+    }
+
+    public Result RecordConditionReport(AssetConditionRating rating, string? notes, DateTimeOffset occurredOn, string recordedBy)
+    {
+        _conditionReports.Add(new AssetConditionReport(rating, notes, occurredOn, recordedBy));
         return Result.Success();
     }
 }

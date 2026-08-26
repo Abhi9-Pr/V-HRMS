@@ -10,7 +10,7 @@ public static class DatabaseServiceCollectionExtensions
     public static WebApplicationBuilder AddVesperaDatabase(this WebApplicationBuilder builder)
     {
         builder.Services.AddVesperaDatabaseProvisioning(builder.Configuration, builder.Environment);
-        builder.Services.AddVesperaPersistence();
+        builder.Services.AddVesperaPersistence(builder.Configuration);
         return builder;
     }
 

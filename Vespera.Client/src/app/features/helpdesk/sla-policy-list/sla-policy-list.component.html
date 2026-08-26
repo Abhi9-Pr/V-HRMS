@@ -1,0 +1,19 @@
+<div class="mb-4 flex items-center justify-between">
+  <h1 class="text-xl font-semibold">SLA policies</h1>
+  <vespera-permission-button [permission]="Permissions.Helpdesk.ManageConfiguration" variant="flat" (clicked)="openCreateDialog()">
+    New policy
+  </vespera-permission-button>
+</div>
+
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else {
+  <vespera-data-table
+    [columns]="columns"
+    [rows]="policies()"
+    [totalCount]="totalCount()"
+    [loading]="loading()"
+    emptyLabel="No SLA policies yet — create the first one."
+    (queryChange)="onQueryChange($event)"
+  />
+}

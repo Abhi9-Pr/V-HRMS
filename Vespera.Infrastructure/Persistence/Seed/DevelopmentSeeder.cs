@@ -106,18 +106,61 @@ public static class DevelopmentSeeder
         hrRole.Grant(Find(Permissions.Regularizations.Approve).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.Regularizations.ReadTeam).Id, now, createdBy);
         hrRole.Grant(Find(Permissions.BiometricDevices.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Expenses.Approve).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Write).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Assign).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Assets.Recover).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Licenses.Read).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Licenses.Manage).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageRequisitions).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageCandidates).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageInterviews).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ManageOffers).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Recruitment.ConvertToEmployee).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Helpdesk.RaiseTickets).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Helpdesk.ManageTickets).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Helpdesk.ManageConfiguration).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Helpdesk.ViewReports).Id, now, createdBy);
 
         managerRole.Grant(Find(Permissions.Employees.Read).Id, now, createdBy);
         managerRole.Grant(Find(Permissions.Leave.Approve).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Expenses.Approve).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Assets.Read).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Licenses.Read).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Recruitment.ApproveRequisitions).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Helpdesk.RaiseTickets).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Helpdesk.ManageTickets).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Helpdesk.ViewReports).Id, now, createdBy);
 
         employeeRole.Grant(Find(Permissions.Leave.Request).Id, now, createdBy);
         employeeRole.Grant(Find(Permissions.Regularizations.Request).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Expenses.Submit).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Helpdesk.RaiseTickets).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ReadTeam).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ManagePolicy).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ManageBlackout).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.ManageDelegation).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.Encash).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Leave.Cancel).Id, now, createdBy);
+
+        managerRole.Grant(Find(Permissions.Leave.ReadTeam).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Leave.ManageDelegation).Id, now, createdBy);
+
+        employeeRole.Grant(Find(Permissions.Leave.Cancel).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Leave.Encash).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Payroll.SelfService).Id, now, createdBy);
 
         var financeRole = Role.Create(tid, "Finance", now, createdBy).Value;
         financeRole.Grant(Find(Permissions.Finance.Admin).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Payroll.Read).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Payroll.Write).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Payroll.Finalize).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Expenses.ManagePolicy).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Expenses.Settle).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Recruitment.ApproveRequisitions).Id, now, createdBy);
 
         dbContext.AddRange(adminRole, hrRole, managerRole, employeeRole, financeRole);
 
@@ -147,13 +190,30 @@ public static class DevelopmentSeeder
         var casualLeave = LeaveType.Create(tid, "Casual Leave", isPaid: true, carryForwardLimit: 5, now, createdBy).Value;
         var sickLeave = LeaveType.Create(tid, "Sick Leave", isPaid: true, carryForwardLimit: 0, now, createdBy).Value;
         var earnedLeave = LeaveType.Create(tid, "Earned Leave", isPaid: true, carryForwardLimit: 15, now, createdBy).Value;
+        earnedLeave.UpdateEligibilityRules(
+            applicableGender: null, minimumTenureMonths: 0, isEncashable: true, maxEncashableDays: 10, now, createdBy);
         dbContext.AddRange(casualLeave, sickLeave, earnedLeave);
 
         var policyValidFrom = new DateOnly(2026, 1, 1);
-        dbContext.AddRange(
-            LeavePolicy.Create(tid, casualLeave.Id, annualEntitlementDays: 12, accrualRatePerMonth: 1, maxCarryForwardDays: 5, policyValidFrom, null).Value,
-            LeavePolicy.Create(tid, sickLeave.Id, annualEntitlementDays: 10, accrualRatePerMonth: 0.83m, maxCarryForwardDays: 0, policyValidFrom, null).Value,
-            LeavePolicy.Create(tid, earnedLeave.Id, annualEntitlementDays: 18, accrualRatePerMonth: 1.5m, maxCarryForwardDays: 15, policyValidFrom, null).Value);
+        var casualPolicy = LeavePolicy.Create(
+            tid, casualLeave.Id, annualEntitlementDays: 12, accrualRatePerMonth: 1, maxCarryForwardDays: 5, policyValidFrom, null).Value;
+        var sickPolicy = LeavePolicy.Create(
+            tid, sickLeave.Id, annualEntitlementDays: 10, accrualRatePerMonth: 0.83m, maxCarryForwardDays: 0, policyValidFrom, null).Value;
+        var earnedPolicy = LeavePolicy.Create(
+            tid, earnedLeave.Id, annualEntitlementDays: 18, accrualRatePerMonth: 1.5m, maxCarryForwardDays: 15, policyValidFrom, null).Value;
+
+        // Earned Leave demonstrates the full multi-tier chain: direct manager, then (once the
+        // request exceeds 3 days) the manager's manager, then a final HR sign-off.
+        earnedPolicy.ConfigureApprovalChain(requiresSkipLevelApproval: false, skipLevelThresholdDays: 3m, requiresHrApproval: true);
+        earnedPolicy.ConfigureBalanceRules(NegativeBalancePolicy.AllowWithLop, maxNegativeBalanceDays: 0m, sandwichLeaveEnabled: true);
+        casualPolicy.ConfigureBalanceRules(NegativeBalancePolicy.AllowWithLop, maxNegativeBalanceDays: 0m, sandwichLeaveEnabled: false);
+        sickPolicy.ConfigureBalanceRules(NegativeBalancePolicy.AllowNegative, maxNegativeBalanceDays: 3m, sandwichLeaveEnabled: false);
+
+        dbContext.AddRange(casualPolicy, sickPolicy, earnedPolicy);
+
+        dbContext.Add(BlackoutPeriod.Create(
+            tid, DateRange.Create(new DateOnly(2026, 12, 24), new DateOnly(2027, 1, 2)).Value,
+            "Year-end freeze", leaveTypeId: null, now, createdBy).Value);
 
         // Indian FY 2026-27 (1 Apr 2026 - 31 Mar 2027) statutory rates.
         var fyStart = new DateOnly(2026, 4, 1);
@@ -189,11 +249,21 @@ public static class DevelopmentSeeder
             EmailAddress.Create("fatima.khan@demo.vespera.test").Value, PhoneNumber.Create("+919812345005").Value,
             new DateOnly(1990, 9, 5), new DateOnly(2021, 1, 10), finance.Id, financeManager.Id, headOffice.Id, now, createdBy).Value;
 
+        // Rohan is HR's head — Helpdesk's routing engine and SLA-breach escalation both need a
+        // department with a real HeadEmployeeId to route/escalate to; no AssignHead command/API
+        // exists yet (Departments only ever got the minimal Phase 3 reference slice), so this is
+        // seeded directly, the same way the payroll run fixture below is.
+        humanResources.AssignHead(rohan.Id, now, createdBy);
+
         dbContext.AddRange(priya, rohan, ananya, vikram, fatima);
 
         dbContext.AddRange(
             ReportingRelationship.Create(tid, priya.Id, rohan.Id, priya.DateOfJoining, null).Value,
-            ReportingRelationship.Create(tid, ananya.Id, rohan.Id, ananya.DateOfJoining, null).Value);
+            ReportingRelationship.Create(tid, ananya.Id, rohan.Id, ananya.DateOfJoining, null).Value,
+            // Rohan (HR) submits job requisitions for approval; Vikram (Finance) signs off on the
+            // headcount budget — the same generic ReportingRelationship-based approver resolution
+            // every submission flow in this codebase uses, not a literal line-management claim.
+            ReportingRelationship.Create(tid, rohan.Id, vikram.Id, rohan.DateOfJoining, null).Value);
 
         var priyaUser = User.Create(tid, priya.WorkEmail, priya.Id, now, createdBy);
         priyaUser.AssignRole(employeeRole.Id, now, createdBy);
@@ -235,11 +305,19 @@ public static class DevelopmentSeeder
             applicationUser.TwoFactorEnabled = true;
         }
 
-        // A draft payroll run "created" by Vikram — used by FinancePolicyWallTests to prove
-        // maker-checker: Vikram (the creator) must not be able to finalize his own run, but
-        // Fatima (a different Finance.Admin) can.
-        var payrollRun = PayrollRun.Open(tid, DateTime.UtcNow.Month, DateTime.UtcNow.Year, now, vikramUser.Id.Value.ToString()).Value;
-        payrollRun.AddLine(priya.Id, Money.Of(80000m, Currency.Inr), Money.Of(8000m, Currency.Inr), Money.Of(72000m, Currency.Inr), 0m);
+        // A payroll run "created" and dry-run by Vikram, driven through the real domain
+        // transitions to Approved — used by FinancePolicyWallTests to prove maker-checker: Vikram
+        // (the creator) must not be able to finalize his own run, but Fatima (a different
+        // Finance.Admin) can. freezeDay: 1 keeps FreezeAttendance's "before the configured day"
+        // branch (which requires an override reason) unreachable regardless of what day seeding runs on.
+        var vikramId = vikramUser.Id.Value.ToString();
+        var payrollRun = PayrollRun.Open(tid, DateTime.UtcNow.Month, DateTime.UtcNow.Year, now, vikramId).Value;
+        payrollRun.FreezeAttendance(DateOnly.FromDateTime(now.UtcDateTime), freezeDay: 1, now, vikramId);
+        payrollRun.RecomputeLines(
+            [new PayrollLineInput(priya.Id, Money.Of(80000m, Currency.Inr), Money.Of(8000m, Currency.Inr), Money.Of(72000m, Currency.Inr), 0m)],
+            vikramId, now);
+        payrollRun.SubmitForReview();
+        payrollRun.Approve(fatimaUser.Id.Value.ToString(), now);
         dbContext.Add(payrollRun);
 
         dbContext.AddRange(

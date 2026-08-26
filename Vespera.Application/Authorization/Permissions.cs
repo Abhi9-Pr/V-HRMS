@@ -24,12 +24,23 @@ public static class Permissions
         public const string Read = "Payroll.Read";
         public const string Write = "Payroll.Write";
         public const string Finalize = "Payroll.Finalize";
+
+        /// <summary>Every employee's own investment declaration (submit, add a line) - distinct
+        /// from <see cref="Read"/>/<see cref="Write"/>, which are Finance-only and cover every
+        /// employee's payroll data, not just the caller's own.</summary>
+        public const string SelfService = "Payroll.SelfService";
     }
 
     public static class Leave
     {
         public const string Request = "Leave.Request";
         public const string Approve = "Leave.Approve";
+        public const string Cancel = "Leave.Cancel";
+        public const string Encash = "Leave.Encash";
+        public const string ReadTeam = "Leave.ReadTeam";
+        public const string ManagePolicy = "Leave.ManagePolicy";
+        public const string ManageBlackout = "Leave.ManageBlackout";
+        public const string ManageDelegation = "Leave.ManageDelegation";
     }
 
     public static class Departments
@@ -133,9 +144,49 @@ public static class Permissions
         public const string Manage = "BiometricDevices.Manage";
     }
 
+    public static class Expenses
+    {
+        public const string Submit = "Expenses.Submit";
+        public const string Approve = "Expenses.Approve";
+        public const string ManagePolicy = "Expenses.ManagePolicy";
+        public const string Settle = "Expenses.Settle";
+    }
+
     public static class Users
     {
         public const string Manage = "Users.Manage";
+    }
+
+    public static class Assets
+    {
+        public const string Read = "Assets.Read";
+        public const string Write = "Assets.Write";
+        public const string Assign = "Assets.Assign";
+        public const string Recover = "Assets.Recover";
+    }
+
+    public static class Licenses
+    {
+        public const string Read = "Licenses.Read";
+        public const string Manage = "Licenses.Manage";
+    }
+
+    public static class Recruitment
+    {
+        public const string ManageRequisitions = "Recruitment.ManageRequisitions";
+        public const string ApproveRequisitions = "Recruitment.ApproveRequisitions";
+        public const string ManageCandidates = "Recruitment.ManageCandidates";
+        public const string ManageInterviews = "Recruitment.ManageInterviews";
+        public const string ManageOffers = "Recruitment.ManageOffers";
+        public const string ConvertToEmployee = "Recruitment.ConvertToEmployee";
+    }
+
+    public static class Helpdesk
+    {
+        public const string RaiseTickets = "Helpdesk.RaiseTickets";
+        public const string ManageTickets = "Helpdesk.ManageTickets";
+        public const string ManageConfiguration = "Helpdesk.ManageConfiguration";
+        public const string ViewReports = "Helpdesk.ViewReports";
     }
 
     /// <summary>The separation-of-duties permission behind the finance policy wall

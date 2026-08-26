@@ -48,6 +48,8 @@ public sealed class JobRequisition : AuditableTenantAggregateRoot<JobRequisition
         DepartmentId = departmentId;
         OpeningsCount = openingsCount;
         Status = JobRequisitionStatus.Open;
+        ApprovalStatus = RequisitionApprovalStatus.Draft;
+        IsPublished = false;
     }
 
     public string Title { get; private set; }
@@ -57,6 +59,12 @@ public sealed class JobRequisition : AuditableTenantAggregateRoot<JobRequisition
     public int OpeningsCount { get; private set; }
 
     public JobRequisitionStatus Status { get; private set; }
+
+    public RequisitionApprovalStatus ApprovalStatus { get; private set; }
+
+    public bool IsPublished { get; private set; }
+
+    public string? RejectionReason { get; private set; }
 
     public IReadOnlyList<PipelineStage> Stages => _stages.AsReadOnly();
 
@@ -120,6 +128,61 @@ public sealed class JobRequisition : AuditableTenantAggregateRoot<JobRequisition
         }
 
         Status = JobRequisitionStatus.Open;
+        Touch(occurredOn, modifiedBy);
+        return Result.Success();
+    }
+
+    public Result SubmitForApproval(DateTimeOffset occurredOn, string modifiedBy)
+    {
+        if (ApprovalStatus != RequisitionApprovalStatus.Draft)
+        {
+            return Result.Failure(Error.Conflict("job_requisition.not_draft", "Only a draft requisition can be submitted for approval."));
+        }
+
+        ApprovalStatus = RequisitionApprovalStatus.PendingApproval;
+        Touch(occurredOn, modifiedBy);
+        return Result.Success();
+    }
+
+    public Result ApproveRequisition(DateTimeOffset occurredOn, string modifiedBy)
+    {
+        if (ApprovalStatus != RequisitionApprovalStatus.PendingApproval)
+        {
+            return Result.Failure(Error.Conflict("job_requisition.not_pending_approval", "Only a requisition pending approval can be approved."));
+        }
+
+        ApprovalStatus = RequisitionApprovalStatus.Approved;
+        Touch(occurredOn, modifiedBy);
+        return Result.Success();
+    }
+
+    public Result RejectRequisition(string reason, DateTimeOffset occurredOn, string modifiedBy)
+    {
+        if (ApprovalStatus != RequisitionApprovalStatus.PendingApproval)
+        {
+            return Result.Failure(Error.Conflict("job_requisition.not_pending_approval", "Only a requisition pending approval can be rejected."));
+        }
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Result.Failure(Error.Validation("job_requisition.rejection_reason_required", "Rejection reason is required."));
+        }
+
+        ApprovalStatus = RequisitionApprovalStatus.Rejected;
+        RejectionReason = reason.Trim();
+        Touch(occurredOn, modifiedBy);
+        return Result.Success();
+    }
+
+    public Result Publish(DateTimeOffset occurredOn, string modifiedBy)
+    {
+        if (ApprovalStatus != RequisitionApprovalStatus.Approved || Status != JobRequisitionStatus.Open || IsPublished)
+        {
+            return Result.Failure(Error.Conflict(
+                "job_requisition.cannot_publish", "Only an approved, open, not-yet-published requisition can be published."));
+        }
+
+        IsPublished = true;
         Touch(occurredOn, modifiedBy);
         return Result.Success();
     }

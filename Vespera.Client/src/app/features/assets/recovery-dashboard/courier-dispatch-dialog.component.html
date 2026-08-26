@@ -1,0 +1,26 @@
+<h2 mat-dialog-title>Record courier dispatch</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="flex flex-col gap-1">
+    <mat-form-field appearance="outline">
+      <mat-label>Carrier</mat-label>
+      <input matInput formControlName="carrier" />
+    </mat-form-field>
+    <vespera-form-error [control]="form.controls.carrier" />
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tracking reference</mat-label>
+      <input matInput formControlName="trackingReference" />
+    </mat-form-field>
+    <vespera-form-error [control]="form.controls.trackingReference" />
+
+    @if (error()) {
+      <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancel()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">Save</button>
+  </mat-dialog-actions>
+</form>

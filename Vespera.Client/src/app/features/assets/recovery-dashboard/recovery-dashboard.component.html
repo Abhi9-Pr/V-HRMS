@@ -1,0 +1,79 @@
+<h1 class="mb-4 text-xl font-semibold">Asset recovery</h1>
+
+@if (actionError()) {
+  <p class="mb-2 text-sm text-danger" role="alert">{{ actionError() }}</p>
+}
+
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else {
+  <vespera-data-table
+    [columns]="columns"
+    [rows]="recoveries()"
+    [totalCount]="totalCount()"
+    [loading]="loading()"
+    emptyLabel="No pending recoveries."
+    (queryChange)="onQueryChange($event)"
+  />
+}
+
+<ng-template #actionsCell let-recovery>
+  <div class="flex flex-wrap justify-end gap-1">
+    @if (canDispatch(recovery)) {
+      <vespera-permission-button
+        data-testid="dispatch-action"
+        [permission]="Permissions.Assets.Recover"
+        variant="stroked"
+        [disabled]="actionInFlight() === recovery.id"
+        (clicked)="openDispatchDialog(recovery)"
+      >
+        Dispatch
+      </vespera-permission-button>
+    }
+    @if (canReceive(recovery)) {
+      <vespera-permission-button
+        data-testid="receive-action"
+        [permission]="Permissions.Assets.Recover"
+        variant="stroked"
+        [disabled]="actionInFlight() === recovery.id"
+        (clicked)="markReceived(recovery)"
+      >
+        Mark received
+      </vespera-permission-button>
+    }
+    @if (canAssessDamage(recovery)) {
+      <vespera-permission-button
+        data-testid="assess-damage-action"
+        [permission]="Permissions.Assets.Recover"
+        variant="stroked"
+        [disabled]="actionInFlight() === recovery.id"
+        (clicked)="openDamageAssessmentDialog(recovery)"
+      >
+        Assess damage
+      </vespera-permission-button>
+    }
+    @if (canWriteOff(recovery)) {
+      <vespera-permission-button
+        data-testid="write-off-action"
+        [permission]="Permissions.Assets.Recover"
+        variant="stroked"
+        color="warn"
+        [disabled]="actionInFlight() === recovery.id"
+        (clicked)="openWriteOffDialog(recovery)"
+      >
+        Write off
+      </vespera-permission-button>
+    }
+    @if (canComplete(recovery)) {
+      <vespera-permission-button
+        data-testid="complete-action"
+        [permission]="Permissions.Assets.Recover"
+        variant="flat"
+        [disabled]="actionInFlight() === recovery.id"
+        (clicked)="complete(recovery)"
+      >
+        Complete
+      </vespera-permission-button>
+    }
+  </div>
+</ng-template>

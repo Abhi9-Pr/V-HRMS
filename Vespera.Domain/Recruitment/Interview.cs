@@ -19,6 +19,7 @@ public enum InterviewStatus
 public sealed class Interview : AggregateRoot<InterviewId>, ITenantScoped
 {
     private readonly List<EmployeeId> _interviewerIds;
+    private readonly List<InterviewScorecard> _scorecards = [];
 
     private Interview(
         InterviewId id, TenantId tenantId, CandidateId candidateId, PipelineStageId pipelineStageId,
@@ -48,6 +49,8 @@ public sealed class Interview : AggregateRoot<InterviewId>, ITenantScoped
     public string? Feedback { get; private set; }
 
     public int? Rating { get; private set; }
+
+    public IReadOnlyList<InterviewScorecard> Scorecards => _scorecards.AsReadOnly();
 
     public static Result<Interview> Schedule(
         TenantId tenantId, CandidateId candidateId, PipelineStageId pipelineStageId, DateTimeOffset scheduledAt,
@@ -98,6 +101,27 @@ public sealed class Interview : AggregateRoot<InterviewId>, ITenantScoped
         }
 
         ScheduledAt = scheduledAt;
+        return Result.Success();
+    }
+
+    public Result SubmitScorecard(EmployeeId interviewerId, int rating, string? notes, DateTimeOffset occurredOn)
+    {
+        if (!_interviewerIds.Contains(interviewerId))
+        {
+            return Result.Failure(Error.Conflict("interview.not_an_interviewer", "This person is not an interviewer on this interview."));
+        }
+
+        if (rating is < 1 or > 5)
+        {
+            return Result.Failure(Error.Validation("interview.invalid_rating", "Rating must be between 1 and 5."));
+        }
+
+        if (_scorecards.Any(s => s.InterviewerId == interviewerId))
+        {
+            return Result.Failure(Error.Conflict("interview.scorecard_already_submitted", "This interviewer has already submitted a scorecard."));
+        }
+
+        _scorecards.Add(new InterviewScorecard(interviewerId, rating, notes, occurredOn));
         return Result.Success();
     }
 }

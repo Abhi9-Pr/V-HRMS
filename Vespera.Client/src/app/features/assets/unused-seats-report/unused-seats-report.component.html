@@ -1,0 +1,32 @@
+<h1 class="mb-4 text-xl font-semibold">Unused license seats</h1>
+
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else if (loading()) {
+  <vespera-loading-state title="Loading report…" />
+} @else if (rows().length === 0) {
+  <vespera-empty-state icon="assessment" title="No unused seats" description="Every allocated license is fully utilized." />
+} @else {
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="text-left">
+        <th class="pb-1">Product</th>
+        <th class="pb-1">Seats</th>
+        <th class="pb-1">Used</th>
+        <th class="pb-1">Unused</th>
+        <th class="pb-1">Expires</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.licenseId) {
+        <tr>
+          <td class="py-1">{{ row.productName }}</td>
+          <td class="py-1">{{ row.seatCount }}</td>
+          <td class="py-1">{{ row.seatsUsed }}</td>
+          <td class="py-1 font-medium">{{ row.unusedSeats }}</td>
+          <td class="py-1">{{ row.expiresAt ? (row.expiresAt | vesperaDate: { dateStyle: 'medium' }) : '—' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

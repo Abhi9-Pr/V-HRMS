@@ -14,7 +14,7 @@ export class TenantResolutionService {
   private readonly tenantsClient = inject(TenantsClient);
 
   resolveByCode(code: string): Observable<TenantLookupDto> {
-    return this.tenantsClient.byCode(code).pipe(
+    return this.tenantsClient.tenants_ByCode(code).pipe(
       tap((lookup) => {
         if (lookup.tenantId) {
           sessionStorage.setItem(TENANT_ID_KEY, lookup.tenantId);

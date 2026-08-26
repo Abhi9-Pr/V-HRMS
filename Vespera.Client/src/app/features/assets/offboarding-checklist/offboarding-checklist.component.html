@@ -1,0 +1,37 @@
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else if (loading() && !checklist()) {
+  <vespera-loading-state title="Loading checklist…" />
+} @else if (checklist()) {
+  @let currentChecklist = checklist()!;
+  <div class="mb-4 flex items-center justify-between">
+    <h1 class="text-xl font-semibold">Offboarding checklist</h1>
+    <span class="text-sm font-medium">{{ currentChecklist.isComplete ? 'Complete' : 'In progress' }}</span>
+  </div>
+
+  @if (completeError()) {
+    <p class="mb-2 text-sm text-danger" role="alert">{{ completeError() }}</p>
+  }
+
+  @if (!currentChecklist.items || currentChecklist.items.length === 0) {
+    <p class="text-sm text-text-muted">No checklist items.</p>
+  } @else {
+    <ul class="flex flex-col gap-2">
+      @for (item of currentChecklist.items; track $index) {
+        <li class="flex items-center justify-between">
+          <span [class.line-through]="item.isComplete">{{ item.description }}</span>
+          @if (!item.isComplete) {
+            <vespera-permission-button
+              [permission]="Permissions.Assets.Recover"
+              variant="stroked"
+              [disabled]="completingIndex() === $index"
+              (clicked)="completeItem($index)"
+            >
+              Complete
+            </vespera-permission-button>
+          }
+        </li>
+      }
+    </ul>
+  }
+}

@@ -25,6 +25,15 @@ public enum EmployeeExitReason
     EndOfContract,
 }
 
+/// <summary>Self-reported, optional. Only consumed by gender-restricted <see cref="Leave.LeaveType"/>
+/// eligibility rules (e.g. maternity/paternity leave) — never required to onboard an employee.</summary>
+public enum Gender
+{
+    Female,
+    Male,
+    Other,
+}
+
 public sealed class Employee : AuditableTenantAggregateRoot<EmployeeId>
 {
     private readonly List<EmploymentHistory> _employmentHistory = [];
@@ -75,6 +84,8 @@ public sealed class Employee : AuditableTenantAggregateRoot<EmployeeId>
     public LocationId LocationId { get; private set; }
 
     public EmploymentStatus Status { get; private set; }
+
+    public Gender? Gender { get; private set; }
 
     public PanNumber? Pan { get; private set; }
 
@@ -186,6 +197,13 @@ public sealed class Employee : AuditableTenantAggregateRoot<EmployeeId>
         LastName = lastName.Trim();
         WorkEmail = workEmail;
         Phone = phone;
+        Touch(occurredOn, modifiedBy);
+        return Result.Success();
+    }
+
+    public Result SetGender(Gender? gender, DateTimeOffset occurredOn, string modifiedBy)
+    {
+        Gender = gender;
         Touch(occurredOn, modifiedBy);
         return Result.Success();
     }

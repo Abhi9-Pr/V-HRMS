@@ -1,0 +1,37 @@
+<div class="p-6 max-w-3xl mx-auto">
+  <h1 class="text-2xl font-semibold mb-4">Payslip</h1>
+
+  @if (error()) {
+    <div class="mb-4 rounded bg-red-50 text-red-800 px-4 py-3">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <vespera-loading-state title="Loading payroll run…" />
+  } @else if (run() && line()) {
+    <p class="text-sm text-gray-600 mb-4">
+      {{ run()!.month }}/{{ run()!.year }} &middot; Gross {{ line()!.gross }} &middot; Deductions {{ line()!.deductions }} &middot;
+      Net {{ line()!.net }}
+    </p>
+
+    <div class="flex gap-3 mb-6">
+      <button mat-flat-button color="primary" [disabled]="generating()" (click)="generate()">Generate payslip</button>
+      @if (payslipId()) {
+        <button mat-stroked-button (click)="loadDownloadUrl()">Get download link</button>
+      }
+      @if (downloadUrl()) {
+        <a mat-stroked-button [href]="downloadUrl()!" target="_blank" rel="noopener">Open PDF (password: PAN + DDMM)</a>
+      }
+    </div>
+
+    @if (breakdownChart().length > 0) {
+      <h2 class="text-lg font-medium mb-2">Net vs Deductions</h2>
+      <ngx-charts-pie-chart [results]="breakdownChart()" [labels]="true" [doughnut]="true" [view]="[400, 300]" />
+      <p class="text-xs text-gray-500 mt-4">
+        Net-pay trend and YTD charts need a payslip-history query across multiple runs, which doesn't exist yet — only this
+        period's breakdown is shown.
+      </p>
+    }
+  } @else if (run()) {
+    <p class="text-sm text-gray-600">No line found for this employee on this run.</p>
+  }
+</div>

@@ -1,0 +1,32 @@
+<div class="mb-4 flex items-center justify-between">
+  <h1 class="text-xl font-semibold">Software licenses</h1>
+  <div class="flex gap-2">
+    <vespera-permission-button [permission]="Permissions.Licenses.Manage" variant="stroked" (clicked)="openReleaseDialog()">
+      Release a seat
+    </vespera-permission-button>
+    <vespera-permission-button [permission]="Permissions.Licenses.Manage" variant="flat" (clicked)="openCreateDialog()">
+      New license
+    </vespera-permission-button>
+  </div>
+</div>
+
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else {
+  <vespera-data-table
+    [columns]="columns"
+    [rows]="licenses()"
+    [totalCount]="totalCount()"
+    [loading]="loading()"
+    emptyLabel="No licenses yet — create the first one."
+    (queryChange)="onQueryChange($event)"
+  />
+}
+
+<ng-template #actionsCell let-license>
+  <div class="flex justify-end">
+    <vespera-permission-button [permission]="Permissions.Licenses.Manage" variant="stroked" (clicked)="openAllocateDialog(license)">
+      Allocate seat
+    </vespera-permission-button>
+  </div>
+</ng-template>

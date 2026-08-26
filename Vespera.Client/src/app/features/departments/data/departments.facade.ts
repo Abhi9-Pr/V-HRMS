@@ -33,7 +33,7 @@ export class DepartmentsFacade {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    this.client.list(query.page, query.pageSize, query.sortBy, query.sortDescending).subscribe({
+    this.client.departments_List(query.page, query.pageSize, query.sortBy, query.sortDescending).subscribe({
       next: (result) => {
         this.departmentsSignal.set(result.items ?? []);
         this.totalCountSignal.set(result.totalCount ?? 0);
@@ -47,14 +47,14 @@ export class DepartmentsFacade {
   }
 
   create(request: CreateDepartmentRequest): Observable<CreateDepartmentResponse> {
-    return this.client.create(request);
+    return this.client.departments_Create(request);
   }
 
   update(id: string, request: UpdateDepartmentRequest): Observable<void> {
-    return this.client.update(id, request);
+    return this.client.departments_Update(id, request);
   }
 
   remove(id: string): Observable<void> {
-    return this.client.delete(id);
+    return this.client.departments_Delete(id);
   }
 }

@@ -51,6 +51,16 @@ public sealed class EmployeeConfiguration : TenantScopedEntityConfiguration<Empl
         builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(32);
         builder.Property(e => e.ExitDate);
         builder.Property(e => e.ExitReason).HasConversion<string>().HasMaxLength(32);
+        builder.Property(e => e.Gender).HasConversion<string>().HasMaxLength(16);
+
+        // A plain scalar conversion, not OwnsOne: EF Core can't bind an owned-navigation-typed
+        // constructor parameter when materializing the owner via its (required, private)
+        // constructor — see StatutoryRuleSetConfiguration/PayrollRunConfiguration for the same pattern.
+        builder.Property(e => e.CurrentAnnualCtc)
+            .HasConversion(
+                ctc => ctc == null ? null : $"{ctc.Amount.ToString(CultureInfo.InvariantCulture)}|{ctc.Currency}",
+                value => ParseMoney(value))
+            .HasMaxLength(64);
 
         // A plain scalar conversion, not OwnsOne: EF Core can't bind an owned-navigation-typed
         // constructor parameter when materializing the owner via its (required, private)

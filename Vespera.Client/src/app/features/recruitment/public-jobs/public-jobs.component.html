@@ -1,0 +1,20 @@
+<div class="mx-auto max-w-2xl p-6">
+  <h1 class="mb-4 text-2xl font-semibold">Open positions</h1>
+
+  @if (error(); as apiError) {
+    <vespera-error-state [description]="apiError.message" />
+  } @else if (loading()) {
+    <vespera-loading-state title="Loading open positions…" />
+  } @else if (jobs().length === 0) {
+    <p class="text-sm text-text-muted">No open positions right now — check back soon.</p>
+  } @else {
+    <ul class="flex flex-col gap-3">
+      @for (job of jobs(); track job.id) {
+        <li class="rounded border border-border p-4">
+          <h2 class="text-lg font-medium">{{ job.title }}</h2>
+          <p class="text-sm text-text-muted">{{ job.departmentName }} · {{ job.openingsCount }} opening(s)</p>
+        </li>
+      }
+    </ul>
+  }
+</div>

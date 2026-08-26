@@ -13,6 +13,10 @@ public sealed class BackgroundJobsOptions
     public AttendanceComputationOptions AttendanceComputation { get; set; } = new();
 
     public BiometricPollerOptions BiometricPoller { get; set; } = new();
+
+    public SlaEscalationOptions SlaEscalation { get; set; } = new();
+
+    public LeaveAccrualOptions LeaveAccrual { get; set; } = new();
 }
 
 public sealed class OutboxDispatcherOptions
@@ -46,4 +50,17 @@ public sealed class AttendanceComputationOptions
 public sealed class BiometricPollerOptions
 {
     public int RunIntervalMinutes { get; set; } = 15;
+}
+
+public sealed class SlaEscalationOptions
+{
+    public int PollIntervalMinutes { get; set; } = 15;
+}
+
+/// <summary>Polls daily; posting is idempotent per calendar month (per
+/// <see cref="Vespera.Domain.Leave.LeaveLedgerEntry.PeriodKey"/>), so an hourly-or-more interval
+/// would just be wasted work, not a correctness requirement.</summary>
+public sealed class LeaveAccrualOptions
+{
+    public int RunIntervalHours { get; set; } = 24;
 }

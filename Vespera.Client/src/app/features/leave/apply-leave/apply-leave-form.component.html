@@ -1,0 +1,59 @@
+<h1 class="mb-4 text-xl font-semibold">Apply for leave</h1>
+
+<form [formGroup]="form" (ngSubmit)="submit()" class="flex max-w-lg flex-col gap-1">
+  <mat-form-field appearance="outline">
+    <mat-label>Leave type</mat-label>
+    <mat-select formControlName="leaveTypeId">
+      @for (leaveType of leaveTypes(); track leaveType.id) {
+        <mat-option [value]="leaveType.id">{{ leaveType.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <vespera-form-error [control]="form.controls.leaveTypeId" />
+
+  <vespera-date-range-picker label="Dates" (rangeChange)="onRangeChange($event)" />
+
+  @if (balance(); as currentBalance) {
+    <div class="mb-2 rounded border border-subtle p-2 text-sm">
+      <p>Available balance: <strong>{{ currentBalance.available }}</strong> day(s)</p>
+      @if (previewDays() > 0) {
+        <p>This request charges approximately <strong>{{ previewDays() }}</strong> day(s).</p>
+      }
+      @if (projectedShortfall() > 0) {
+        <p class="text-warning">
+          Approximately {{ projectedShortfall() }} day(s) would go to loss-of-pay — check the box below to proceed anyway.
+        </p>
+      }
+    </div>
+  }
+
+  <mat-form-field appearance="outline">
+    <mat-label>Reason</mat-label>
+    <textarea matInput formControlName="reason" rows="3"></textarea>
+  </mat-form-field>
+  <vespera-form-error [control]="form.controls.reason" />
+
+  @if (projectedShortfall() > 0) {
+    <mat-checkbox formControlName="acknowledgeInsufficientBalance">
+      I understand part of this request may be unpaid (loss-of-pay)
+    </mat-checkbox>
+  }
+
+  @if (error()) {
+    <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+  }
+
+  @if (submittedResult(); as result) {
+    <p class="text-sm text-success" role="status">
+      Submitted — {{ result.requestedDays }} day(s) charged
+      @if (result.lossOfPayDays > 0) {
+        ({{ result.lossOfPayDays }} unpaid)
+      }
+      .
+    </p>
+  }
+
+  <div class="mt-2">
+    <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">Submit request</button>
+  </div>
+</form>

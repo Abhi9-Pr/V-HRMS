@@ -1,0 +1,90 @@
+<div class="p-6 max-w-4xl mx-auto">
+  <h1 class="text-2xl font-semibold mb-4">Payroll Run</h1>
+
+  @if (error()) {
+    <div class="mb-4 rounded bg-red-50 text-red-800 px-4 py-3">{{ error()!.message }}</div>
+  }
+
+  @if (isNew() && !run()) {
+    <form [formGroup]="openForm" (ngSubmit)="openRun()" class="flex items-end gap-4">
+      <mat-form-field>
+        <mat-label>Month</mat-label>
+        <input matInput type="number" formControlName="month" min="1" max="12" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Year</mat-label>
+        <input matInput type="number" formControlName="year" min="2000" />
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="submit" [disabled]="loading()">Open payroll run</button>
+    </form>
+  } @else if (loading() && !run()) {
+    <vespera-loading-state title="Loading payroll run…" />
+  } @else if (run()) {
+    <p class="text-sm text-gray-600 mb-4">
+      {{ run()!.month }}/{{ run()!.year }} &middot; Status: <strong>{{ run()!.status }}</strong>
+    </p>
+
+    <mat-stepper [selectedIndex]="stepIndex()" orientation="horizontal" [linear]="false">
+      <mat-step label="Draft">
+        <p class="py-4 text-sm text-gray-600">Run opened. Freeze attendance once the period is ready to lock down.</p>
+      </mat-step>
+
+      <mat-step label="Attendance Freeze">
+        <div class="py-4 flex flex-col gap-3 max-w-md">
+          <mat-form-field>
+            <mat-label>Override reason (only needed before the configured freeze day)</mat-label>
+            <input matInput [ngModel]="overrideReason()" (ngModelChange)="overrideReason.set($event)" [ngModelOptions]="{ standalone: true }" />
+          </mat-form-field>
+          <button mat-flat-button color="primary" [disabled]="!canFreezeAttendance() || loading()" (click)="freezeAttendance()">
+            Freeze attendance
+          </button>
+        </div>
+      </mat-step>
+
+      <mat-step label="Dry Run">
+        <div class="py-4 flex flex-col gap-3">
+          <p class="text-sm text-gray-600">Computes every employee's payroll lines. Re-runnable to correct data before review.</p>
+          <button mat-flat-button color="primary" [disabled]="!canRunDryRun() || loading()" (click)="runDryRun()">
+            Run dry-run compute
+          </button>
+        </div>
+      </mat-step>
+
+      <mat-step label="Review">
+        <div class="py-4 flex flex-col gap-3">
+          <a mat-stroked-button [routerLink]="['/payroll/runs', run()!.id, 'variance']">Review variance report</a>
+          <button mat-flat-button color="primary" [disabled]="!canSubmitForReview() || loading()" (click)="submitForReview()">
+            Submit for review
+          </button>
+        </div>
+      </mat-step>
+
+      <mat-step label="Approved">
+        <div class="py-4 flex flex-col gap-3">
+          <button mat-flat-button color="primary" [disabled]="!canApprove() || loading()" (click)="approve()">Approve</button>
+        </div>
+      </mat-step>
+
+      <mat-step label="Finalized">
+        <div class="py-4 flex flex-col gap-3">
+          <p class="text-sm text-gray-600">
+            Maker-checker: neither this run's creator nor whoever ran its dry-run compute can finalize it.
+          </p>
+          <button mat-flat-button color="primary" [disabled]="!canFinalize() || loading()" (click)="finalize()">Finalize</button>
+        </div>
+      </mat-step>
+
+      <mat-step label="Published">
+        <div class="py-4 flex flex-col gap-3">
+          <button mat-flat-button color="primary" [disabled]="!canPublish() || loading()" (click)="publish()">Publish</button>
+          @if (run()!.status === 'Published') {
+            <p class="text-sm text-green-700">
+              <mat-icon class="align-middle text-base">check_circle</mat-icon>
+              Payslips can now be generated for this run.
+            </p>
+          }
+        </div>
+      </mat-step>
+    </mat-stepper>
+  }
+</div>

@@ -1,0 +1,30 @@
+<h1 class="mb-4 text-xl font-semibold">Expense approvals</h1>
+
+@if (error(); as apiError) {
+  <vespera-error-state [description]="apiError.message" (action)="reload()" />
+} @else {
+  <vespera-data-table
+    [columns]="columns"
+    [rows]="claims()"
+    [totalCount]="totalCount()"
+    [loading]="loading()"
+    emptyLabel="No claims are waiting on your decision."
+    (queryChange)="onQueryChange($event)"
+  />
+}
+
+<ng-template #actionsCell let-claim>
+  <div class="flex justify-end gap-1">
+    <vespera-permission-button [permission]="Permissions.Expenses.Approve" variant="stroked" (clicked)="decide(claim, true)">
+      Approve
+    </vespera-permission-button>
+    <vespera-permission-button
+      [permission]="Permissions.Expenses.Approve"
+      variant="stroked"
+      color="warn"
+      (clicked)="decide(claim, false)"
+    >
+      Reject
+    </vespera-permission-button>
+  </div>
+</ng-template>

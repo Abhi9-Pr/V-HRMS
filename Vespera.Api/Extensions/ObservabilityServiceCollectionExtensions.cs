@@ -10,10 +10,24 @@ public static class ObservabilityServiceCollectionExtensions
 {
     public const string CorsPolicyName = "VesperaCors";
     public const string AuthRateLimitPolicyName = "AuthRateLimit";
+    public const string PublicApiRateLimitPolicyName = "PublicApiRateLimit";
+    public const string PublicJobsOutputCachePolicyName = "PublicJobs";
 
     public static WebApplicationBuilder AddVesperaObservability(this WebApplicationBuilder builder)
     {
         builder.Services.AddVesperaStorage(builder.Configuration);
+
+        // Aggressive, short-lived caching for the anonymous public careers page — a cache miss
+        // still goes through the same rate limiter as every other request (UseOutputCache is
+        // registered after UseRateLimiter in the pipeline, see WebApplicationExtensions), so
+        // caching never becomes a way to bypass the rate limit. Varies by X-Tenant-Id: the route
+        // is identical for every tenant, so without this a cache hit could serve one tenant's job
+        // postings to another — tenant isolation must hold for cached responses too, not just
+        // uncached ones.
+        builder.Services.AddOutputCache(options =>
+            options.AddPolicy(
+                PublicJobsOutputCachePolicyName,
+                policy => policy.Expire(TimeSpan.FromMinutes(5)).SetVaryByHeader("X-Tenant-Id")));
 
         builder.Services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database", tags: ["ready"])
@@ -53,6 +67,13 @@ public static class ObservabilityServiceCollectionExtensions
                 RateLimitPartition.GetFixedWindowLimiter(
                     ClientKey(context),
                     _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
+
+            // Looser than auth (this is meant to be crawled/browsed by real anonymous traffic)
+            // but still tighter than the global default — see PublicJobsController.
+            options.AddPolicy(PublicApiRateLimitPolicyName, context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    ClientKey(context),
+                    _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(1) }));
         });
 
         return builder;

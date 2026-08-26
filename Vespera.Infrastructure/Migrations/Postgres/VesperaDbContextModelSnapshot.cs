@@ -22,6 +22,302 @@ namespace Vespera.Infrastructure.Migrations.Postgres
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Vespera.Domain.Assets.Asset", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssetTag")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("MacAddress")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PurchaseCost")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateOnly>("PurchaseDate")
+                        .HasColumnType("date");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("SerialNumber")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("WarrantyExpiryDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "AssetTag")
+                        .IsUnique();
+
+                    b.ToTable("Asset");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Assets.AssetAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("HandoverSignatureReference")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<string>("ReturnCondition")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<DateTimeOffset?>("ReturnedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("AssetAssignment");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Assets.AssetRecovery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AssetAssignmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CourierCarrier")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("CourierTrackingReference")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("DamageAssessmentNotes")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("InitiatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("WriteOffAmount")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("WriteOffReason")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("AssetRecovery");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Assets.OffboardingChecklist", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("AssetOffboardingChecklists", (string)null);
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Assets.SoftwareLicense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateOnly?>("ExpiresAt")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<int>("SeatCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SeatsUsed")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("SoftwareLicense");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Assets.SoftwareLicenseAllocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AllocatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("LicenseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ReleasedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("SoftwareLicenseAllocation");
+                });
+
             modelBuilder.Entity("Vespera.Domain.Attendance.AttendanceDay", b =>
                 {
                     b.Property<Guid>("Id")
@@ -288,6 +584,34 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                     b.HasIndex("TenantId");
 
                     b.ToTable("Holiday");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Attendance.PublicHoliday", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Date");
+
+                    b.ToTable("PublicHoliday");
                 });
 
             modelBuilder.Entity("Vespera.Domain.Attendance.QuarantinedBiometricPunch", b =>
@@ -797,6 +1121,10 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
+                    b.Property<string>("Gender")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -1123,6 +1451,337 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                     b.ToTable("ReportingRelationship");
                 });
 
+            modelBuilder.Entity("Vespera.Domain.Expense.CurrencyRate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("EffectiveDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("FromCurrency")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<decimal>("Rate")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ToCurrency")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "FromCurrency", "ToCurrency", "EffectiveDate")
+                        .IsUnique();
+
+                    b.ToTable("CurrencyRate");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Expense.ExpenseClaim", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("SettlementCurrency")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("ExpenseClaim");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Expense.ExpensePolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ApplicableDesignationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("MaxAmountPerClaim")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("MaxAmountSeverity")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("ReceiptRequiredAboveAmount")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ReceiptRequiredSeverity")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("ExpensePolicy");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Helpdesk.SlaPolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeOnly>("BusinessHoursEnd")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<TimeOnly>("BusinessHoursStart")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<TimeSpan>("ResolutionTime")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan>("ResponseTime")
+                        .HasColumnType("interval");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("SlaPolicy");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Helpdesk.Ticket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AssignedTo")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4096)
+                        .HasColumnType("character varying(4096)");
+
+                    b.Property<DateTimeOffset>("DueAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("RaisedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RaisedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<int?>("SatisfactionRating")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("SlaBreachNotified")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("SlaPolicyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("SlaWarningNotified")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Ticket");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Helpdesk.TicketCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("DefaultSlaPolicyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("TicketCategory");
+                });
+
             modelBuilder.Entity("Vespera.Domain.IdentityAccess.DeviceRegistration", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1419,10 +2078,139 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("Vespera.Domain.Leave.ApprovalChain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("CurrentStepIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SubjectType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "SubjectType", "SubjectId")
+                        .IsUnique();
+
+                    b.ToTable("ApprovalChain");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Leave.BlackoutPeriod", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("LeaveTypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Period")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "LeaveTypeId");
+
+                    b.ToTable("BlackoutPeriod");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Leave.LeaveBalance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("LeaveTypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "EmployeeId", "LeaveTypeId")
+                        .IsUnique();
+
+                    b.ToTable("LeaveBalance");
+                });
+
             modelBuilder.Entity("Vespera.Domain.Leave.LeavePolicy", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("AccrualFrequency")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<decimal>("AccrualRatePerMonth")
                         .HasPrecision(9, 2)
@@ -1436,6 +2224,31 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("MaxCarryForwardDays")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.Property<decimal>("MaxNegativeBalanceDays")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.Property<int>("MinimumTenureMonthsForAccrual")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NegativeBalancePolicy")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<bool>("RequiresHrApproval")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RequiresSkipLevelApproval")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SandwichLeaveEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal?>("SkipLevelThresholdDays")
                         .HasPrecision(9, 2)
                         .HasColumnType("numeric(9,2)");
 
@@ -1455,10 +2268,82 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                     b.ToTable("LeavePolicy");
                 });
 
+            modelBuilder.Entity("Vespera.Domain.Leave.LeaveRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("LeaveTypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("LossOfPayDays")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Period")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<decimal>("RequestedDays")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "EmployeeId");
+
+                    b.HasIndex("TenantId", "Status");
+
+                    b.ToTable("LeaveRequest");
+                });
+
             modelBuilder.Entity("Vespera.Domain.Leave.LeaveType", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ApplicableGender")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<decimal>("CarryForwardLimit")
                         .HasPrecision(9, 2)
@@ -1482,8 +2367,18 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsEncashable")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsPaid")
                         .HasColumnType("boolean");
+
+                    b.Property<decimal>("MaxEncashableDays")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)");
+
+                    b.Property<int>("MinimumTenureMonths")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1553,6 +2448,75 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                     b.ToTable("ProxyDelegation");
                 });
 
+            modelBuilder.Entity("Vespera.Domain.Payroll.InvestmentDeclaration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FinancialYear")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<Guid>("TaxRegimeVersionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "EmployeeId", "FinancialYear")
+                        .IsUnique();
+
+                    b.ToTable("InvestmentDeclaration");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Payroll.InvestmentDeclarationWindow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FinancialYear")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateOnly>("LockAt")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("OpenFrom")
+                        .HasColumnType("date");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "FinancialYear")
+                        .IsUnique();
+
+                    b.ToTable("InvestmentDeclarationWindow");
+                });
+
             modelBuilder.Entity("Vespera.Domain.Payroll.PayrollRun", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1572,6 +2536,18 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<string>("DryRunExecutedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("FreezeOverriddenBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("FreezeOverrideReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1609,6 +2585,172 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                     b.ToTable("PayrollRun");
                 });
 
+            modelBuilder.Entity("Vespera.Domain.Payroll.PayrollSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AttendanceFreezeDay")
+                        .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("VarianceThresholdPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique();
+
+                    b.ToTable("PayrollSettings");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Payroll.Payslip", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DocumentHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("GeneratedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("NetPay")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("PayrollRunId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("StorageKey")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "PayrollRunId", "EmployeeId")
+                        .IsUnique();
+
+                    b.ToTable("Payslip");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Payroll.SalaryComponent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ComponentType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsTaxable")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("SalaryComponent");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Payroll.SalaryStructure", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("MonthlyCtc")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("ValidTo")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "EmployeeId");
+
+                    b.ToTable("SalaryStructure");
+                });
+
             modelBuilder.Entity("Vespera.Domain.Payroll.StatutoryRuleSet", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1641,6 +2783,241 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                     b.HasIndex("TenantId");
 
                     b.ToTable("StatutoryRuleSet");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Payroll.TaxRegimeVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FinancialYear")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("RegimeType")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "RegimeType", "FinancialYear")
+                        .IsUnique();
+
+                    b.ToTable("TaxRegimeVersion");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Recruitment.Candidate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CurrentPipelineStageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("JobRequisitionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Candidate");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Recruitment.Interview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CandidateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Feedback")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<string>("InterviewerIds")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<Guid>("PipelineStageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTimeOffset>("ScheduledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Interview");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Recruitment.JobRequisition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ApprovalStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("OpeningsCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("JobRequisition");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Recruitment.OfferLetter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CandidateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("JoiningDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("ProposedCtc")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("ProposedDesignationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("OfferLetter");
                 });
 
             modelBuilder.Entity("Vespera.Infrastructure.Attendance.BiometricIngestionRecord", b =>
@@ -1908,6 +3285,110 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                     b.HasIndex("Status");
 
                     b.ToTable("OutboxMessages", (string)null);
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Assets.Asset", b =>
+                {
+                    b.OwnsOne("Vespera.Domain.Assets.DepreciationSchedule", "Depreciation", b1 =>
+                        {
+                            b1.Property<Guid>("AssetId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Method")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
+
+                            b1.Property<string>("SalvageValue")
+                                .IsRequired()
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)");
+
+                            b1.Property<int>("UsefulLifeMonths")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("AssetId");
+
+                            b1.ToTable("Asset");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AssetId");
+                        });
+
+                    b.Navigation("Depreciation");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Assets.AssetAssignment", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Assets.AssetConditionReport", "ConditionReports", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("AssetAssignmentId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Notes")
+                                .HasMaxLength(1024)
+                                .HasColumnType("character varying(1024)");
+
+                            b1.Property<string>("Rating")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
+
+                            b1.Property<DateTimeOffset>("RecordedAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<string>("RecordedBy")
+                                .IsRequired()
+                                .HasMaxLength(256)
+                                .HasColumnType("character varying(256)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("AssetAssignmentId");
+
+                            b1.ToTable("AssetConditionReports", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AssetAssignmentId");
+                        });
+
+                    b.Navigation("ConditionReports");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Assets.OffboardingChecklist", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Assets.OffboardingChecklistItem", "Items", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasMaxLength(512)
+                                .HasColumnType("character varying(512)");
+
+                            b1.Property<bool>("IsComplete")
+                                .HasColumnType("boolean");
+
+                            b1.Property<Guid>("OffboardingChecklistId")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("OffboardingChecklistId");
+
+                            b1.ToTable("AssetOffboardingChecklistItems", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("OffboardingChecklistId");
+                        });
+
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Vespera.Domain.Attendance.AttendanceDay", b =>
@@ -2200,6 +3681,302 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                     b.Navigation("Documents");
                 });
 
+            modelBuilder.Entity("Vespera.Domain.Expense.ExpenseClaim", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Expense.ExpenseLine", "Lines", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Amount")
+                                .IsRequired()
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)");
+
+                            b1.Property<string>("Category")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)");
+
+                            b1.Property<string>("ConvertedAmount")
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)");
+
+                            b1.Property<decimal?>("ExchangeRate")
+                                .HasPrecision(18, 6)
+                                .HasColumnType("numeric(18,6)");
+
+                            b1.Property<Guid>("ExpenseClaimId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateOnly>("ExpenseDate")
+                                .HasColumnType("date");
+
+                            b1.Property<string>("ReceiptReference")
+                                .HasMaxLength(1024)
+                                .HasColumnType("character varying(1024)");
+
+                            b1.Property<string>("TaxAmount")
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)");
+
+                            b1.Property<string>("Vendor")
+                                .HasMaxLength(256)
+                                .HasColumnType("character varying(256)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ExpenseClaimId");
+
+                            b1.ToTable("ExpenseLines", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ExpenseClaimId");
+                        });
+
+                    b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Helpdesk.Ticket", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Helpdesk.TicketComment", "Comments", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("AttachmentReferences")
+                                .IsRequired()
+                                .HasMaxLength(4000)
+                                .HasColumnType("character varying(4000)");
+
+                            b1.Property<Guid>("AuthorId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Body")
+                                .IsRequired()
+                                .HasMaxLength(4096)
+                                .HasColumnType("character varying(4096)");
+
+                            b1.Property<DateTimeOffset>("CreatedAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<bool>("IsInternal")
+                                .HasColumnType("boolean");
+
+                            b1.Property<Guid?>("ParentCommentId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("TicketId")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("TicketId");
+
+                            b1.ToTable("TicketComments", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("TicketId");
+                        });
+
+                    b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Leave.ApprovalChain", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Leave.ApprovalStep", "Steps", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("ApprovalChainId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("ApproverId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Comment")
+                                .HasMaxLength(1000)
+                                .HasColumnType("character varying(1000)");
+
+                            b1.Property<DateTimeOffset?>("DecidedAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<Guid?>("DecidedBy")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("SequenceNumber")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Status")
+                                .IsRequired()
+                                .HasMaxLength(16)
+                                .HasColumnType("character varying(16)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ApprovalChainId", "SequenceNumber")
+                                .IsUnique();
+
+                            b1.ToTable("ApprovalSteps", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ApprovalChainId");
+                        });
+
+                    b.Navigation("Steps");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Leave.LeaveBalance", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Leave.LeaveLedgerEntry", "Entries", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasPrecision(9, 2)
+                                .HasColumnType("numeric(9,2)");
+
+                            b1.Property<string>("Direction")
+                                .IsRequired()
+                                .HasMaxLength(8)
+                                .HasColumnType("character varying(8)");
+
+                            b1.Property<Guid>("LeaveBalanceId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTimeOffset>("OccurredOn")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<string>("PeriodKey")
+                                .HasMaxLength(16)
+                                .HasColumnType("character varying(16)");
+
+                            b1.Property<string>("PostedBy")
+                                .IsRequired()
+                                .HasMaxLength(256)
+                                .HasColumnType("character varying(256)");
+
+                            b1.Property<string>("Reason")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)");
+
+                            b1.Property<Guid?>("SourceId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("SourceType")
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)");
+
+                            b1.Property<string>("Type")
+                                .IsRequired()
+                                .HasMaxLength(16)
+                                .HasColumnType("character varying(16)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("LeaveBalanceId", "PeriodKey");
+
+                            b1.HasIndex("LeaveBalanceId", "SourceType", "SourceId");
+
+                            b1.ToTable("LeaveLedgerEntries", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("LeaveBalanceId");
+                        });
+
+                    b.Navigation("Entries");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Leave.LeavePolicy", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Leave.TenureAccrualTier", "TenureAccrualTiers", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid>("LeavePolicyId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("MinimumTenureMonths")
+                                .HasColumnType("integer");
+
+                            b1.Property<decimal>("MonthlyRate")
+                                .HasPrecision(9, 2)
+                                .HasColumnType("numeric(9,2)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("LeavePolicyId");
+
+                            b1.ToTable("LeavePolicyTenureAccrualTiers", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("LeavePolicyId");
+                        });
+
+                    b.Navigation("TenureAccrualTiers");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Payroll.InvestmentDeclaration", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Payroll.InvestmentDeclarationLine", "Lines", b1 =>
+                        {
+                            b1.Property<Guid>("InvestmentDeclarationId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Amount")
+                                .IsRequired()
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)");
+
+                            b1.Property<string>("ProofFileReference")
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)");
+
+                            b1.Property<string>("ReviewComment")
+                                .HasMaxLength(1000)
+                                .HasColumnType("character varying(1000)");
+
+                            b1.Property<string>("ReviewStatus")
+                                .IsRequired()
+                                .HasMaxLength(16)
+                                .HasColumnType("character varying(16)");
+
+                            b1.Property<DateTimeOffset?>("ReviewedAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<string>("ReviewedBy")
+                                .HasMaxLength(256)
+                                .HasColumnType("character varying(256)");
+
+                            b1.Property<string>("Section")
+                                .IsRequired()
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)");
+
+                            b1.HasKey("InvestmentDeclarationId", "Id");
+
+                            b1.ToTable("InvestmentDeclarationLines", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvestmentDeclarationId");
+                        });
+
+                    b.Navigation("Lines");
+                });
+
             modelBuilder.Entity("Vespera.Domain.Payroll.PayrollRun", b =>
                 {
                     b.OwnsMany("Vespera.Domain.Payroll.PayrollLine", "Lines", b1 =>
@@ -2242,7 +4019,217 @@ namespace Vespera.Infrastructure.Migrations.Postgres
                                 .HasForeignKey("PayrollRunId");
                         });
 
+                    b.OwnsMany("Vespera.Domain.Payroll.PayrollReimbursement", "Reimbursements", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Amount")
+                                .IsRequired()
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)");
+
+                            b1.Property<Guid>("EmployeeId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("PayrollRunId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("SourceExpenseClaimId")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("PayrollRunId");
+
+                            b1.ToTable("PayrollReimbursements", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("PayrollRunId");
+                        });
+
                     b.Navigation("Lines");
+
+                    b.Navigation("Reimbursements");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Payroll.Payslip", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Payroll.PayrollComponentLine", "Lines", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Amount")
+                                .IsRequired()
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)");
+
+                            b1.Property<Guid>("ComponentId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("ComponentName")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)");
+
+                            b1.Property<string>("ComponentType")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
+
+                            b1.Property<string>("Direction")
+                                .IsRequired()
+                                .HasMaxLength(16)
+                                .HasColumnType("character varying(16)");
+
+                            b1.Property<Guid>("PayslipId")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("PayslipId");
+
+                            b1.ToTable("PayslipComponentLines", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("PayslipId");
+                        });
+
+                    b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Payroll.SalaryStructure", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Payroll.SalaryStructureLine", "Lines", b1 =>
+                        {
+                            b1.Property<Guid>("SalaryStructureId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid>("ComponentId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Formula")
+                                .IsRequired()
+                                .HasMaxLength(1024)
+                                .HasColumnType("character varying(1024)");
+
+                            b1.HasKey("SalaryStructureId", "Id");
+
+                            b1.ToTable("SalaryStructureLines", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("SalaryStructureId");
+                        });
+
+                    b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Payroll.TaxRegimeVersion", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Payroll.TaxSlab", "Slabs", b1 =>
+                        {
+                            b1.Property<Guid>("TaxRegimeVersionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<decimal>("RatePercent")
+                                .HasPrecision(5, 2)
+                                .HasColumnType("numeric(5,2)");
+
+                            b1.Property<string>("UpTo")
+                                .IsRequired()
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)");
+
+                            b1.HasKey("TaxRegimeVersionId", "Id");
+
+                            b1.ToTable("TaxSlabs", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("TaxRegimeVersionId");
+                        });
+
+                    b.Navigation("Slabs");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Recruitment.Interview", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Recruitment.InterviewScorecard", "Scorecards", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("InterviewId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("InterviewerId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Notes")
+                                .HasMaxLength(1024)
+                                .HasColumnType("character varying(1024)");
+
+                            b1.Property<int>("Rating")
+                                .HasColumnType("integer");
+
+                            b1.Property<DateTimeOffset>("SubmittedAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("InterviewId");
+
+                            b1.ToTable("InterviewScorecards", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("InterviewId");
+                        });
+
+                    b.Navigation("Scorecards");
+                });
+
+            modelBuilder.Entity("Vespera.Domain.Recruitment.JobRequisition", b =>
+                {
+                    b.OwnsMany("Vespera.Domain.Recruitment.PipelineStage", "Stages", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("JobRequisitionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)");
+
+                            b1.Property<int>("SequenceNumber")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("JobRequisitionId");
+
+                            b1.ToTable("PipelineStages", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("JobRequisitionId");
+                        });
+
+                    b.Navigation("Stages");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,83 @@
+<div class="p-6 max-w-3xl mx-auto">
+  <h1 class="text-2xl font-semibold mb-4">Salary Structure</h1>
+
+  @if (createdId()) {
+    <div class="mb-4 rounded bg-green-50 text-green-800 px-4 py-3">Structure created (id: {{ createdId() }}).</div>
+  }
+  @if (error()) {
+    <div class="mb-4 rounded bg-red-50 text-red-800 px-4 py-3">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
+    <div class="flex gap-4">
+      <mat-form-field class="flex-1">
+        <mat-label>Employee ID</mat-label>
+        <input matInput formControlName="employeeId" />
+        <vespera-form-error [control]="form.controls.employeeId" />
+      </mat-form-field>
+      <mat-form-field class="flex-1">
+        <mat-label>Monthly CTC</mat-label>
+        <input matInput type="number" formControlName="monthlyCtc" />
+        <vespera-form-error [control]="form.controls.monthlyCtc" />
+      </mat-form-field>
+      <mat-form-field class="flex-1">
+        <mat-label>Valid from</mat-label>
+        <input matInput [matDatepicker]="validFromPicker" formControlName="validFrom" />
+        <mat-datepicker-toggle matIconSuffix [for]="validFromPicker" />
+        <mat-datepicker #validFromPicker />
+      </mat-form-field>
+    </div>
+
+    <h2 class="text-lg font-medium mt-2">Lines</h2>
+    @for (line of lines(); track $index) {
+      <div class="flex items-end gap-3 border rounded p-3">
+        <mat-form-field class="flex-1">
+          <mat-label>Component ID</mat-label>
+          <input matInput [value]="line.componentId" (input)="updateLine($index, { componentId: $any($event.target).value })" />
+        </mat-form-field>
+        <mat-form-field class="flex-1">
+          <mat-label>Formula</mat-label>
+          <mat-select [value]="line.formulaKind" (selectionChange)="updateLine($index, { formulaKind: $event.value })">
+            @for (kind of formulaKinds; track kind) {
+              <mat-option [value]="kind">{{ kind }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (line.formulaKind === 'FixedAmount') {
+          <mat-form-field class="w-32">
+            <mat-label>Amount</mat-label>
+            <input matInput type="number" [value]="line.fixedAmount" (input)="updateLine($index, { fixedAmount: +$any($event.target).value })" />
+          </mat-form-field>
+        }
+        @if (line.formulaKind === 'PercentageOfComponent') {
+          <mat-form-field class="flex-1">
+            <mat-label>Of component ID</mat-label>
+            <input matInput [value]="line.referenceComponentId" (input)="updateLine($index, { referenceComponentId: $any($event.target).value })" />
+          </mat-form-field>
+          <mat-form-field class="w-24">
+            <mat-label>%</mat-label>
+            <input matInput type="number" [value]="line.percent" (input)="updateLine($index, { percent: +$any($event.target).value })" />
+          </mat-form-field>
+        }
+        @if (line.formulaKind === 'SumOfComponents') {
+          <mat-form-field class="flex-1">
+            <mat-label>Component IDs (comma-separated)</mat-label>
+            <input matInput [value]="line.sumComponentIds" (input)="updateLine($index, { sumComponentIds: $any($event.target).value })" />
+          </mat-form-field>
+        }
+
+        <button mat-icon-button type="button" (click)="removeLine($index)" aria-label="Remove line">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    }
+
+    <button mat-stroked-button type="button" (click)="addLine()">
+      <mat-icon>add</mat-icon>
+      Add line
+    </button>
+
+    <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">Create structure</button>
+  </form>
+</div>

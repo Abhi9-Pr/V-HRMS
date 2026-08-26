@@ -12,6 +12,14 @@ export const routes: Routes = [
     title: 'Access denied',
   },
   {
+    // Deliberately outside the authenticated shell — a real careers page has no session at all.
+    // See public-jobs.component.ts for how it resolves :tenantCode into the X-Tenant-Id
+    // authInterceptor needs, the same TenantResolutionService lookup the login screen already uses.
+    path: 'careers/:tenantCode',
+    loadComponent: () => import('./features/recruitment/public-jobs/public-jobs.component').then((m) => m.PublicJobsComponent),
+    title: 'Open positions',
+  },
+  {
     path: '',
     loadComponent: () => import('./shell/shell.component').then((m) => m.ShellComponent),
     canActivate: [authGuard],
@@ -20,6 +28,22 @@ export const routes: Routes = [
       {
         path: 'departments',
         loadChildren: () => import('./features/departments/departments.routes').then((m) => m.DEPARTMENTS_ROUTES),
+      },
+      {
+        path: 'expenses',
+        loadChildren: () => import('./features/expenses/expenses.routes').then((m) => m.EXPENSES_ROUTES),
+      },
+      {
+        path: 'assets',
+        loadChildren: () => import('./features/assets/assets.routes').then((m) => m.ASSETS_ROUTES),
+      },
+      {
+        path: 'recruitment',
+        loadChildren: () => import('./features/recruitment/recruitment.routes').then((m) => m.RECRUITMENT_ROUTES),
+      },
+      {
+        path: 'helpdesk',
+        loadChildren: () => import('./features/helpdesk/helpdesk.routes').then((m) => m.HELPDESK_ROUTES),
       },
     ],
   },
