@@ -181,6 +181,17 @@ public static class Permissions
         public const string ConvertToEmployee = "Recruitment.ConvertToEmployee";
     }
 
+    public static class Workspace
+    {
+        /// <summary>The landing dashboard itself — granted to every role (see
+        /// DevelopmentSeeder), distinct from the widget-authoring permissions below so "can see
+        /// the dashboard" is never accidentally tied to "can publish to it".</summary>
+        public const string ViewDashboard = "Workspace.ViewDashboard";
+
+        public const string ManageAnnouncements = "Workspace.ManageAnnouncements";
+        public const string ManageEvents = "Workspace.ManageEvents";
+    }
+
     public static class Helpdesk
     {
         public const string RaiseTickets = "Helpdesk.RaiseTickets";

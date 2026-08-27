@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>New corporate event</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="flex flex-col gap-2">
+    @if (error()) {
+      <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" maxlength="256" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3" required></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Location</mat-label>
+      <input matInput formControlName="locationText" maxlength="256" required />
+    </mat-form-field>
+
+    <div class="flex gap-2">
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Starts</mat-label>
+        <input matInput [matDatepicker]="startsPicker" formControlName="startsAt" required />
+        <mat-datepicker-toggle matIconSuffix [for]="startsPicker" />
+        <mat-datepicker #startsPicker />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Ends</mat-label>
+        <input matInput [matDatepicker]="endsPicker" formControlName="endsAt" required />
+        <mat-datepicker-toggle matIconSuffix [for]="endsPicker" />
+        <mat-datepicker #endsPicker />
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancel()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">Create</button>
+  </mat-dialog-actions>
+</form>

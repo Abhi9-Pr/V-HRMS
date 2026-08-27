@@ -1,0 +1,57 @@
+<div class="mb-2 flex justify-end">
+  <vespera-permission-button [permission]="Permissions.Workspace.ManageEvents" variant="stroked" (clicked)="openCreateDialog()">
+    New
+  </vespera-permission-button>
+</div>
+
+@if (items().length === 0) {
+  <p class="text-sm text-muted">No upcoming events.</p>
+} @else {
+  <ul class="flex max-h-72 flex-col gap-3 overflow-y-auto" role="list">
+    @for (item of items(); track item.id) {
+      <li class="border-b border-border pb-2 last:border-0" role="listitem">
+        <div class="text-sm font-medium">{{ item.title }}</div>
+        <div class="text-xs text-muted">{{ item.startsAt | vesperaDate }} · {{ item.locationText }}</div>
+
+        <div class="mt-1 flex items-center gap-2 text-xs" role="group" [attr.aria-label]="'RSVP for ' + item.title">
+          <button
+            type="button"
+            class="rounded px-2 py-0.5"
+            [class.bg-primary]="item.myResponse === 'Yes'"
+            [class.text-white]="item.myResponse === 'Yes'"
+            [class.border]="item.myResponse !== 'Yes'"
+            [class.border-border]="item.myResponse !== 'Yes'"
+            [attr.aria-pressed]="item.myResponse === 'Yes'"
+            (click)="rsvp(item, RsvpResponse._0)"
+          >
+            Yes
+          </button>
+          <button
+            type="button"
+            class="rounded px-2 py-0.5"
+            [class.bg-primary]="item.myResponse === 'Maybe'"
+            [class.text-white]="item.myResponse === 'Maybe'"
+            [class.border]="item.myResponse !== 'Maybe'"
+            [class.border-border]="item.myResponse !== 'Maybe'"
+            [attr.aria-pressed]="item.myResponse === 'Maybe'"
+            (click)="rsvp(item, RsvpResponse._2)"
+          >
+            Maybe
+          </button>
+          <button
+            type="button"
+            class="rounded px-2 py-0.5"
+            [class.bg-primary]="item.myResponse === 'No'"
+            [class.text-white]="item.myResponse === 'No'"
+            [class.border]="item.myResponse !== 'No'"
+            [class.border-border]="item.myResponse !== 'No'"
+            [attr.aria-pressed]="item.myResponse === 'No'"
+            (click)="rsvp(item, RsvpResponse._1)"
+          >
+            No
+          </button>
+        </div>
+      </li>
+    }
+  </ul>
+}

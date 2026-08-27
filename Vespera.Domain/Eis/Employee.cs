@@ -58,6 +58,7 @@ public sealed class Employee : AuditableTenantAggregateRoot<EmployeeId>
         DesignationId = designationId;
         LocationId = locationId;
         Status = EmploymentStatus.Active;
+        CelebrationsVisible = true;
 
         _employmentHistory.Add(new EmploymentHistory(
             EmploymentHistoryId.New(), departmentId, designationId, locationId, dateOfJoining, EmploymentChangeReason.Hire));
@@ -102,6 +103,11 @@ public sealed class Employee : AuditableTenantAggregateRoot<EmployeeId>
     /// maps the device-side id to this employee, either up front or retroactively via a
     /// <c>QuarantinedBiometricPunch</c>.</summary>
     public string? BiometricDeviceUserId { get; private set; }
+
+    /// <summary>Self-service privacy opt-out: when false, this employee's birthday/work
+    /// anniversary is excluded from every other employee's celebrations widget. Defaults to
+    /// true (visible) for every newly onboarded employee.</summary>
+    public bool CelebrationsVisible { get; private set; }
 
     public IReadOnlyCollection<EmploymentHistory> EmploymentHistory => _employmentHistory.AsReadOnly();
 
@@ -211,6 +217,13 @@ public sealed class Employee : AuditableTenantAggregateRoot<EmployeeId>
     public Result AssignBiometricDeviceUserId(string? deviceUserId, DateTimeOffset occurredOn, string modifiedBy)
     {
         BiometricDeviceUserId = string.IsNullOrWhiteSpace(deviceUserId) ? null : deviceUserId.Trim();
+        Touch(occurredOn, modifiedBy);
+        return Result.Success();
+    }
+
+    public Result SetCelebrationVisibility(bool visible, DateTimeOffset occurredOn, string modifiedBy)
+    {
+        CelebrationsVisible = visible;
         Touch(occurredOn, modifiedBy);
         return Result.Success();
     }

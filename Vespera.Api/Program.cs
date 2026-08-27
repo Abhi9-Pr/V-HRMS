@@ -6,6 +6,7 @@ using Vespera.Infrastructure.Notifications;
 using Vespera.Infrastructure.Payroll;
 using Vespera.Infrastructure.Security;
 using Vespera.Infrastructure.Services;
+using Vespera.Infrastructure.Workspace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,7 @@ builder.Services.AddVesperaNotificationChannels(builder.Configuration);
 builder.Services.AddVesperaTimeZoneConversion();
 builder.Services.AddVesperaBiometricDevices();
 builder.Services.AddVesperaPayroll();
+builder.Services.AddVesperaWorkspace();
 builder.Services.Configure<WebPunchOptions>(builder.Configuration.GetSection(WebPunchOptions.SectionName));
 builder.Services.Configure<MobilePunchOptions>(builder.Configuration.GetSection(MobilePunchOptions.SectionName));
 

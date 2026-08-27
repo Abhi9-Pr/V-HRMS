@@ -1,0 +1,11 @@
+@if (payslip(); as slip) {
+  <p class="text-sm text-muted">{{ slip.generatedAt | vesperaDate: { dateStyle: 'medium' } }}</p>
+  <p class="text-xl font-semibold">{{ slip.netPay | vesperaCurrency: slip.currency }}</p>
+
+  <button mat-flat-button color="primary" type="button" class="mt-2" (click)="download()">
+    <mat-icon aria-hidden="true">download</mat-icon>
+    Download payslip
+  </button>
+} @else {
+  <p class="text-sm text-muted">No payslip available yet.</p>
+}

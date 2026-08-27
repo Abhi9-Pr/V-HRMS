@@ -1,0 +1,84 @@
+<h2 mat-dialog-title>New announcement</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="flex flex-col gap-2">
+    @if (error()) {
+      <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" maxlength="256" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Body (markdown supported)</mat-label>
+      <textarea matInput formControlName="body" rows="5" required></textarea>
+    </mat-form-field>
+
+    <div class="flex gap-2">
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Priority</mat-label>
+        <mat-select formControlName="priority">
+          @for (priority of priorities; track priority) {
+            <mat-option [value]="priority">{{ priorityLabel(priority) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Audience</mat-label>
+        <mat-select formControlName="audienceScope">
+          @for (scope of scopes; track scope) {
+            <mat-option [value]="scope">{{ scopeLabel(scope) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    @if (isDepartmentScope) {
+      <mat-form-field appearance="outline">
+        <mat-label>Department</mat-label>
+        <mat-select formControlName="targetDepartmentId">
+          @for (department of departments(); track department.id) {
+            <mat-option [value]="department.id">{{ department.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    @if (isLocationScope) {
+      <mat-form-field appearance="outline">
+        <mat-label>Location</mat-label>
+        <mat-select formControlName="targetLocationId">
+          @for (location of locations(); track location.id) {
+            <mat-option [value]="location.id">{{ location.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    <div class="flex gap-2">
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Publish at</mat-label>
+        <input matInput [matDatepicker]="publishPicker" formControlName="publishAt" required />
+        <mat-datepicker-toggle matIconSuffix [for]="publishPicker" />
+        <mat-datepicker #publishPicker />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>Expires (optional)</mat-label>
+        <input matInput [matDatepicker]="expiryPicker" formControlName="expiresAt" />
+        <mat-datepicker-toggle matIconSuffix [for]="expiryPicker" />
+        <mat-datepicker #expiryPicker />
+      </mat-form-field>
+    </div>
+
+    <mat-checkbox formControlName="publishImmediately">Publish immediately</mat-checkbox>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancel()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">Create</button>
+  </mat-dialog-actions>
+</form>

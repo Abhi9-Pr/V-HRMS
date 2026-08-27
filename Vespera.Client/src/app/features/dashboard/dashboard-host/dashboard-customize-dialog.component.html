@@ -1,0 +1,84 @@
+<h2 mat-dialog-title>Customize dashboard</h2>
+
+<mat-dialog-content>
+  <p class="mb-3 text-sm text-muted">
+    Drag a widget's handle to reorder it, or use the up/down buttons. Uncheck a widget to hide it.
+  </p>
+
+  @if (error()) {
+    <p class="mb-2 text-sm text-danger" role="alert">{{ error() }}</p>
+  }
+
+  <ul
+    cdkDropList
+    class="flex flex-col gap-2"
+    role="list"
+    aria-label="Dashboard widget order"
+    (cdkDropListDropped)="drop($event)"
+  >
+    @for (row of rows(); track row.widgetKey; let i = $index) {
+      <li
+        cdkDrag
+        role="listitem"
+        class="flex items-center gap-2 rounded-md border border-border bg-surface p-2"
+      >
+        <button
+          cdkDragHandle
+          type="button"
+          class="flex items-center justify-center"
+          [attr.aria-label]="'Reorder ' + row.title"
+        >
+          <mat-icon aria-hidden="true">drag_indicator</mat-icon>
+        </button>
+
+        <mat-icon aria-hidden="true" class="!text-base">{{ row.icon }}</mat-icon>
+        <span class="flex-1 text-sm">{{ row.title }}</span>
+
+        <mat-select
+          [value]="row.size"
+          (selectionChange)="setSize(row, $event.value)"
+          [attr.aria-label]="row.title + ' size'"
+          class="w-28"
+        >
+          @for (size of sizes; track size) {
+            <mat-option [value]="size">{{ size }}</mat-option>
+          }
+        </mat-select>
+
+        <mat-checkbox
+          [checked]="row.isVisible"
+          (change)="toggleVisible(row, $event.checked)"
+          [attr.aria-label]="'Show ' + row.title"
+        >
+          Visible
+        </mat-checkbox>
+
+        <div class="flex flex-col">
+          <button
+            type="button"
+            mat-icon-button
+            [disabled]="i === 0"
+            [attr.aria-label]="'Move ' + row.title + ' up'"
+            (click)="moveUp(i)"
+          >
+            <mat-icon aria-hidden="true">arrow_upward</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            [disabled]="i === rows().length - 1"
+            [attr.aria-label]="'Move ' + row.title + ' down'"
+            (click)="moveDown(i)"
+          >
+            <mat-icon aria-hidden="true">arrow_downward</mat-icon>
+          </button>
+        </div>
+      </li>
+    }
+  </ul>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">Cancel</button>
+  <button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="save()">Save</button>
+</mat-dialog-actions>

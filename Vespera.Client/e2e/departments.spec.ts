@@ -25,7 +25,10 @@ test.describe('Departments CRUD', () => {
     await page.getByLabel('Password').fill('Passw0rd!23456');
     await page.getByRole('button', { name: 'Sign in' }).click();
 
-    await expect(page).toHaveURL(/\/departments$/);
+    // Login redirects to '/', which resolves to the landing dashboard, not straight to
+    // Departments — navigate there explicitly.
+    await expect(page).toHaveURL(/\/dashboard$/);
+    await page.goto('/departments');
     await expect(page.getByRole('heading', { name: 'Departments' })).toBeVisible();
 
     await page.getByRole('button', { name: 'New department' }).click();

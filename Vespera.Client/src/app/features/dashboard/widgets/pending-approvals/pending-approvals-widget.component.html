@@ -1,0 +1,15 @@
+@if (totalCount() === 0) {
+  <p class="text-sm text-muted">Nothing waiting on you.</p>
+} @else {
+  <p class="text-3xl font-semibold" [attr.aria-label]="totalCount() + ' pending approvals'">{{ totalCount() }}</p>
+  <p class="mb-2 text-xs text-muted">pending approval{{ totalCount() === 1 ? '' : 's' }}</p>
+
+  <ul class="flex flex-col gap-1 text-sm" role="list">
+    @for (entry of breakdown(); track entry[0]) {
+      <li class="flex justify-between" role="listitem">
+        <span>{{ entry[0] }}</span>
+        <span class="font-medium">{{ entry[1] }}</span>
+      </li>
+    }
+  </ul>
+}

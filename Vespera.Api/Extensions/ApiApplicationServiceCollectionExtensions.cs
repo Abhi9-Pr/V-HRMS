@@ -38,6 +38,9 @@ public static class ApiApplicationServiceCollectionExtensions
         // NotificationDispatcher already fans out to every registered channel unchanged.
         builder.Services.AddSingleton<INotificationChannel, SignalRNotificationChannel>();
 
+        // The dashboard's structured (non-toast) real-time push — see DashboardRealtimeBroadcaster.
+        builder.Services.AddSingleton<IDashboardRealtimePublisher, DashboardRealtimeBroadcaster>();
+
         return builder;
     }
 }

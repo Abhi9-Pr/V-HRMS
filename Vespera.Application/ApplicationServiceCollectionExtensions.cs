@@ -1,9 +1,11 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Vespera.Application.Abstractions.Services;
 using Vespera.Application.Behaviors;
 using Vespera.Application.Features.Attendance.Regularizations;
 using Vespera.Application.Features.Auth;
+using Vespera.Application.Features.Dashboard.Widgets;
 using Vespera.Application.Features.Expenses;
 using Vespera.Application.Features.Expenses.Policy;
 using Vespera.Application.Features.Helpdesk.Routing;
@@ -41,6 +43,19 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IStageTransitionRule, RequiresCompletedInterviewBeforeOfferStageRule>();
         services.AddScoped<TicketRoutingEvaluator>();
         services.AddScoped<ITicketRoutingRule, DefaultToDepartmentHeadRoutingRule>();
+
+        // The landing dashboard's widget framework: adding a widget means adding one
+        // IDashboardWidgetProvider class and one registration line here, nothing else — see
+        // DashboardWidgetProviderRegistrationTests in Vespera.Architecture.Tests for the
+        // mechanical proof, the same OCP idiom as the payroll rules pipeline below.
+        services.AddScoped<IDashboardWidgetProvider, ShiftTrackerWidgetProvider>();
+        services.AddScoped<IDashboardWidgetProvider, AnnouncementsWidgetProvider>();
+        services.AddScoped<IDashboardWidgetProvider, CelebrationsWidgetProvider>();
+        services.AddScoped<IDashboardWidgetProvider, CorporateEventsWidgetProvider>();
+        services.AddScoped<IDashboardWidgetProvider, TodoWidgetProvider>();
+        services.AddScoped<IDashboardWidgetProvider, PendingApprovalsWidgetProvider>();
+        services.AddScoped<IDashboardWidgetProvider, LeaveBalanceWidgetProvider>();
+        services.AddScoped<IDashboardWidgetProvider, PayslipWidgetProvider>();
 
         // The payroll rules pipeline: adding a component means adding one new IPayrollComponentRule
         // class and one registration line here, nothing else — see PayrollComponentRuleRegistrationTests

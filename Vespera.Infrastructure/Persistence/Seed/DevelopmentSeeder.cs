@@ -10,6 +10,7 @@ using Vespera.Domain.IdentityAccess;
 using Vespera.Domain.Leave;
 using Vespera.Domain.Payroll;
 using Vespera.Domain.ValueObjects;
+using Vespera.Domain.Workspace;
 using Vespera.Infrastructure.Identity;
 
 namespace Vespera.Infrastructure.Persistence.Seed;
@@ -161,6 +162,17 @@ public static class DevelopmentSeeder
         financeRole.Grant(Find(Permissions.Expenses.ManagePolicy).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Expenses.Settle).Id, now, createdBy);
         financeRole.Grant(Find(Permissions.Recruitment.ApproveRequisitions).Id, now, createdBy);
+
+        // The landing dashboard is every signed-in employee's home screen — granted to every
+        // non-admin role explicitly (Admin already has it via the grant-everything loop above).
+        // ManageAnnouncements/ManageEvents stay HR-only, same wall as the rest of HR's authoring
+        // permissions.
+        hrRole.Grant(Find(Permissions.Workspace.ViewDashboard).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Workspace.ManageAnnouncements).Id, now, createdBy);
+        hrRole.Grant(Find(Permissions.Workspace.ManageEvents).Id, now, createdBy);
+        managerRole.Grant(Find(Permissions.Workspace.ViewDashboard).Id, now, createdBy);
+        employeeRole.Grant(Find(Permissions.Workspace.ViewDashboard).Id, now, createdBy);
+        financeRole.Grant(Find(Permissions.Workspace.ViewDashboard).Id, now, createdBy);
 
         dbContext.AddRange(adminRole, hrRole, managerRole, employeeRole, financeRole);
 
@@ -324,6 +336,61 @@ public static class DevelopmentSeeder
             RetentionPolicy.Create(tid, "Employee.Document", retentionPeriodDays: 2555, RetentionAction.Anonymize, now, createdBy).Value,
             RetentionPolicy.Create(tid, "Attendance.Punch", retentionPeriodDays: 1095, RetentionAction.Purge, now, createdBy).Value,
             RetentionPolicy.Create(tid, "AuditLog", retentionPeriodDays: 2190, RetentionAction.Purge, now, createdBy).Value);
+
+        // Landing dashboard fixtures — dates are offset from `now` (not the employees' real
+        // DOB/DateOfJoining above) so a celebration/announcement/event always falls inside the
+        // dashboard widgets' "upcoming" windows regardless of which calendar day seeding runs on.
+        var welcomeAnnouncement = Announcement.Create(
+            tid, "Welcome to the new HR platform", "We're excited to roll out **Vespera** company-wide. Explore your new dashboard!",
+            AnnouncementAudienceScope.AllEmployees, null, null, AnnouncementPriority.Normal, now.AddDays(-1), null, now, createdBy).Value;
+        welcomeAnnouncement.Publish(now, createdBy);
+        welcomeAnnouncement.Pin(now, createdBy);
+
+        var allHandsAnnouncement = Announcement.Create(
+            tid, "Engineering all-hands this Friday", "Quarterly roadmap review — attendance is expected for all Engineering staff.",
+            AnnouncementAudienceScope.Department, engineering.Id, null, AnnouncementPriority.High, now.AddHours(-2), null, now, createdBy).Value;
+        allHandsAnnouncement.Publish(now, createdBy);
+
+        // Deliberately unpublished — proves GetAnnouncementsForMeQuery excludes drafts.
+        var draftAnnouncement = Announcement.Create(
+            tid, "Q1 policy update (draft)", "Draft text pending HR sign-off.", AnnouncementAudienceScope.AllEmployees, null, null,
+            AnnouncementPriority.Low, now.AddDays(1), null, now, createdBy).Value;
+
+        var priyaReceipt = AnnouncementReceipt.Create(tid, welcomeAnnouncement.Id, priya.Id);
+        priyaReceipt.Acknowledge(now);
+
+        dbContext.AddRange(welcomeAnnouncement, allHandsAnnouncement, draftAnnouncement, priyaReceipt);
+
+        var today = DateOnly.FromDateTime(now.UtcDateTime);
+        var priyaBirthday = today.AddDays(3);
+        var rohanAnniversaryMonthDay = today.AddDays(10);
+        var rohanAnniversary = new DateOnly(rohanAnniversaryMonthDay.Year - 5, rohanAnniversaryMonthDay.Month, rohanAnniversaryMonthDay.Day);
+
+        // Ananya opts out — proves the celebrations widget excludes her even though her seeded
+        // date would otherwise fall in the same upcoming window.
+        var ananyaAnniversaryMonthDay = today.AddDays(6);
+        ananya.SetCelebrationVisibility(false, now, createdBy);
+
+        dbContext.AddRange(
+            Celebration.Create(tid, priya.Id, CelebrationType.Birthday, priyaBirthday),
+            Celebration.Create(tid, rohan.Id, CelebrationType.WorkAnniversary, rohanAnniversary),
+            Celebration.Create(tid, ananya.Id, CelebrationType.WorkAnniversary, new DateOnly(ananyaAnniversaryMonthDay.Year - 1, ananyaAnniversaryMonthDay.Month, ananyaAnniversaryMonthDay.Day)));
+
+        var townHall = CorporateEvent.Create(
+            tid, "Annual Town Hall", "Company-wide town hall with leadership Q&A.", now.AddDays(7), now.AddDays(7).AddHours(2),
+            "Head Office — Auditorium", now, createdBy).Value;
+        var priyaRsvp = EventRsvp.Create(tid, townHall.Id, priya.Id);
+        priyaRsvp.Respond(RsvpResponse.Yes, now);
+
+        dbContext.AddRange(townHall, priyaRsvp);
+
+        var teamLunchTodo = TodoItem.Create(tid, priya.Id, "Team lunch RSVP", null, TodoUrgency.Low, 2).Value;
+        teamLunchTodo.Complete();
+
+        dbContext.AddRange(
+            TodoItem.Create(tid, priya.Id, "Submit timesheet", today.AddDays(1), TodoUrgency.High, 0).Value,
+            TodoItem.Create(tid, priya.Id, "Review PR #482", null, TodoUrgency.Medium, 1).Value,
+            teamLunchTodo);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

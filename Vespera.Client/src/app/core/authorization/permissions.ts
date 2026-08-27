@@ -58,4 +58,9 @@ export const Permissions = {
   Finance: {
     Admin: 'Finance.Admin',
   },
+  Workspace: {
+    ViewDashboard: 'Workspace.ViewDashboard',
+    ManageAnnouncements: 'Workspace.ManageAnnouncements',
+    ManageEvents: 'Workspace.ManageEvents',
+  },
 } as const;

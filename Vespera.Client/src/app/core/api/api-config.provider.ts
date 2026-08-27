@@ -1,17 +1,22 @@
 import { Provider } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import {
+  AnnouncementsClient,
   API_BASE_URL,
   AssetRecoveriesClient,
   AssetsClient,
+  AttendanceClient,
   AuthClient,
   CandidatesClient,
+  CorporateEventsClient,
+  DashboardClient,
   DepartmentsClient,
   ExpensePoliciesClient,
   ExpenseSettlementsClient,
   ExpensesClient,
   InterviewsClient,
   LicensesClient,
+  LocationsClient,
   OffboardingChecklistsClient,
   OffersClient,
   PublicHolidaysClient,
@@ -21,6 +26,7 @@ import {
   TenantsClient,
   TicketCategoriesClient,
   TicketsClient,
+  TodosClient,
 } from './generated/api-client';
 
 /**
@@ -53,5 +59,12 @@ export function provideVesperaApiClients(): Provider[] {
     TicketCategoriesClient,
     SlaPoliciesClient,
     PublicHolidaysClient,
+    // Landing dashboard
+    AttendanceClient,
+    DashboardClient,
+    TodosClient,
+    AnnouncementsClient,
+    CorporateEventsClient,
+    LocationsClient,
   ];
 }

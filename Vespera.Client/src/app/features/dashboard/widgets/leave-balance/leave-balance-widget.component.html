@@ -1,0 +1,12 @@
+@if (widgetData().balances.length === 0) {
+  <p class="text-sm text-muted">No leave balances yet.</p>
+} @else {
+  <ul class="flex flex-col gap-1 text-sm" role="list">
+    @for (row of widgetData().balances; track row.leaveTypeId) {
+      <li class="flex justify-between" role="listitem">
+        <span>{{ row.leaveTypeName }}</span>
+        <span class="font-medium">{{ row.available }} days</span>
+      </li>
+    }
+  </ul>
+}

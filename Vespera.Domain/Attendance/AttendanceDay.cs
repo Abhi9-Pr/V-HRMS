@@ -143,7 +143,7 @@ public sealed class AttendanceDay : AggregateRoot<AttendanceDayId>, ITenantScope
         _punches.Add(new AttendancePunch(AttendancePunchId.New(), punchType, punchedAtUtc, location, source, requiresApproval, flagReason));
         Status = AttendanceDayStatus.Present;
         LastChangedAt = punchedAtUtc;
-        Raise(new PunchRecorded(EmployeeId, punchedAtUtc, punchType, punchedAtUtc));
+        Raise(new PunchRecorded(TenantId, EmployeeId, punchedAtUtc, punchType, punchedAtUtc));
         return Result.Success();
     }
 

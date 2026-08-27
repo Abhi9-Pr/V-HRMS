@@ -1,0 +1,49 @@
+<h2 mat-dialog-title>Read receipts</h2>
+
+<mat-dialog-content>
+  @if (loading()) {
+    <div class="flex items-center gap-2 py-4">
+      <mat-spinner diameter="24" />
+      <span>Loading…</span>
+    </div>
+  } @else {
+    @if (error()) {
+      <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+    } @else {
+      @if (report(); as report) {
+        <p class="mb-3 text-sm">
+          <strong>{{ report.title }}</strong> — {{ report.acknowledgedCount }} of {{ report.targetEmployeeCount }} acknowledged
+        </p>
+
+        <table class="w-full text-sm" role="table">
+          <thead>
+            <tr class="border-b border-border text-left">
+              <th scope="col" class="pb-1 font-medium">Employee</th>
+              <th scope="col" class="pb-1 font-medium">Status</th>
+              <th scope="col" class="pb-1 font-medium">Acknowledged at</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of report.rows; track row.employeeId) {
+              <tr class="border-b border-border">
+                <td class="py-1">{{ row.employeeName }}</td>
+                <td class="py-1">
+                  @if (row.acknowledged) {
+                    <span class="text-success">Acknowledged</span>
+                  } @else {
+                    <span class="text-muted">Pending</span>
+                  }
+                </td>
+                <td class="py-1">{{ row.acknowledged ? (row.acknowledgedAt | vesperaDate) : '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close type="button">Close</button>
+</mat-dialog-actions>

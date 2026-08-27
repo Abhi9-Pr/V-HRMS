@@ -1,0 +1,42 @@
+<div class="mb-2 flex gap-1">
+  <input
+    matInput
+    type="text"
+    class="flex-1 rounded border border-border bg-surface px-2 py-1 text-sm"
+    placeholder="Add a to-do…"
+    aria-label="New to-do title"
+    [ngModel]="newTitle()"
+    (ngModelChange)="newTitle.set($event)"
+    (keydown.enter)="addTodo()"
+  />
+  <button mat-icon-button type="button" aria-label="Add to-do" (click)="addTodo()">
+    <mat-icon aria-hidden="true">add</mat-icon>
+  </button>
+</div>
+
+@if (items().length === 0) {
+  <p class="text-sm text-muted">Nothing on your list.</p>
+} @else {
+  <ul cdkDropList class="flex max-h-64 flex-col gap-1 overflow-y-auto" role="list" aria-label="My to-dos" (cdkDropListDropped)="drop($event)">
+    @for (item of items(); track item.id) {
+      <li cdkDrag role="listitem" class="flex items-center gap-2 rounded px-1 py-1 hover:bg-surface-alt">
+        <mat-checkbox [checked]="item.isDone" (change)="toggleDone(item, $event.checked)" [attr.aria-label]="item.title" />
+        <span class="flex-1 text-sm" [class.line-through]="item.isDone" [class.text-muted]="item.isDone">
+          {{ item.title }}
+        </span>
+        <button
+          type="button"
+          class="rounded px-1.5 py-0.5 text-xs"
+          [class.bg-danger]="item.urgency === 'High'"
+          [class.text-white]="item.urgency === 'High'"
+          [class.bg-warning]="item.urgency === 'Medium'"
+          [class.bg-surface-alt]="item.urgency === 'Low'"
+          [attr.aria-label]="'Urgency: ' + (item.urgency ? urgencyLabelByName[item.urgency] : 'Low') + '. Click to change.'"
+          (click)="cycleUrgency(item)"
+        >
+          {{ item.urgency ? urgencyLabelByName[item.urgency] : 'Low' }}
+        </button>
+      </li>
+    }
+  </ul>
+}

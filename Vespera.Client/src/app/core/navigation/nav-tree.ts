@@ -1,3 +1,4 @@
+import { dashboardNavItem } from '../../features/dashboard/dashboard.nav';
 import { departmentsNavItem } from '../../features/departments/departments.nav';
 import {
   expenseSettlementNavItem,
@@ -25,6 +26,7 @@ import { NavItem } from './nav-item.model';
  * can't drift from the matching route's permission metadata. Add one entry per lazy-loaded
  * feature here as it's built. */
 export const NAV_TREE: NavItem[] = [
+  dashboardNavItem,
   departmentsNavItem,
   expensesClaimsNavItem,
   expensesApprovalsNavItem,

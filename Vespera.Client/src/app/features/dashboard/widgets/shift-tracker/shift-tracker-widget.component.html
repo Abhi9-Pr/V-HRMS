@@ -1,0 +1,43 @@
+@if (data.shiftName) {
+  <p class="text-sm">
+    <span class="font-medium">{{ data.shiftName }}</span>
+    <span class="text-muted"> · {{ data.shiftStart?.slice(0, 5) }}–{{ data.shiftEnd?.slice(0, 5) }}</span>
+  </p>
+} @else {
+  <p class="text-sm text-muted">No shift assigned for today.</p>
+}
+
+<div class="mt-2 flex items-center gap-2">
+  <span
+    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
+    [class.bg-success]="effectiveStatus() === 'In'"
+    [class.text-white]="effectiveStatus() === 'In'"
+    [class.bg-surface-alt]="effectiveStatus() !== 'In'"
+  >
+    <mat-icon aria-hidden="true" class="!text-sm">{{ effectiveStatus() === 'In' ? 'login' : 'logout' }}</mat-icon>
+    {{ effectiveStatus() === 'In' ? 'Punched in' : effectiveStatus() === 'Out' ? 'Punched out' : 'Not started' }}
+  </span>
+
+  @if (data.firstIn) {
+    <span class="text-xs text-muted">since {{ data.firstIn | vesperaDate: { timeStyle: 'short' } }}</span>
+  }
+</div>
+
+@if (punchError()) {
+  <p class="mt-1 text-xs text-danger" role="alert">{{ punchError() }}</p>
+}
+
+<button
+  mat-flat-button
+  color="primary"
+  type="button"
+  class="mt-3"
+  [disabled]="!data.employeeId || punching()"
+  (click)="quickPunch()"
+>
+  @if (punching()) {
+    <mat-spinner diameter="18" class="inline-block" />
+  } @else {
+    {{ nextPunchType() === 'In' ? 'Punch in' : 'Punch out' }}
+  }
+</button>
