@@ -6,10 +6,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { DashboardWidgetPreferenceDto, WidgetPreferenceInput } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { DashboardFacade } from '../data/dashboard.facade';
 import { WIDGET_REGISTRY } from '../widget-registry';
+import { ApiError, DashboardWidgetPreferenceDto, WidgetPreferenceInput } from 'vespera-shared';
 
 interface CustomizeRow {
   widgetKey: string;

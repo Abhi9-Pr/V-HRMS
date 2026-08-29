@@ -1,4 +1,5 @@
 using MediatR;
+using Vespera.Application.Abstractions.Messaging;
 using Vespera.Domain.Common;
 
 namespace Vespera.Application.Features.Leave;
@@ -7,4 +8,5 @@ namespace Vespera.Application.Features.Leave;
 /// yet — this is the "cancel-after-approval" flow whose ledger reversal, together with
 /// <see cref="SubmitLeaveRequestCommand"/>'s original debit, is what the approve-then-cancel
 /// reconciliation depends on.</summary>
-public sealed record CancelApprovedLeaveRequestCommand(Guid LeaveRequestId, string Reason) : IRequest<Result>;
+public sealed record CancelApprovedLeaveRequestCommand(Guid LeaveRequestId, string Reason, string? IdempotencyKey = null)
+    : IRequest<Result>, IIdempotentRequest;

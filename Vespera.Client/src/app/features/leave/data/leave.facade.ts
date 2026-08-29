@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  ApiError,
   ApprovalInboxItemDto,
   CreateProxyDelegationCommand,
   EmployeeSummaryDto,
@@ -18,8 +19,7 @@ import {
   SubmitLeaveRequestCommand,
   SubmitLeaveRequestResponse,
   TeamLeaveCalendarDayDto,
-} from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
+} from 'vespera-shared';
 
 /**
  * Wraps every generated client the leave screens need behind signals + plain methods, following

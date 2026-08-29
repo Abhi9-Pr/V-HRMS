@@ -1,8 +1,8 @@
 import { Component, effect, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from './core/auth/auth.service';
 import { NotificationService } from './core/services/notification.service';
 import { ThemeService } from './core/services/theme.service';
+import { AuthService } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-root',

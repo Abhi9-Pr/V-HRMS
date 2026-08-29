@@ -8,14 +8,13 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { CandidateStatus, Currency, InterviewDto, OfferLetterDto, OfferLetterStatus } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { TimezoneDatePipe } from '../../../shared/pipes/timezone-date.pipe';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
 import { RecruitmentFacade } from '../data/recruitment.facade';
 import { CANDIDATE_STATUS_LABELS, INTERVIEW_STATUS_LABELS, OFFER_LETTER_STATUS_LABELS } from '../recruitment.labels';
+import { ApiError, CandidateStatus, Currency, InterviewDto, OfferLetterDto, OfferLetterStatus } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-candidate-detail',
@@ -44,8 +43,10 @@ export class CandidateDetailComponent implements OnInit {
   readonly currencies = Object.values(Currency).filter((value): value is Currency => typeof value === 'number');
   readonly candidateStatusLabel = (status: CandidateStatus | undefined): string =>
     status !== undefined ? CANDIDATE_STATUS_LABELS[status] : '';
-  readonly interviewStatusLabel = (status: InterviewDto['status']): string => (status !== undefined ? INTERVIEW_STATUS_LABELS[status] : '');
-  readonly offerStatusLabel = (status: OfferLetterDto['status']): string => (status !== undefined ? OFFER_LETTER_STATUS_LABELS[status] : '');
+  readonly interviewStatusLabel = (status: InterviewDto['status']): string =>
+    status !== undefined ? INTERVIEW_STATUS_LABELS[status] : '';
+  readonly offerStatusLabel = (status: OfferLetterDto['status']): string =>
+    status !== undefined ? OFFER_LETTER_STATUS_LABELS[status] : '';
 
   readonly candidate = this.recruitmentFacade.candidate;
   readonly candidateLoading = this.recruitmentFacade.candidateLoading;
@@ -141,7 +142,10 @@ export class CandidateDetailComponent implements OnInit {
       return;
     }
 
-    this.runAction(interview.id, this.recruitmentFacade.submitScorecard(interview.id, { interviewerId, rating, notes: notes || undefined }));
+    this.runAction(
+      interview.id,
+      this.recruitmentFacade.submitScorecard(interview.id, { interviewerId, rating, notes: notes || undefined }),
+    );
   }
 
   completeInterview(interview: InterviewDto, feedback: string, rating: number): void {
@@ -192,7 +196,12 @@ export class CandidateDetailComponent implements OnInit {
         }
 
         this.creatingOffer.set(false);
-        this.offerForm.reset({ proposedDesignationId: '', proposedCtc: 0, currency: Currency._0, joiningDate: new Date() });
+        this.offerForm.reset({
+          proposedDesignationId: '',
+          proposedCtc: 0,
+          currency: Currency._0,
+          joiningDate: new Date(),
+        });
         this.reload();
       });
   }

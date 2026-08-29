@@ -49,7 +49,7 @@
       "queryNullValue": "",
       "inlineNamedDictionaries": false,
       "inlineNamedAny": false,
-      "output": "src/app/core/api/generated/api-client.ts"
+      "output": "projects/vespera-shared/src/lib/api/generated/api-client.ts"
     }
   }
 }

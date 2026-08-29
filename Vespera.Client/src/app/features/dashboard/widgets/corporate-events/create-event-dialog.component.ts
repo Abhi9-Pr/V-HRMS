@@ -7,13 +7,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { catchError, of } from 'rxjs';
-import { ApiError } from '../../../../core/http/api-error.model';
 import { CorporateEventsFacade } from '../../data/corporate-events.facade';
+import { ApiError } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-create-event-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule],
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+  ],
   templateUrl: './create-event-dialog.component.html',
 })
 export class CreateEventDialogComponent {

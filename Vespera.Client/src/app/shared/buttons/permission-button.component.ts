@@ -1,8 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, Input, computed, inject, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { AuthService } from '../../core/auth/auth.service';
-import { hasPermission } from '../../core/auth/permission.util';
+import { AuthService, hasPermission } from 'vespera-shared';
 
 /** `<vespera-permission-button [permission]="'Departments.Manage'" (clicked)="...">Edit
  * </vespera-permission-button>` — hides (not just disables) the action when the user lacks the

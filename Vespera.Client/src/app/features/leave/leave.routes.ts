@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { Permissions } from '../../core/authorization/permissions';
 import { permissionGuard } from '../../core/guards/permission.guard';
+import { Permissions } from 'vespera-shared';
 
 export const LEAVE_ROUTES: Routes = [
   { path: '', redirectTo: 'apply', pathMatch: 'full' },

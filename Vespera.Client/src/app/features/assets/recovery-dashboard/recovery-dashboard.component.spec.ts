@@ -2,15 +2,21 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
-import { AssetRecoveryDto, AssetRecoveryStatus } from '../../../core/api/generated/api-client';
-import { AuthService } from '../../../core/auth/auth.service';
 import { AssetsFacade } from '../data/assets.facade';
 import { RecoveryDashboardComponent } from './recovery-dashboard.component';
+import { AssetRecoveryDto, AssetRecoveryStatus, AuthService } from 'vespera-shared';
 
 describe('RecoveryDashboardComponent', () => {
   let fixture: ComponentFixture<RecoveryDashboardComponent>;
   let facade: jest.Mocked<
-    Pick<AssetsFacade, 'loadPendingRecoveries' | 'pendingRecoveries' | 'pendingRecoveriesTotalCount' | 'pendingRecoveriesLoading' | 'pendingRecoveriesError'>
+    Pick<
+      AssetsFacade,
+      | 'loadPendingRecoveries'
+      | 'pendingRecoveries'
+      | 'pendingRecoveriesTotalCount'
+      | 'pendingRecoveriesLoading'
+      | 'pendingRecoveriesError'
+    >
   >;
 
   function setup(recoveries: AssetRecoveryDto[]): void {
@@ -50,8 +56,8 @@ describe('RecoveryDashboardComponent', () => {
   it('a Pending recovery should only show the dispatch and mark-received actions', () => {
     setup([{ id: 'rec-1', assetId: 'asset-1', employeeId: 'emp-1', status: AssetRecoveryStatus._0 }]);
 
-    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map(
-      (element) => (element as HTMLElement).getAttribute('data-testid'),
+    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map((element) =>
+      (element as HTMLElement).getAttribute('data-testid'),
     );
 
     expect(testIds).toEqual(expect.arrayContaining(['dispatch-action', 'receive-action']));
@@ -63,8 +69,8 @@ describe('RecoveryDashboardComponent', () => {
   it('a Received recovery should show assess-damage, write-off, and complete but not dispatch', () => {
     setup([{ id: 'rec-2', assetId: 'asset-2', employeeId: 'emp-2', status: AssetRecoveryStatus._2 }]);
 
-    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map(
-      (element) => (element as HTMLElement).getAttribute('data-testid'),
+    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map((element) =>
+      (element as HTMLElement).getAttribute('data-testid'),
     );
 
     expect(testIds).toEqual(expect.arrayContaining(['assess-damage-action', 'write-off-action', 'complete-action']));

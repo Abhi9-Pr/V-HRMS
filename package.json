@@ -1,0 +1,9 @@
+{
+  "name": "vespera-hrms",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "Vespera.Client",
+    "Vespera.Mobile"
+  ]
+}

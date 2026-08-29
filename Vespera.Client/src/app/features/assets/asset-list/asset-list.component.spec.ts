@@ -3,13 +3,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
-import { AuthService } from '../../../core/auth/auth.service';
 import { AssetsFacade } from '../data/assets.facade';
 import { AssetListComponent } from './asset-list.component';
+import { AuthService } from 'vespera-shared';
 
 describe('AssetListComponent', () => {
   let fixture: ComponentFixture<AssetListComponent>;
-  let facade: jest.Mocked<Pick<AssetsFacade, 'loadAssets' | 'assets' | 'assetsTotalCount' | 'assetsLoading' | 'assetsError'>>;
+  let facade: jest.Mocked<
+    Pick<AssetsFacade, 'loadAssets' | 'assets' | 'assetsTotalCount' | 'assetsLoading' | 'assetsError'>
+  >;
   let dialog: jest.Mocked<Pick<MatDialog, 'open'>>;
   let router: jest.Mocked<Pick<Router, 'navigate'>>;
 

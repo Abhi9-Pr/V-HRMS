@@ -8,9 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, of, switchMap, tap } from 'rxjs';
-import { AuthService } from '../../../core/auth/auth.service';
-import { ApiError } from '../../../core/http/api-error.model';
-import { TenantResolutionService } from '../../../core/api/tenant-resolution.service';
+import { ApiError, AuthService, TenantResolutionService } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-login',

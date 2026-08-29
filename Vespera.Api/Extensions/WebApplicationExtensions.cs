@@ -10,20 +10,25 @@ namespace Vespera.Api.Extensions;
 public static class WebApplicationExtensions
 {
     /// <summary>Order: correlation id (outermost, so every later stage can log against it) →
-    /// unhandled-exception ProblemDetails → security headers → CORS → rate limiting →
-    /// output cache → compression → request logging → authentication → authorization →
-    /// idempotency replay (innermost — it needs to know who's calling and whether the request is
-    /// even allowed through before it's worth caching a response for). Output cache sits right
-    /// after rate limiting and before everything else: a cache hit or miss both still count
-    /// against the caller's rate limit (caching is never a way to dodge it), but a hit then skips
-    /// compression/logging/auth entirely — fine here since the only cached route
-    /// (PublicJobsController) is anonymous already, so short-circuiting auth for a cache hit
-    /// changes nothing about who can see the response.</summary>
+    /// unhandled-exception ProblemDetails → security headers → mobile force-upgrade gate → CORS →
+    /// rate limiting → output cache → compression → request logging → authentication →
+    /// authorization → idempotency replay (innermost — it needs to know who's calling and whether
+    /// the request is even allowed through before it's worth caching a response for). The
+    /// force-upgrade gate sits right after security headers and before everything else that costs
+    /// real work (CORS, rate limiting, auth): a stale app build is rejected on version headers
+    /// alone, before spending a rate-limit slot or an auth check on a request the app can't do
+    /// anything useful with anyway. Output cache sits right after rate limiting and before
+    /// everything else: a cache hit or miss both still count against the caller's rate limit
+    /// (caching is never a way to dodge it), but a hit then skips compression/logging/auth
+    /// entirely — fine here since the only cached route (PublicJobsController) is anonymous
+    /// already, so short-circuiting auth for a cache hit changes nothing about who can see the
+    /// response.</summary>
     public static WebApplication UseVesperaMiddlewarePipeline(this WebApplication app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseExceptionHandler();
         app.UseMiddleware<SecurityHeadersMiddleware>();
+        app.UseMiddleware<MinAppVersionMiddleware>();
         app.UseCors(ObservabilityServiceCollectionExtensions.CorsPolicyName);
         app.UseRateLimiter();
         app.UseOutputCache();

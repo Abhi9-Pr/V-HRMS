@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CreateTodoItemRequest, TodosClient, TodoUrgency } from '../../../core/api/generated/api-client';
+import { CreateTodoItemRequest, TodoUrgency, TodosClient } from 'vespera-shared';
 
 @Injectable({ providedIn: 'root' })
 export class TodosFacade {

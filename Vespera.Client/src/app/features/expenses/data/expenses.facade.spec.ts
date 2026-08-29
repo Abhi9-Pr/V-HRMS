@@ -1,12 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import {
-  ExpensePoliciesClient,
-  ExpenseSettlementsClient,
-  ExpensesClient,
-} from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { ExpensesFacade } from './expenses.facade';
+import { ApiError, ExpensePoliciesClient, ExpenseSettlementsClient, ExpensesClient } from 'vespera-shared';
 
 describe('ExpensesFacade', () => {
   let expensesClient: jest.Mocked<

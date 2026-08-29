@@ -1,5 +1,5 @@
-import { Permissions } from '../../core/authorization/permissions';
 import { NavItem } from '../../core/navigation/nav-item.model';
+import { Permissions } from 'vespera-shared';
 
 /**
  * Expenses has four screens gated by four different permissions (unlike Departments' single

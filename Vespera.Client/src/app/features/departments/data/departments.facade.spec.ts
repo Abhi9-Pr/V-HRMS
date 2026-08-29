@@ -1,8 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { DepartmentsClient } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { DepartmentsFacade } from './departments.facade';
+import { ApiError, DepartmentsClient } from 'vespera-shared';
 
 describe('DepartmentsFacade', () => {
   let client: jest.Mocked<

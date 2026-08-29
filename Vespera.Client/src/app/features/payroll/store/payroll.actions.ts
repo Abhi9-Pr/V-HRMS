@@ -1,6 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { PayrollRunDto, PayrollRunSummaryDto, PayrollVarianceLine } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
+import { ApiError, PayrollRunDto, PayrollRunSummaryDto, PayrollVarianceLine } from 'vespera-shared';
 
 /**
  * The payroll run's lifecycle, in one action group: this is the multi-step, multi-screen state

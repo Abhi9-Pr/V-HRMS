@@ -5,11 +5,10 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { catchError, of } from 'rxjs';
-import { PayslipsClient } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
 import { PayrollActions } from '../store/payroll.actions';
 import { selectCurrentRun, selectCurrentRunLoading } from '../store/payroll.reducer';
+import { ApiError, PayslipsClient } from 'vespera-shared';
 
 /**
  * Only the single-period Gross/Deductions/Net breakdown is real chart data — it comes straight off

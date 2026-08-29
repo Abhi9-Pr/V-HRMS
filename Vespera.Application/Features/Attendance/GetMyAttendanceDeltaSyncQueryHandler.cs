@@ -49,6 +49,8 @@ public sealed class GetMyAttendanceDeltaSyncQueryHandler
 
     protected override DateTimeOffset GetLastChanged(AttendanceDay entity) => entity.LastChangedAt;
 
+    protected override bool IsTombstoned(AttendanceDay entity) => entity.IsDeleted;
+
     protected override AttendanceDaySummaryDto MapToDto(AttendanceDay entity) => new(
         entity.Id.Value, entity.Date, entity.Status.ToString(), entity.WorkedMinutes,
         entity.Punches.Any(p => p.RequiresApproval));

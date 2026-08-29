@@ -4,9 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, of } from 'rxjs';
-import { ApiError } from '../../../core/http/api-error.model';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { ExpensesFacade } from '../data/expenses.facade';
+import { ApiError } from 'vespera-shared';
 
 /** No payroll-run picker exists anywhere in this client yet (Payroll is a separate,
  * NgRx-backed feature slice per docs/frontend-state.md) — this takes the run's id as a plain

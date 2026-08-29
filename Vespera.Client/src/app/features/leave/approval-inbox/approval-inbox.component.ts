@@ -7,10 +7,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { ApiError } from '../../../core/http/api-error.model';
 import { ConfirmDialogComponent } from '../../../shared/dialogs/confirm-dialog.component';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { LeaveFacade } from '../data/leave.facade';
+import { ApiError } from 'vespera-shared';
 
 /** Not built on `vespera-data-table`: the approval-inbox endpoint returns the caller's whole
  * actionable set in one response (no server-side paging), and a manager's pending queue is small
@@ -77,16 +77,16 @@ export class ApprovalInboxComponent implements OnInit {
     this.bulkBusy.set(true);
     this.bulkError.set(null);
 
-    forkJoin(ids.map((id) => this.leaveFacade.approve(id).pipe(catchError((apiError: ApiError) => of(apiError))))).subscribe(
-      (results) => {
-        this.bulkBusy.set(false);
-        const failures = results.filter((result): result is ApiError => result !== null);
-        if (failures.length > 0) {
-          this.bulkError.set(`${failures.length} of ${ids.length} approval(s) failed: ${failures[0].message}`);
-        }
-        this.reload();
-      },
-    );
+    forkJoin(
+      ids.map((id) => this.leaveFacade.approve(id).pipe(catchError((apiError: ApiError) => of(apiError)))),
+    ).subscribe((results) => {
+      this.bulkBusy.set(false);
+      const failures = results.filter((result): result is ApiError => result !== null);
+      if (failures.length > 0) {
+        this.bulkError.set(`${failures.length} of ${ids.length} approval(s) failed: ${failures[0].message}`);
+      }
+      this.reload();
+    });
   }
 
   bulkReject(): void {
@@ -97,7 +97,11 @@ export class ApprovalInboxComponent implements OnInit {
 
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: { title: 'Reject selected requests', message: `Reject ${ids.length} request(s)? Provide a reason below.`, danger: true },
+        data: {
+          title: 'Reject selected requests',
+          message: `Reject ${ids.length} request(s)? Provide a reason below.`,
+          danger: true,
+        },
       })
       .afterClosed()
       .subscribe((confirmed) => {

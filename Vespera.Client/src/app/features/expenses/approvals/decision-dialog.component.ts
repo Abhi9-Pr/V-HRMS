@@ -5,8 +5,8 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, map, of } from 'rxjs';
-import { ApiError } from '../../../core/http/api-error.model';
 import { ExpensesFacade } from '../data/expenses.facade';
+import { ApiError } from 'vespera-shared';
 
 export interface DecisionDialogData {
   claimId: string;
@@ -42,7 +42,10 @@ export class DecisionDialogComponent {
     this.error.set(null);
 
     this.expensesFacade
-      .decideApproval(this.data.claimId, { approved: this.data.approved, comment: this.form.getRawValue().comment || undefined })
+      .decideApproval(this.data.claimId, {
+        approved: this.data.approved,
+        comment: this.form.getRawValue().comment || undefined,
+      })
       .pipe(
         map(() => true),
         catchError((apiError: ApiError) => {

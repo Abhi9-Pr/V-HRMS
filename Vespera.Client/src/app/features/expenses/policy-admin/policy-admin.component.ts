@@ -5,19 +5,27 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { catchError, of } from 'rxjs';
-import { Currency, ExpensePolicyDto, ExpensePolicySeverity } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { DataTableColumn, DataTableQuery } from '../../../shared/data-table/data-table.model';
 import { DataTableComponent } from '../../../shared/data-table/data-table.component';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { ExpensesFacade } from '../data/expenses.facade';
 import { CURRENCY_LABELS, EXPENSE_POLICY_SEVERITY_LABELS } from '../expenses.labels';
+import { ApiError, Currency, ExpensePolicyDto, ExpensePolicySeverity } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-policy-admin',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, DataTableComponent, ErrorStateComponent, FormErrorComponent],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    DataTableComponent,
+    ErrorStateComponent,
+    FormErrorComponent,
+  ],
   templateUrl: './policy-admin.component.html',
 })
 export class PolicyAdminComponent implements OnInit {
@@ -25,7 +33,9 @@ export class PolicyAdminComponent implements OnInit {
   private readonly expensesFacade = inject(ExpensesFacade);
 
   readonly currencies = Object.values(Currency).filter((value): value is Currency => typeof value === 'number');
-  readonly severities = Object.values(ExpensePolicySeverity).filter((value): value is ExpensePolicySeverity => typeof value === 'number');
+  readonly severities = Object.values(ExpensePolicySeverity).filter(
+    (value): value is ExpensePolicySeverity => typeof value === 'number',
+  );
   readonly currencyLabel = (currency: Currency): string => CURRENCY_LABELS[currency];
   readonly severityLabel = (severity: ExpensePolicySeverity): string => EXPENSE_POLICY_SEVERITY_LABELS[severity];
 
@@ -42,7 +52,10 @@ export class PolicyAdminComponent implements OnInit {
     {
       key: 'maxAmountPerClaim',
       header: 'Max per claim',
-      cell: (row) => (row.maxAmountPerClaim !== undefined && row.currency !== undefined ? `${row.maxAmountPerClaim} ${CURRENCY_LABELS[row.currency]}` : ''),
+      cell: (row) =>
+        row.maxAmountPerClaim !== undefined && row.currency !== undefined
+          ? `${row.maxAmountPerClaim} ${CURRENCY_LABELS[row.currency]}`
+          : '',
     },
     {
       key: 'receiptRequiredAboveAmount',
@@ -52,7 +65,11 @@ export class PolicyAdminComponent implements OnInit {
           ? `${row.receiptRequiredAboveAmount} ${CURRENCY_LABELS[row.currency]}`
           : '',
     },
-    { key: 'maxAmountSeverity', header: 'Cap severity', cell: (row) => (row.maxAmountSeverity !== undefined ? this.severityLabel(row.maxAmountSeverity) : '') },
+    {
+      key: 'maxAmountSeverity',
+      header: 'Cap severity',
+      cell: (row) => (row.maxAmountSeverity !== undefined ? this.severityLabel(row.maxAmountSeverity) : ''),
+    },
     {
       key: 'receiptRequiredSeverity',
       header: 'Receipt severity',

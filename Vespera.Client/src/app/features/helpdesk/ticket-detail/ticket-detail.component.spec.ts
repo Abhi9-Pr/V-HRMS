@@ -2,10 +2,9 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
-import { TicketDto, TicketStatus } from '../../../core/api/generated/api-client';
-import { AuthService } from '../../../core/auth/auth.service';
 import { HelpdeskFacade } from '../data/helpdesk.facade';
 import { TicketDetailComponent } from './ticket-detail.component';
+import { AuthService, TicketDto, TicketStatus } from 'vespera-shared';
 
 describe('TicketDetailComponent', () => {
   let fixture: ComponentFixture<TicketDetailComponent>;
@@ -25,7 +24,10 @@ describe('TicketDetailComponent', () => {
         provideNoopAnimations(),
         { provide: HelpdeskFacade, useValue: facade },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: ticket.id }) } } },
-        { provide: AuthService, useValue: { permissions: signal(['Helpdesk.RaiseTickets', 'Helpdesk.ManageTickets']) } },
+        {
+          provide: AuthService,
+          useValue: { permissions: signal(['Helpdesk.RaiseTickets', 'Helpdesk.ManageTickets']) },
+        },
       ],
     });
 
@@ -34,8 +36,8 @@ describe('TicketDetailComponent', () => {
   }
 
   function testIds(): string[] {
-    return Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map(
-      (element: Element) => (element as HTMLElement).getAttribute('data-testid')!,
+    return Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map((element: Element) =>
+      (element as HTMLElement).getAttribute('data-testid')!,
     );
   }
 
@@ -77,7 +79,14 @@ describe('TicketDetailComponent', () => {
       status: TicketStatus._0,
       comments: [
         { id: 'c1', authorId: 'agent-1', body: 'Root comment', isInternal: false, createdAt: new Date('2026-01-01') },
-        { id: 'c2', authorId: 'agent-2', body: 'A reply', isInternal: false, createdAt: new Date('2026-01-02'), parentCommentId: 'c1' },
+        {
+          id: 'c2',
+          authorId: 'agent-2',
+          body: 'A reply',
+          isInternal: false,
+          createdAt: new Date('2026-01-02'),
+          parentCommentId: 'c1',
+        },
       ],
     });
 

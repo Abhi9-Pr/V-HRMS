@@ -1,7 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
+import { DataTableQuery } from '../../../shared/data-table/data-table.model';
 import {
   AddLineRequest,
+  ApiError,
   CreateExpensePolicyRequest,
   CreateExpensePolicyResponse,
   DecideApprovalRequest,
@@ -15,9 +17,7 @@ import {
   SettleExpenseClaimRequest,
   SubmitExpenseClaimResultDto,
   UploadExpenseReceiptResultDto,
-} from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
-import { DataTableQuery } from '../../../shared/data-table/data-table.model';
+} from 'vespera-shared';
 
 /**
  * Wraps ExpensesClient/ExpensePoliciesClient/ExpenseSettlementsClient behind signals + plain
@@ -144,7 +144,10 @@ export class ExpensesFacade {
   }
 
   uploadReceipt(claimId: string, file: File): Observable<UploadExpenseReceiptResultDto> {
-    return this.expensesClient.expenses_UploadReceipt(claimId, crypto.randomUUID(), { data: file, fileName: file.name });
+    return this.expensesClient.expenses_UploadReceipt(claimId, crypto.randomUUID(), {
+      data: file,
+      fileName: file.name,
+    });
   }
 
   addLine(claimId: string, request: AddLineRequest): Observable<void> {

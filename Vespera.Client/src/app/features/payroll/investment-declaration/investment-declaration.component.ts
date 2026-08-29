@@ -5,10 +5,9 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, of } from 'rxjs';
-import { InvestmentDeclarationDto, InvestmentDeclarationsClient } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { EmptyStateComponent } from '../../../shared/states/empty-state.component';
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
+import { ApiError, InvestmentDeclarationDto, InvestmentDeclarationsClient } from 'vespera-shared';
 
 function currentFinancialYear(): string {
   const now = new Date();
@@ -23,7 +22,15 @@ function currentFinancialYear(): string {
 @Component({
   selector: 'vespera-investment-declaration',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatChipsModule, LoadingStateComponent, EmptyStateComponent],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatChipsModule,
+    LoadingStateComponent,
+    EmptyStateComponent,
+  ],
   templateUrl: './investment-declaration.component.html',
 })
 export class InvestmentDeclarationComponent implements OnInit {

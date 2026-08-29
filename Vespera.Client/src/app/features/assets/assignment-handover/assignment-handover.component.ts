@@ -6,19 +6,26 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { AssetConditionRating } from '../../../core/api/generated/api-client';
-import { Permissions } from '../../../core/authorization/permissions';
-import { ApiError } from '../../../core/http/api-error.model';
 import { FileUploaderComponent } from '../../../shared/file-uploader/file-uploader.component';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
 import { AssetsFacade } from '../data/assets.facade';
 import { ASSET_CONDITION_RATING_LABELS } from '../assets.labels';
+import { ApiError, AssetConditionRating, Permissions } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-assignment-handover',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, FileUploaderComponent, FormErrorComponent, PermissionButtonComponent],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    FileUploaderComponent,
+    FormErrorComponent,
+    PermissionButtonComponent,
+  ],
   templateUrl: './assignment-handover.component.html',
 })
 export class AssignmentHandoverComponent implements OnInit {
@@ -27,7 +34,9 @@ export class AssignmentHandoverComponent implements OnInit {
   private readonly assetsFacade = inject(AssetsFacade);
 
   readonly Permissions = Permissions;
-  readonly conditionRatings = Object.values(AssetConditionRating).filter((value): value is AssetConditionRating => typeof value === 'number');
+  readonly conditionRatings = Object.values(AssetConditionRating).filter(
+    (value): value is AssetConditionRating => typeof value === 'number',
+  );
   readonly conditionRatingLabel = (rating: AssetConditionRating): string => ASSET_CONDITION_RATING_LABELS[rating];
 
   readonly uploading = signal(false);

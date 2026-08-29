@@ -29,6 +29,7 @@ builder.Services.AddVesperaPayroll();
 builder.Services.AddVesperaWorkspace();
 builder.Services.Configure<WebPunchOptions>(builder.Configuration.GetSection(WebPunchOptions.SectionName));
 builder.Services.Configure<MobilePunchOptions>(builder.Configuration.GetSection(MobilePunchOptions.SectionName));
+builder.Services.Configure<MobileMinVersionOptions>(builder.Configuration.GetSection(MobileMinVersionOptions.SectionName));
 
 // The hosted background services (outbox dispatcher, retention purge) poll the database from the
 // moment the host starts, so they must not be registered under "Testing" (which stays entirely

@@ -1,5 +1,4 @@
-import { PayrollRunDto, PayrollRunSummaryDto, PayrollVarianceLine } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
+import { ApiError, PayrollRunDto, PayrollRunSummaryDto, PayrollVarianceLine } from 'vespera-shared';
 
 export interface PayrollState {
   runs: PayrollRunSummaryDto[];

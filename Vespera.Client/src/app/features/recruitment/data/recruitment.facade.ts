@@ -1,7 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
+import { DataTableQuery } from '../../../shared/data-table/data-table.model';
 import {
   AddStageRequest,
+  ApiError,
   CandidateDto,
   CandidatePipelineDto,
   CandidatesClient,
@@ -29,9 +31,7 @@ import {
   ScheduleInterviewRequest,
   ScheduleInterviewResponse,
   SubmitScorecardRequest,
-} from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
-import { DataTableQuery } from '../../../shared/data-table/data-table.model';
+} from 'vespera-shared';
 
 /**
  * Wraps RequisitionsClient/CandidatesClient/InterviewsClient/OffersClient/PublicJobsClient
@@ -110,17 +110,19 @@ export class RecruitmentFacade {
     this.requisitionsLoadingSignal.set(true);
     this.requisitionsErrorSignal.set(null);
 
-    this.requisitionsClient.requisitions_GetAll(query.page, query.pageSize, query.sortBy, query.sortDescending).subscribe({
-      next: (result) => {
-        this.requisitionsSignal.set(result.items ?? []);
-        this.requisitionsTotalCountSignal.set(result.totalCount ?? 0);
-        this.requisitionsLoadingSignal.set(false);
-      },
-      error: (apiError: ApiError) => {
-        this.requisitionsErrorSignal.set(apiError);
-        this.requisitionsLoadingSignal.set(false);
-      },
-    });
+    this.requisitionsClient
+      .requisitions_GetAll(query.page, query.pageSize, query.sortBy, query.sortDescending)
+      .subscribe({
+        next: (result) => {
+          this.requisitionsSignal.set(result.items ?? []);
+          this.requisitionsTotalCountSignal.set(result.totalCount ?? 0);
+          this.requisitionsLoadingSignal.set(false);
+        },
+        error: (apiError: ApiError) => {
+          this.requisitionsErrorSignal.set(apiError);
+          this.requisitionsLoadingSignal.set(false);
+        },
+      });
   }
 
   loadRequisitionById(id: string): void {

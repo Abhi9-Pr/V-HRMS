@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { AssetsFacade } from './assets.facade';
 import {
+  ApiError,
   AssetRecoveriesClient,
   AssetsClient,
   LicensesClient,
   OffboardingChecklistsClient,
-} from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
-import { AssetsFacade } from './assets.facade';
+} from 'vespera-shared';
 
 describe('AssetsFacade', () => {
   let assetsClient: jest.Mocked<
@@ -26,7 +26,14 @@ describe('AssetsFacade', () => {
     >
   >;
   let licensesClient: jest.Mocked<
-    Pick<LicensesClient, 'licenses_GetLicenses' | 'licenses_GetUnusedSeatsReport' | 'licenses_CreateLicense' | 'licenses_AllocateSeat' | 'licenses_ReleaseSeat'>
+    Pick<
+      LicensesClient,
+      | 'licenses_GetLicenses'
+      | 'licenses_GetUnusedSeatsReport'
+      | 'licenses_CreateLicense'
+      | 'licenses_AllocateSeat'
+      | 'licenses_ReleaseSeat'
+    >
   >;
   let recoveriesClient: jest.Mocked<
     Pick<
@@ -39,7 +46,9 @@ describe('AssetsFacade', () => {
       | 'assetRecoveries_Complete'
     >
   >;
-  let checklistsClient: jest.Mocked<Pick<OffboardingChecklistsClient, 'offboardingChecklists_GetForEmployee' | 'offboardingChecklists_CompleteItem'>>;
+  let checklistsClient: jest.Mocked<
+    Pick<OffboardingChecklistsClient, 'offboardingChecklists_GetForEmployee' | 'offboardingChecklists_CompleteItem'>
+  >;
   let facade: AssetsFacade;
 
   beforeEach(() => {
@@ -89,7 +98,9 @@ describe('AssetsFacade', () => {
   });
 
   it('loadAssets() should populate assets/totalCount on success', () => {
-    assetsClient.assets_GetAssets.mockReturnValue(of({ items: [{ id: '1', assetTag: 'LAP-001' }], totalCount: 1 } as never));
+    assetsClient.assets_GetAssets.mockReturnValue(
+      of({ items: [{ id: '1', assetTag: 'LAP-001' }], totalCount: 1 } as never),
+    );
 
     facade.loadAssets({ page: 1, pageSize: 20, sortDescending: false });
 
@@ -136,7 +147,9 @@ describe('AssetsFacade', () => {
   });
 
   it('loadPendingRecoveries() should populate pendingRecoveries/totalCount on success', () => {
-    recoveriesClient.assetRecoveries_GetPending.mockReturnValue(of({ items: [{ id: 'rec-1' }], totalCount: 1 } as never));
+    recoveriesClient.assetRecoveries_GetPending.mockReturnValue(
+      of({ items: [{ id: 'rec-1' }], totalCount: 1 } as never),
+    );
 
     facade.loadPendingRecoveries({ page: 1, pageSize: 20, sortDescending: false });
 
@@ -167,7 +180,9 @@ describe('AssetsFacade', () => {
     assetsClient.assets_ConfigureDepreciation.mockReturnValue(of(undefined));
 
     facade.configureDepreciation('asset-1', { usefulLifeMonths: 24 }).subscribe(() => {
-      expect(assetsClient.assets_ConfigureDepreciation).toHaveBeenCalledWith('asset-1', expect.any(String), { usefulLifeMonths: 24 });
+      expect(assetsClient.assets_ConfigureDepreciation).toHaveBeenCalledWith('asset-1', expect.any(String), {
+        usefulLifeMonths: 24,
+      });
       done();
     });
   });
@@ -177,7 +192,9 @@ describe('AssetsFacade', () => {
 
     facade.assignAsset('asset-1', { employeeId: 'emp-1' }).subscribe((result) => {
       expect(result.id).toBe('assignment-1');
-      expect(assetsClient.assets_AssignAsset).toHaveBeenCalledWith('asset-1', expect.any(String), { employeeId: 'emp-1' });
+      expect(assetsClient.assets_AssignAsset).toHaveBeenCalledWith('asset-1', expect.any(String), {
+        employeeId: 'emp-1',
+      });
       done();
     });
   });
@@ -200,7 +217,10 @@ describe('AssetsFacade', () => {
     assetsClient.assets_RecordCondition.mockReturnValue(of(undefined));
 
     facade.recordCondition('assignment-1', { rating: 0, notes: 'Fine' }).subscribe(() => {
-      expect(assetsClient.assets_RecordCondition).toHaveBeenCalledWith('assignment-1', expect.any(String), { rating: 0, notes: 'Fine' });
+      expect(assetsClient.assets_RecordCondition).toHaveBeenCalledWith('assignment-1', expect.any(String), {
+        rating: 0,
+        notes: 'Fine',
+      });
       done();
     });
   });
@@ -209,7 +229,9 @@ describe('AssetsFacade', () => {
     assetsClient.assets_ReturnAsset.mockReturnValue(of(undefined));
 
     facade.returnAsset('assignment-1', { condition: 'Good' }).subscribe(() => {
-      expect(assetsClient.assets_ReturnAsset).toHaveBeenCalledWith('assignment-1', expect.any(String), { condition: 'Good' });
+      expect(assetsClient.assets_ReturnAsset).toHaveBeenCalledWith('assignment-1', expect.any(String), {
+        condition: 'Good',
+      });
       done();
     });
   });
@@ -237,7 +259,10 @@ describe('AssetsFacade', () => {
 
     facade.createLicense({ productName: 'Figma', seatCount: 5 }).subscribe((result) => {
       expect(result.id).toBe('lic-1');
-      expect(licensesClient.licenses_CreateLicense).toHaveBeenCalledWith(expect.any(String), { productName: 'Figma', seatCount: 5 });
+      expect(licensesClient.licenses_CreateLicense).toHaveBeenCalledWith(expect.any(String), {
+        productName: 'Figma',
+        seatCount: 5,
+      });
       done();
     });
   });
@@ -247,7 +272,9 @@ describe('AssetsFacade', () => {
 
     facade.allocateSeat('lic-1', { employeeId: 'emp-1' }).subscribe((result) => {
       expect(result.id).toBe('alloc-1');
-      expect(licensesClient.licenses_AllocateSeat).toHaveBeenCalledWith('lic-1', expect.any(String), { employeeId: 'emp-1' });
+      expect(licensesClient.licenses_AllocateSeat).toHaveBeenCalledWith('lic-1', expect.any(String), {
+        employeeId: 'emp-1',
+      });
       done();
     });
   });
@@ -286,7 +313,11 @@ describe('AssetsFacade', () => {
     recoveriesClient.assetRecoveries_RecordDamageAssessment.mockReturnValue(of(undefined));
 
     facade.recordDamageAssessment('rec-1', { notes: 'Cracked screen' }).subscribe(() => {
-      expect(recoveriesClient.assetRecoveries_RecordDamageAssessment).toHaveBeenCalledWith('rec-1', expect.any(String), { notes: 'Cracked screen' });
+      expect(recoveriesClient.assetRecoveries_RecordDamageAssessment).toHaveBeenCalledWith(
+        'rec-1',
+        expect.any(String),
+        { notes: 'Cracked screen' },
+      );
       done();
     });
   });

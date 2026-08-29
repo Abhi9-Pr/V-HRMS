@@ -3,14 +3,17 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
-import { ApiError } from '../../../core/http/api-error.model';
 import { ExpensesFacade } from '../data/expenses.facade';
 import { ClaimDetailComponent } from './claim-detail.component';
+import { ApiError } from 'vespera-shared';
 
 describe('ClaimDetailComponent', () => {
   let fixture: ComponentFixture<ClaimDetailComponent>;
   let facade: jest.Mocked<
-    Pick<ExpensesFacade, 'loadClaimById' | 'uploadReceipt' | 'addLine' | 'submitClaim' | 'claim' | 'claimLoading' | 'claimError'>
+    Pick<
+      ExpensesFacade,
+      'loadClaimById' | 'uploadReceipt' | 'addLine' | 'submitClaim' | 'claim' | 'claimLoading' | 'claimError'
+    >
   >;
 
   function setup(): void {
@@ -52,7 +55,13 @@ describe('ClaimDetailComponent', () => {
     facade.uploadReceipt.mockReturnValue(
       of({
         receiptReference: 'ref-1',
-        suggestions: { vendor: 'Cafe Coffee Day', expenseDate: new Date('2026-01-15'), taxAmount: 12.5, amount: 250, confidence: 0.82 },
+        suggestions: {
+          vendor: 'Cafe Coffee Day',
+          expenseDate: new Date('2026-01-15'),
+          taxAmount: 12.5,
+          amount: 250,
+          confidence: 0.82,
+        },
       } as never),
     );
     setup();
@@ -120,17 +129,25 @@ describe('ClaimDetailComponent', () => {
   });
 
   it('submitClaim should surface returned warnings and reload', () => {
-    facade.submitClaim.mockReturnValue(of({ warnings: ['Missing receipt for a line over the policy threshold.'] } as never));
+    facade.submitClaim.mockReturnValue(
+      of({ warnings: ['Missing receipt for a line over the policy threshold.'] } as never),
+    );
     setup();
 
     fixture.componentInstance.submitClaim();
 
-    expect(fixture.componentInstance.submitWarnings()).toEqual(['Missing receipt for a line over the policy threshold.']);
+    expect(fixture.componentInstance.submitWarnings()).toEqual([
+      'Missing receipt for a line over the policy threshold.',
+    ]);
     expect(facade.loadClaimById).toHaveBeenCalledTimes(2);
   });
 
   it('submitClaim should surface a blocking policy error without reloading a second time', () => {
-    const apiError: ApiError = { status: 400, code: 'expense_claim.policy_violation', message: 'Exceeds the policy cap.' };
+    const apiError: ApiError = {
+      status: 400,
+      code: 'expense_claim.policy_violation',
+      message: 'Exceeds the policy cap.',
+    };
     facade.submitClaim.mockReturnValue(throwError(() => apiError));
     setup();
 

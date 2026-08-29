@@ -1,14 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
+import { DataTableQuery } from '../../../shared/data-table/data-table.model';
 import {
+  ApiError,
   CreateDepartmentRequest,
   CreateDepartmentResponse,
   DepartmentDto,
   DepartmentsClient,
   UpdateDepartmentRequest,
-} from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
-import { DataTableQuery } from '../../../shared/data-table/data-table.model';
+} from 'vespera-shared';
 
 /**
  * Wraps the generated DepartmentsClient behind signals + plain methods — feature components

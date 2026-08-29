@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vespera.Application.Abstractions.Services;
+using Vespera.Infrastructure.Notifications.Push;
 
 namespace Vespera.Infrastructure.Notifications;
 
@@ -16,7 +17,13 @@ public static class NotificationsServiceCollectionExtensions
         services.AddOptions<SmtpOptions>().Bind(configuration.GetSection(SmtpOptions.SectionName));
         services.AddSingleton<IEmailSender, SmtpEmailSender>();
         services.AddSingleton<INotificationChannel, EmailNotificationChannel>();
-        services.AddSingleton<INotificationChannel, StubPushNotificationChannel>();
+
+        services.AddOptions<FcmOptions>().Bind(configuration.GetSection(FcmOptions.SectionName));
+        services.AddOptions<ApnsOptions>().Bind(configuration.GetSection(ApnsOptions.SectionName));
+        services.AddHttpClient<FcmPushSender>();
+        services.AddHttpClient<ApnsPushSender>();
+        services.AddSingleton<IPushSender, CompositePushSender>();
+        services.AddSingleton<INotificationChannel, PushNotificationChannel>();
 
         return services;
     }

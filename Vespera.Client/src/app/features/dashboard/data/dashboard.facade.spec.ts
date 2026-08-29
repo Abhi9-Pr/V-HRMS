@@ -1,7 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { Subject, of, throwError } from 'rxjs';
-import { DashboardClient } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { NotificationService } from '../../../core/services/notification.service';
 import {
   AnnouncementPublishedPayload,
@@ -9,6 +7,7 @@ import {
   PunchStateChangedPayload,
 } from '../../../core/services/notification.model';
 import { DashboardFacade } from './dashboard.facade';
+import { ApiError, DashboardClient } from 'vespera-shared';
 
 describe('DashboardFacade', () => {
   let client: jest.Mocked<Pick<DashboardClient, 'dashboard_Get' | 'dashboard_SaveLayout'>>;
@@ -42,7 +41,9 @@ describe('DashboardFacade', () => {
     client.dashboard_Get.mockReturnValue(
       of({
         layout: [{ widgetKey: 'shiftTracker', sortOrder: 0, isVisible: true, size: 'Medium' }],
-        widgets: [{ widgetKey: 'shiftTracker', sortOrder: 0, size: 'Medium', success: true, data: { punchStatus: 'In' } }],
+        widgets: [
+          { widgetKey: 'shiftTracker', sortOrder: 0, size: 'Medium', success: true, data: { punchStatus: 'In' } },
+        ],
       } as never),
     );
 
@@ -71,9 +72,7 @@ describe('DashboardFacade', () => {
           { widgetKey: 'todos', sortOrder: 1, isVisible: false, size: 'Small' },
           { widgetKey: 'notRegistered', sortOrder: 2, isVisible: true, size: 'Small' },
         ],
-        widgets: [
-          { widgetKey: 'shiftTracker', sortOrder: 0, size: 'Medium', success: true, data: {} },
-        ],
+        widgets: [{ widgetKey: 'shiftTracker', sortOrder: 0, size: 'Medium', success: true, data: {} }],
       } as never),
     );
 
@@ -89,13 +88,24 @@ describe('DashboardFacade', () => {
       of({
         layout: [{ widgetKey: 'shiftTracker', sortOrder: 0, isVisible: true, size: 'Medium' }],
         widgets: [
-          { widgetKey: 'shiftTracker', sortOrder: 0, size: 'Medium', success: true, data: { punchStatus: 'NotStarted', firstIn: null, lastOut: null } },
+          {
+            widgetKey: 'shiftTracker',
+            sortOrder: 0,
+            size: 'Medium',
+            success: true,
+            data: { punchStatus: 'NotStarted', firstIn: null, lastOut: null },
+          },
         ],
       } as never),
     );
     facade.load();
 
-    notifications.dashboardPunchStateChanged.next({ employeeId: 'e1', status: 'In', lastPunchType: 'In', lastPunchAt: '2026-01-01T09:00:00Z' });
+    notifications.dashboardPunchStateChanged.next({
+      employeeId: 'e1',
+      status: 'In',
+      lastPunchType: 'In',
+      lastPunchAt: '2026-01-01T09:00:00Z',
+    });
 
     const widget = facade.widgets().find((w) => w.widgetKey === 'shiftTracker')!;
     expect((widget.data as { punchStatus: string }).punchStatus).toBe('In');
@@ -105,7 +115,15 @@ describe('DashboardFacade', () => {
     client.dashboard_Get.mockReturnValue(
       of({
         layout: [{ widgetKey: 'pendingApprovals', sortOrder: 0, isVisible: true, size: 'Small' }],
-        widgets: [{ widgetKey: 'pendingApprovals', sortOrder: 0, size: 'Small', success: true, data: { totalCount: 2, countBySubjectType: {} } }],
+        widgets: [
+          {
+            widgetKey: 'pendingApprovals',
+            sortOrder: 0,
+            size: 'Small',
+            success: true,
+            data: { totalCount: 2, countBySubjectType: {} },
+          },
+        ],
       } as never),
     );
     facade.load();

@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { permissionGuard } from '../../core/guards/permission.guard';
-import { Permissions } from '../../core/authorization/permissions';
+import { Permissions } from 'vespera-shared';
 
 export const HELPDESK_ROUTES: Routes = [
   {
@@ -33,7 +33,8 @@ export const HELPDESK_ROUTES: Routes = [
   },
   {
     path: 'holidays',
-    loadComponent: () => import('./public-holiday-list/public-holiday-list.component').then((m) => m.PublicHolidayListComponent),
+    loadComponent: () =>
+      import('./public-holiday-list/public-holiday-list.component').then((m) => m.PublicHolidayListComponent),
     canActivate: [permissionGuard],
     data: { permissions: Permissions.Helpdesk.ManageConfiguration, breadcrumb: 'Public holidays' },
     title: 'Public holidays',

@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { permissionGuard } from '../../core/guards/permission.guard';
-import { Permissions } from '../../core/authorization/permissions';
+import { Permissions } from 'vespera-shared';
 
 export const EXPENSES_ROUTES: Routes = [
   {

@@ -8,10 +8,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { catchError, map, of } from 'rxjs';
-import { ApiError } from '../../../core/http/api-error.model';
 import { DateRange, DateRangePickerComponent } from '../../../shared/date-range-picker/date-range-picker.component';
 import { ConfirmDialogComponent } from '../../../shared/dialogs/confirm-dialog.component';
 import { LeaveFacade } from '../data/leave.facade';
+import { ApiError } from 'vespera-shared';
 
 const SCOPES = ['LeaveApprovals', 'ExpenseApprovals', 'AttendanceApprovals', 'All'] as const;
 
@@ -98,7 +98,9 @@ export class DelegationSettingsComponent implements OnInit {
     }
 
     this.dialog
-      .open(ConfirmDialogComponent, { data: { title: 'Revoke delegation', message: 'Revoke this delegation?', danger: true } })
+      .open(ConfirmDialogComponent, {
+        data: { title: 'Revoke delegation', message: 'Revoke this delegation?', danger: true },
+      })
       .afterClosed()
       .subscribe((confirmed) => {
         if (confirmed) {

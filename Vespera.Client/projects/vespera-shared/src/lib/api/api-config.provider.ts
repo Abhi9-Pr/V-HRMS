@@ -1,5 +1,4 @@
 import { Provider } from '@angular/core';
-import { environment } from '../../../environments/environment';
 import {
   AnnouncementsClient,
   API_BASE_URL,
@@ -36,9 +35,9 @@ import {
  * NullInjectorError), not at build time, which is why every client gets added here the moment
  * a facade starts using it, not on first-use-discovers-it-'s-broken.
  */
-export function provideVesperaApiClients(): Provider[] {
+export function provideVesperaApiClients(apiBaseUrl: string): Provider[] {
   return [
-    { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
+    { provide: API_BASE_URL, useValue: apiBaseUrl },
     AuthClient,
     DepartmentsClient,
     TenantsClient,

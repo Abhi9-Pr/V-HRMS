@@ -80,4 +80,12 @@ public sealed class DeviceRegistration : AggregateRoot<DeviceRegistrationId>, IT
         IsActive = false;
         return Result.Success();
     }
+
+    /// <summary>Reverses <see cref="Deactivate"/> — a device the user previously signed out of (or
+    /// that a stale-token sweep deactivated) re-registers itself the next time the app launches,
+    /// rather than accumulating a second row for the same device id.</summary>
+    public void Reactivate()
+    {
+        IsActive = true;
+    }
 }

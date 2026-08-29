@@ -5,9 +5,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { TodoItemDto, TodoUrgency } from '../../../../core/api/generated/api-client';
 import { urgencyLabelByName } from '../../dashboard.labels';
 import { TodosFacade } from '../../data/todos.facade';
+import { TodoItemDto, TodoUrgency } from 'vespera-shared';
 
 /** Drag-and-drop reorder here is a single flat list (unlike the dashboard-wide customize dialog,
  * which needed a redundant up/down control because it mixes drag with several other controls per

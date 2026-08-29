@@ -1,13 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { SlaPolicyDto } from '../../../core/api/generated/api-client';
-import { Permissions } from '../../../core/authorization/permissions';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
 import { DataTableColumn, DataTableQuery } from '../../../shared/data-table/data-table.model';
 import { DataTableComponent } from '../../../shared/data-table/data-table.component';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { HelpdeskFacade } from '../data/helpdesk.facade';
 import { SlaPolicyCreateDialogComponent } from './sla-policy-create-dialog.component';
+import { Permissions, SlaPolicyDto } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-sla-policy-list',
@@ -30,7 +29,11 @@ export class SlaPolicyListComponent implements OnInit {
     { key: 'name', header: 'Name', cell: (row) => row.name ?? '' },
     { key: 'responseTime', header: 'Response time', cell: (row) => row.responseTime ?? '' },
     { key: 'resolutionTime', header: 'Resolution time', cell: (row) => row.resolutionTime ?? '' },
-    { key: 'businessHoursStart', header: 'Business hours', cell: (row) => `${row.businessHoursStart ?? ''} – ${row.businessHoursEnd ?? ''}` },
+    {
+      key: 'businessHoursStart',
+      header: 'Business hours',
+      cell: (row) => `${row.businessHoursStart ?? ''} – ${row.businessHoursEnd ?? ''}`,
+    },
   ];
 
   private lastQuery: DataTableQuery = { page: 1, pageSize: 20, sortDescending: false };

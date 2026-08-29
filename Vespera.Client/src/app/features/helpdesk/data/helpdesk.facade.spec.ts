@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { HelpdeskFacade } from './helpdesk.facade';
 import {
+  ApiError,
   PublicHolidaysClient,
   SlaPoliciesClient,
   TicketCategoriesClient,
   TicketsClient,
-} from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
-import { HelpdeskFacade } from './helpdesk.facade';
+} from 'vespera-shared';
 
 describe('HelpdeskFacade', () => {
   let ticketsClient: jest.Mocked<
@@ -25,7 +25,9 @@ describe('HelpdeskFacade', () => {
       | 'tickets_RateSatisfaction'
     >
   >;
-  let categoriesClient: jest.Mocked<Pick<TicketCategoriesClient, 'ticketCategories_GetCategories' | 'ticketCategories_Create'>>;
+  let categoriesClient: jest.Mocked<
+    Pick<TicketCategoriesClient, 'ticketCategories_GetCategories' | 'ticketCategories_Create'>
+  >;
   let policiesClient: jest.Mocked<Pick<SlaPoliciesClient, 'slaPolicies_GetPolicies' | 'slaPolicies_Create'>>;
   let holidaysClient: jest.Mocked<Pick<PublicHolidaysClient, 'publicHolidays_GetHolidays' | 'publicHolidays_Create'>>;
   let facade: HelpdeskFacade;
@@ -97,7 +99,13 @@ describe('HelpdeskFacade', () => {
 
   it('loadSlaComplianceReport() should populate the report on success', () => {
     ticketsClient.tickets_GetSlaComplianceReport.mockReturnValue(
-      of({ totalResolvedOrClosed: 10, breachedCount: 2, onTimeCount: 8, compliancePercentage: 80, byCategory: [] } as never),
+      of({
+        totalResolvedOrClosed: 10,
+        breachedCount: 2,
+        onTimeCount: 8,
+        compliancePercentage: 80,
+        byCategory: [],
+      } as never),
     );
 
     facade.loadSlaComplianceReport();
@@ -146,14 +154,16 @@ describe('HelpdeskFacade', () => {
   it('raiseTicket() should delegate to the generated client with a fresh idempotency key', (done) => {
     ticketsClient.tickets_RaiseTicket.mockReturnValue(of({ id: 't1' } as never));
 
-    facade.raiseTicket({ categoryId: 'c1', subject: 'Laptop broken', description: 'Will not boot', priority: 2 }).subscribe((result) => {
-      expect(result.id).toBe('t1');
-      const [idempotencyKey, body] = ticketsClient.tickets_RaiseTicket.mock.calls[0];
-      expect(typeof idempotencyKey).toBe('string');
-      expect(idempotencyKey!.length).toBeGreaterThan(0);
-      expect(body).toEqual({ categoryId: 'c1', subject: 'Laptop broken', description: 'Will not boot', priority: 2 });
-      done();
-    });
+    facade
+      .raiseTicket({ categoryId: 'c1', subject: 'Laptop broken', description: 'Will not boot', priority: 2 })
+      .subscribe((result) => {
+        expect(result.id).toBe('t1');
+        const [idempotencyKey, body] = ticketsClient.tickets_RaiseTicket.mock.calls[0];
+        expect(typeof idempotencyKey).toBe('string');
+        expect(idempotencyKey!.length).toBeGreaterThan(0);
+        expect(body).toEqual({ categoryId: 'c1', subject: 'Laptop broken', description: 'Will not boot', priority: 2 });
+        done();
+      });
   });
 
   it('uploadAttachment() should wrap the File into a FileParameter and delegate to the generated client', (done) => {
@@ -172,7 +182,12 @@ describe('HelpdeskFacade', () => {
 
   it('addComment() should delegate to the generated client', (done) => {
     ticketsClient.tickets_AddComment.mockReturnValue(of(undefined));
-    const request = { body: 'Reproduced it', isInternal: true, parentCommentId: 'comment-1', attachmentReferences: ['ref-1'] };
+    const request = {
+      body: 'Reproduced it',
+      isInternal: true,
+      parentCommentId: 'comment-1',
+      attachmentReferences: ['ref-1'],
+    };
 
     facade.addComment('t1', request).subscribe(() => {
       const [ticketId, , body] = ticketsClient.tickets_AddComment.mock.calls[0];
@@ -235,7 +250,13 @@ describe('HelpdeskFacade', () => {
     policiesClient.slaPolicies_Create.mockReturnValue(of({ id: 'p1' } as never));
 
     facade
-      .createPolicy({ name: 'Standard', responseTimeHours: 4, resolutionTimeHours: 24, businessHoursStart: '09:00:00', businessHoursEnd: '18:00:00' })
+      .createPolicy({
+        name: 'Standard',
+        responseTimeHours: 4,
+        resolutionTimeHours: 24,
+        businessHoursStart: '09:00:00',
+        businessHoursEnd: '18:00:00',
+      })
       .subscribe((result) => {
         expect(result.id).toBe('p1');
         done();

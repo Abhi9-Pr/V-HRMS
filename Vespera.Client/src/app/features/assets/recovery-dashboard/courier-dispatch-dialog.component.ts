@@ -5,9 +5,9 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, map, of } from 'rxjs';
-import { ApiError } from '../../../core/http/api-error.model';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { AssetsFacade } from '../data/assets.facade';
+import { ApiError } from 'vespera-shared';
 
 export interface CourierDispatchDialogData {
   recoveryId: string;
@@ -16,7 +16,14 @@ export interface CourierDispatchDialogData {
 @Component({
   selector: 'vespera-courier-dispatch-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormErrorComponent],
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    FormErrorComponent,
+  ],
   templateUrl: './courier-dispatch-dialog.component.html',
 })
 export class CourierDispatchDialogComponent {

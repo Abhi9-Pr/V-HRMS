@@ -7,13 +7,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { catchError, map, of } from 'rxjs';
-import { ApiError } from '../../../core/http/api-error.model';
 import { HelpdeskFacade } from '../data/helpdesk.facade';
+import { ApiError } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-public-holiday-create-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule],
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+  ],
   templateUrl: './public-holiday-create-dialog.component.html',
 })
 export class PublicHolidayCreateDialogComponent {

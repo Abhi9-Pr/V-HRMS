@@ -6,11 +6,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { catchError, map, of } from 'rxjs';
-import { Currency } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { AssetsFacade } from '../data/assets.facade';
 import { CURRENCY_LABELS } from '../assets.labels';
+import { ApiError, Currency } from 'vespera-shared';
 
 export interface WriteOffDialogData {
   recoveryId: string;
@@ -19,7 +18,15 @@ export interface WriteOffDialogData {
 @Component({
   selector: 'vespera-write-off-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, FormErrorComponent],
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    FormErrorComponent,
+  ],
   templateUrl: './write-off-dialog.component.html',
 })
 export class WriteOffDialogComponent {

@@ -8,15 +8,23 @@ import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { catchError, map, of } from 'rxjs';
-import { Currency } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { AssetsFacade } from '../data/assets.facade';
 import { CURRENCY_LABELS } from '../assets.labels';
+import { ApiError, Currency } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-asset-create-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule],
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+  ],
   templateUrl: './asset-create-dialog.component.html',
 })
 export class AssetCreateDialogComponent {
@@ -50,8 +58,16 @@ export class AssetCreateDialogComponent {
     this.saving.set(true);
     this.error.set(null);
 
-    const { assetTag, category, purchaseCost, purchaseCostCurrency, purchaseDate, serialNumber, macAddress, warrantyExpiryDate } =
-      this.form.getRawValue();
+    const {
+      assetTag,
+      category,
+      purchaseCost,
+      purchaseCostCurrency,
+      purchaseDate,
+      serialNumber,
+      macAddress,
+      warrantyExpiryDate,
+    } = this.form.getRawValue();
 
     this.assetsFacade
       .createAsset({

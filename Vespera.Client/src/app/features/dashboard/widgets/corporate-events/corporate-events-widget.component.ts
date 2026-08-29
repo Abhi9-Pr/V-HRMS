@@ -1,12 +1,11 @@
 import { Component, Input, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { RsvpResponse, CorporateEventSummaryDto } from '../../../../core/api/generated/api-client';
-import { Permissions } from '../../../../core/authorization/permissions';
 import { PermissionButtonComponent } from '../../../../shared/buttons/permission-button.component';
 import { TimezoneDatePipe } from '../../../../shared/pipes/timezone-date.pipe';
 import { rsvpResponseLabels } from '../../dashboard.labels';
 import { CorporateEventsFacade } from '../../data/corporate-events.facade';
 import { CreateEventDialogComponent } from './create-event-dialog.component';
+import { CorporateEventSummaryDto, Permissions, RsvpResponse } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-corporate-events-widget',

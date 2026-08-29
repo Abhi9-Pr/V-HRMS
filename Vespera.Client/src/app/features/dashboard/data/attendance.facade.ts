@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AttendanceClient, RecordWebPunchRequest } from '../../../core/api/generated/api-client';
+import { AttendanceClient, RecordWebPunchRequest } from 'vespera-shared';
 
 /**
  * Thin wrapper for the shift-tracker widget's quick-punch button — the rest of self-service
@@ -12,7 +12,11 @@ import { AttendanceClient, RecordWebPunchRequest } from '../../../core/api/gener
 export class AttendanceFacade {
   private readonly client = inject(AttendanceClient);
 
-  punch(employeeId: string, punchType: 'In' | 'Out', coordinates?: { latitude: number; longitude: number }): Observable<void> {
+  punch(
+    employeeId: string,
+    punchType: 'In' | 'Out',
+    coordinates?: { latitude: number; longitude: number },
+  ): Observable<void> {
     const request: RecordWebPunchRequest = {
       employeeId,
       punchType,

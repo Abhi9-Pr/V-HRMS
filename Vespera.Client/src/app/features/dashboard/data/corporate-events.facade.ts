@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
-  CorporateEventsClient,
   CorporateEventSummaryDto,
+  CorporateEventsClient,
   CreateCorporateEventRequest,
   RsvpResponse,
-} from '../../../core/api/generated/api-client';
+} from 'vespera-shared';
 
 @Injectable({ providedIn: 'root' })
 export class CorporateEventsFacade {

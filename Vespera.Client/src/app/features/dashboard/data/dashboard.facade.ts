@@ -1,17 +1,21 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { NotificationService } from '../../../core/services/notification.service';
 import {
+  PunchStateChangedPayload,
+  ApprovalsCountChangedPayload,
+  AnnouncementPublishedPayload,
+} from '../../../core/services/notification.model';
+import { WIDGET_REGISTRY } from '../widget-registry';
+import { ShiftTrackerWidgetDto, PendingApprovalsWidgetDto } from '../widgets/dashboard-widget-payloads.model';
+import {
+  AnnouncementSummaryDto,
+  ApiError,
   DashboardClient,
   DashboardWidgetEnvelopeDto,
   DashboardWidgetPreferenceDto,
   SaveDashboardLayoutRequest,
   WidgetPreferenceInput,
-} from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
-import { NotificationService } from '../../../core/services/notification.service';
-import { PunchStateChangedPayload, ApprovalsCountChangedPayload, AnnouncementPublishedPayload } from '../../../core/services/notification.model';
-import { WIDGET_REGISTRY } from '../widget-registry';
-import { ShiftTrackerWidgetDto, PendingApprovalsWidgetDto } from '../widgets/dashboard-widget-payloads.model';
-import { AnnouncementSummaryDto } from '../../../core/api/generated/api-client';
+} from 'vespera-shared';
 
 /**
  * Wraps the generated DashboardClient behind signals, same shape as every other facade (see
@@ -41,7 +45,11 @@ export class DashboardFacade {
     const byKey = new Map(this.widgetsSignal().map((widget) => [widget.widgetKey, widget]));
     return this.layoutSignal()
       .filter((preference) => preference.isVisible && byKey.has(preference.widgetKey))
-      .map((preference) => ({ preference, envelope: byKey.get(preference.widgetKey)!, registry: WIDGET_REGISTRY[preference.widgetKey!] }))
+      .map((preference) => ({
+        preference,
+        envelope: byKey.get(preference.widgetKey)!,
+        registry: WIDGET_REGISTRY[preference.widgetKey!],
+      }))
       .filter((entry) => !!entry.registry);
   });
 
@@ -64,7 +72,9 @@ export class DashboardFacade {
   }
 
   saveLayout(widgets: WidgetPreferenceInput[]) {
-    this.layoutSignal.set(widgets.map((w) => ({ widgetKey: w.widgetKey, sortOrder: w.sortOrder, isVisible: w.isVisible, size: w.size })));
+    this.layoutSignal.set(
+      widgets.map((w) => ({ widgetKey: w.widgetKey, sortOrder: w.sortOrder, isVisible: w.isVisible, size: w.size })),
+    );
     return this.client.dashboard_SaveLayout({ widgets } as SaveDashboardLayoutRequest);
   }
 

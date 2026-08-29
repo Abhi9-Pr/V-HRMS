@@ -1,4 +1,4 @@
-import { Currency, ExpenseClaimStatus, ExpensePolicySeverity } from '../../core/api/generated/api-client';
+import { Currency, ExpenseClaimStatus, ExpensePolicySeverity } from 'vespera-shared';
 
 /**
  * The backend's Currency/ExpenseClaimStatus/ExpensePolicySeverity enums have no

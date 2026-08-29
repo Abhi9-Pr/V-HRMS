@@ -9,12 +9,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { catchError, of } from 'rxjs';
-import { AnnouncementAudienceScope, AnnouncementPriority, LocationDto } from '../../../../core/api/generated/api-client';
-import { ApiError } from '../../../../core/http/api-error.model';
 import { DepartmentsFacade } from '../../../departments/data/departments.facade';
 import { announcementAudienceScopeLabels, announcementPriorityLabels } from '../../dashboard.labels';
 import { AnnouncementsFacade } from '../../data/announcements.facade';
 import { LocationsFacade } from '../../data/locations.facade';
+import { AnnouncementAudienceScope, AnnouncementPriority, ApiError, LocationDto } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-create-announcement-dialog',
@@ -44,8 +43,12 @@ export class CreateAnnouncementDialogComponent {
   readonly locations = signal<LocationDto[]>([]);
   readonly departments = this.departmentsFacade.departments;
 
-  readonly scopes = Object.values(AnnouncementAudienceScope).filter((v): v is AnnouncementAudienceScope => typeof v === 'number');
-  readonly priorities = Object.values(AnnouncementPriority).filter((v): v is AnnouncementPriority => typeof v === 'number');
+  readonly scopes = Object.values(AnnouncementAudienceScope).filter(
+    (v): v is AnnouncementAudienceScope => typeof v === 'number',
+  );
+  readonly priorities = Object.values(AnnouncementPriority).filter(
+    (v): v is AnnouncementPriority => typeof v === 'number',
+  );
   readonly scopeLabel = (scope: AnnouncementAudienceScope): string => announcementAudienceScopeLabels[scope];
   readonly priorityLabel = (priority: AnnouncementPriority): string => announcementPriorityLabels[priority];
 

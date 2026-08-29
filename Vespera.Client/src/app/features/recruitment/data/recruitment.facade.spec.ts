@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { RecruitmentFacade } from './recruitment.facade';
 import {
+  ApiError,
   CandidatesClient,
   InterviewsClient,
   OffersClient,
   PublicJobsClient,
   RequisitionsClient,
-} from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
-import { RecruitmentFacade } from './recruitment.facade';
+} from 'vespera-shared';
 
 describe('RecruitmentFacade', () => {
   let requisitionsClient: jest.Mocked<
@@ -25,7 +25,14 @@ describe('RecruitmentFacade', () => {
     >
   >;
   let candidatesClient: jest.Mocked<
-    Pick<CandidatesClient, 'candidates_GetById' | 'candidates_Create' | 'candidates_MoveToStage' | 'candidates_Reject' | 'candidates_Withdraw'>
+    Pick<
+      CandidatesClient,
+      | 'candidates_GetById'
+      | 'candidates_Create'
+      | 'candidates_MoveToStage'
+      | 'candidates_Reject'
+      | 'candidates_Withdraw'
+    >
   >;
   let interviewsClient: jest.Mocked<
     Pick<
@@ -235,10 +242,12 @@ describe('RecruitmentFacade', () => {
   it('createCandidate() should delegate to the generated client', (done) => {
     candidatesClient.candidates_Create.mockReturnValue(of({ id: 'c1' } as never));
 
-    facade.createCandidate({ jobRequisitionId: 'r1', fullName: 'Jane Doe', email: 'jane@example.com', phone: '1234567890' }).subscribe((result) => {
-      expect(result.id).toBe('c1');
-      done();
-    });
+    facade
+      .createCandidate({ jobRequisitionId: 'r1', fullName: 'Jane Doe', email: 'jane@example.com', phone: '1234567890' })
+      .subscribe((result) => {
+        expect(result.id).toBe('c1');
+        done();
+      });
   });
 
   it('moveToStage() should delegate to the generated client', (done) => {
@@ -256,7 +265,12 @@ describe('RecruitmentFacade', () => {
     interviewsClient.interviews_Schedule.mockReturnValue(of({ id: 'i1' } as never));
 
     facade
-      .scheduleInterview({ candidateId: 'c1', pipelineStageId: 's1', scheduledAt: new Date('2026-01-01'), interviewerIds: ['e1'] })
+      .scheduleInterview({
+        candidateId: 'c1',
+        pipelineStageId: 's1',
+        scheduledAt: new Date('2026-01-01'),
+        interviewerIds: ['e1'],
+      })
       .subscribe((result) => {
         expect(result.id).toBe('i1');
         done();
@@ -278,7 +292,13 @@ describe('RecruitmentFacade', () => {
     offersClient.offers_Create.mockReturnValue(of({ id: 'o1' } as never));
 
     facade
-      .createOffer({ candidateId: 'c1', proposedDesignationId: 'd1', proposedCtc: 1000000, currency: 0, joiningDate: new Date('2026-02-01') })
+      .createOffer({
+        candidateId: 'c1',
+        proposedDesignationId: 'd1',
+        proposedCtc: 1000000,
+        currency: 0,
+        joiningDate: new Date('2026-02-01'),
+      })
       .subscribe((result) => {
         expect(result.id).toBe('o1');
         done();
@@ -289,7 +309,13 @@ describe('RecruitmentFacade', () => {
     offersClient.offers_ConvertToEmployee.mockReturnValue(of({ id: 'emp-1' } as never));
 
     facade
-      .convertToEmployee({ candidateId: 'c1', offerLetterId: 'o1', employeeCode: 'EMP-100', dateOfBirth: new Date('2000-01-01'), locationId: 'l1' })
+      .convertToEmployee({
+        candidateId: 'c1',
+        offerLetterId: 'o1',
+        employeeCode: 'EMP-100',
+        dateOfBirth: new Date('2000-01-01'),
+        locationId: 'l1',
+      })
       .subscribe((result) => {
         expect(result.id).toBe('emp-1');
         done();

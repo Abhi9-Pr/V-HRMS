@@ -4,15 +4,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
-import { CandidateCardDto, CandidatePipelineDto } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { RecruitmentFacade } from '../data/recruitment.facade';
 import { CandidatePipelineComponent } from './candidate-pipeline.component';
+import { ApiError, CandidateCardDto, CandidatePipelineDto } from 'vespera-shared';
 
 describe('CandidatePipelineComponent', () => {
   let fixture: ComponentFixture<CandidatePipelineComponent>;
   let component: CandidatePipelineComponent;
-  let facade: jest.Mocked<Pick<RecruitmentFacade, 'loadPipeline' | 'pipeline' | 'pipelineLoading' | 'pipelineError' | 'moveToStage'>>;
+  let facade: jest.Mocked<
+    Pick<RecruitmentFacade, 'loadPipeline' | 'pipeline' | 'pipelineLoading' | 'pipelineError' | 'moveToStage'>
+  >;
 
   function setup(pipeline: CandidatePipelineDto): void {
     facade = {
@@ -72,7 +73,11 @@ describe('CandidatePipelineComponent', () => {
 
   it('a failed drop should revert the candidate to its original column and surface the error', () => {
     setup({ stages: [{ id: 's1', name: 'Screening', sequenceNumber: 0 }], candidates: [candidate] });
-    const apiError: ApiError = { status: 409, code: 'candidate.stage_transition_blocked', message: 'Requires a completed interview.' };
+    const apiError: ApiError = {
+      status: 409,
+      code: 'candidate.stage_transition_blocked',
+      message: 'Requires a completed interview.',
+    };
     facade.moveToStage.mockReturnValue(throwError(() => apiError));
 
     const sourceColumn = component.columns()[0];

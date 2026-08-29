@@ -5,14 +5,21 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, map, of } from 'rxjs';
-import { ApiError } from '../../../core/http/api-error.model';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { RecruitmentFacade } from '../data/recruitment.facade';
+import { ApiError } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-requisition-create-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormErrorComponent],
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    FormErrorComponent,
+  ],
   templateUrl: './requisition-create-dialog.component.html',
 })
 export class RequisitionCreateDialogComponent {

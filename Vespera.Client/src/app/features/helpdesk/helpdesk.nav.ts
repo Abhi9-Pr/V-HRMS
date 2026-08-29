@@ -1,5 +1,5 @@
-import { Permissions } from '../../core/authorization/permissions';
 import { NavItem } from '../../core/navigation/nav-item.model';
+import { Permissions } from 'vespera-shared';
 
 /** Five top-level screens gated by different permissions, same multi-item shape assets.nav.ts
  * established — a caller with only Helpdesk.ViewReports, say, should still see the SLA dashboard

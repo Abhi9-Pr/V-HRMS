@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { permissionGuard } from '../../core/guards/permission.guard';
-import { Permissions } from '../../core/authorization/permissions';
+import { Permissions } from 'vespera-shared';
 
 export const ASSETS_ROUTES: Routes = [
   {
@@ -19,28 +19,32 @@ export const ASSETS_ROUTES: Routes = [
   },
   {
     path: 'licenses/unused-seats-report',
-    loadComponent: () => import('./unused-seats-report/unused-seats-report.component').then((m) => m.UnusedSeatsReportComponent),
+    loadComponent: () =>
+      import('./unused-seats-report/unused-seats-report.component').then((m) => m.UnusedSeatsReportComponent),
     canActivate: [permissionGuard],
     data: { permissions: Permissions.Licenses.Read, breadcrumb: 'Unused seats' },
     title: 'Unused license seats',
   },
   {
     path: 'recoveries',
-    loadComponent: () => import('./recovery-dashboard/recovery-dashboard.component').then((m) => m.RecoveryDashboardComponent),
+    loadComponent: () =>
+      import('./recovery-dashboard/recovery-dashboard.component').then((m) => m.RecoveryDashboardComponent),
     canActivate: [permissionGuard],
     data: { permissions: Permissions.Assets.Recover, breadcrumb: 'Asset recovery' },
     title: 'Asset recovery',
   },
   {
     path: 'offboarding-checklist/:employeeId',
-    loadComponent: () => import('./offboarding-checklist/offboarding-checklist.component').then((m) => m.OffboardingChecklistComponent),
+    loadComponent: () =>
+      import('./offboarding-checklist/offboarding-checklist.component').then((m) => m.OffboardingChecklistComponent),
     canActivate: [permissionGuard],
     data: { permissions: Permissions.Assets.Recover, breadcrumb: 'Offboarding checklist' },
     title: 'Offboarding checklist',
   },
   {
     path: ':id/handover/:assignmentId',
-    loadComponent: () => import('./assignment-handover/assignment-handover.component').then((m) => m.AssignmentHandoverComponent),
+    loadComponent: () =>
+      import('./assignment-handover/assignment-handover.component').then((m) => m.AssignmentHandoverComponent),
     canActivate: [permissionGuard],
     data: { permissions: Permissions.Assets.Assign, breadcrumb: 'Handover' },
     title: 'Assignment handover',

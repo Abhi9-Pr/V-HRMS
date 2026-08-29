@@ -2,13 +2,15 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
-import { AuthService } from '../../../core/auth/auth.service';
 import { DepartmentsFacade } from '../data/departments.facade';
 import { DepartmentListComponent } from './department-list.component';
+import { AuthService } from 'vespera-shared';
 
 describe('DepartmentListComponent', () => {
   let fixture: ComponentFixture<DepartmentListComponent>;
-  let facade: jest.Mocked<Pick<DepartmentsFacade, 'load' | 'remove' | 'departments' | 'totalCount' | 'loading' | 'error'>>;
+  let facade: jest.Mocked<
+    Pick<DepartmentsFacade, 'load' | 'remove' | 'departments' | 'totalCount' | 'loading' | 'error'>
+  >;
   let dialog: jest.Mocked<Pick<MatDialog, 'open'>>;
 
   beforeEach(async () => {

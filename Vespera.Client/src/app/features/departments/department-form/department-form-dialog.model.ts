@@ -1,4 +1,4 @@
-import { DepartmentDto } from '../../../core/api/generated/api-client';
+import { DepartmentDto } from 'vespera-shared';
 
 export interface DepartmentFormDialogData {
   mode: 'create' | 'edit';

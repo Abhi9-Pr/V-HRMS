@@ -1,4 +1,4 @@
-import { AssetConditionRating, AssetRecoveryStatus, AssetStatus, Currency, DepreciationMethod } from '../../core/api/generated/api-client';
+import { AssetConditionRating, AssetRecoveryStatus, AssetStatus, Currency, DepreciationMethod } from 'vespera-shared';
 
 /**
  * None of these backend enums have a JsonStringEnumConverter registered, so NSwag generates them

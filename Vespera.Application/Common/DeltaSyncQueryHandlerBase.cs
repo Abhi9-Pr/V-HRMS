@@ -15,7 +15,7 @@ namespace Vespera.Application.Common;
 /// </summary>
 public abstract class DeltaSyncQueryHandlerBase<TRequest, TEntity, TDto> : IRequestHandler<TRequest, Result<DeltaSyncResult<TDto>>>
     where TRequest : IRequest<Result<DeltaSyncResult<TDto>>>
-    where TEntity : class, ISoftDeletable
+    where TEntity : class
 {
     private readonly IReadRepository<TEntity> _repository;
     private readonly IDateTimeProvider _dateTimeProvider;
@@ -48,6 +48,12 @@ public abstract class DeltaSyncQueryHandlerBase<TRequest, TEntity, TDto> : IRequ
 
     protected abstract TDto MapToDto(TEntity entity);
 
+    /// <summary>Whether this changed entity should be reported as a tombstone (removed from the
+    /// client's local cache) rather than an upsert. Entities with no delete concept at all (e.g.
+    /// <c>LeaveRequest</c>, which is only ever status-transitioned, never soft-deleted) always
+    /// return <see langword="false"/> here.</summary>
+    protected abstract bool IsTombstoned(TEntity entity);
+
     public async Task<Result<DeltaSyncResult<TDto>>> Handle(TRequest request, CancellationToken cancellationToken)
     {
         var deltaSync = GetDeltaSyncRequest(request);
@@ -66,8 +72,8 @@ public abstract class DeltaSyncQueryHandlerBase<TRequest, TEntity, TDto> : IRequ
         var ordered = changedSince.OrderBy(GetLastChanged).ToList();
         var page = ordered.Take(deltaSync.PageSize).ToList();
 
-        var upserts = page.Where(e => !e.IsDeleted).Select(MapToDto).ToList();
-        var tombstonedIds = page.Where(e => e.IsDeleted).Select(GetId).ToList();
+        var upserts = page.Where(e => !IsTombstoned(e)).Select(MapToDto).ToList();
+        var tombstonedIds = page.Where(IsTombstoned).Select(GetId).ToList();
 
         var hasMore = ordered.Count > page.Count;
         var nextCursor = hasMore ? GetLastChanged(page[^1]).ToString("O") : null;

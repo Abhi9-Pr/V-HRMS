@@ -1,9 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TenantResolutionService } from '../../../core/api/tenant-resolution.service';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
 import { RecruitmentFacade } from '../data/recruitment.facade';
+import { TenantResolutionService } from 'vespera-shared';
 
 /**
  * Reached outside the authenticated shell entirely (see app.routes.ts) — no bearer token exists.

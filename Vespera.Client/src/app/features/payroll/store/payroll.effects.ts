@@ -1,9 +1,8 @@
 import { inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, of, switchMap } from 'rxjs';
-import { PayrollClient } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { PayrollActions } from './payroll.actions';
+import { ApiError, PayrollClient } from 'vespera-shared';
 
 export const loadRuns$ = createEffect(
   (actions$ = inject(Actions), client = inject(PayrollClient)) =>
@@ -11,7 +10,9 @@ export const loadRuns$ = createEffect(
       ofType(PayrollActions.loadRuns),
       switchMap(({ page, pageSize }) =>
         client.list8(page, pageSize, undefined, undefined).pipe(
-          map((result) => PayrollActions.loadRunsSuccess({ items: result.items ?? [], totalCount: result.totalCount ?? 0 })),
+          map((result) =>
+            PayrollActions.loadRunsSuccess({ items: result.items ?? [], totalCount: result.totalCount ?? 0 }),
+          ),
           catchError((error: ApiError) => of(PayrollActions.loadRunsFailure({ error }))),
         ),
       ),

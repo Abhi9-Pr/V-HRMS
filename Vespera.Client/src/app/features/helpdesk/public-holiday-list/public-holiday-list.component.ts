@@ -1,13 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { PublicHolidayDto } from '../../../core/api/generated/api-client';
-import { Permissions } from '../../../core/authorization/permissions';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
 import { DataTableColumn, DataTableQuery } from '../../../shared/data-table/data-table.model';
 import { DataTableComponent } from '../../../shared/data-table/data-table.component';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { HelpdeskFacade } from '../data/helpdesk.facade';
 import { PublicHolidayCreateDialogComponent } from './public-holiday-create-dialog.component';
+import { Permissions, PublicHolidayDto } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-public-holiday-list',

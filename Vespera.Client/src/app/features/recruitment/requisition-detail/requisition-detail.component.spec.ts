@@ -2,14 +2,15 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
-import { JobRequisitionDto, JobRequisitionStatus, RequisitionApprovalStatus } from '../../../core/api/generated/api-client';
-import { AuthService } from '../../../core/auth/auth.service';
 import { RecruitmentFacade } from '../data/recruitment.facade';
 import { RequisitionDetailComponent } from './requisition-detail.component';
+import { AuthService, JobRequisitionDto, JobRequisitionStatus, RequisitionApprovalStatus } from 'vespera-shared';
 
 describe('RequisitionDetailComponent', () => {
   let fixture: ComponentFixture<RequisitionDetailComponent>;
-  let facade: jest.Mocked<Pick<RecruitmentFacade, 'loadRequisitionById' | 'requisition' | 'requisitionLoading' | 'requisitionError'>>;
+  let facade: jest.Mocked<
+    Pick<RecruitmentFacade, 'loadRequisitionById' | 'requisition' | 'requisitionLoading' | 'requisitionError'>
+  >;
 
   function setup(requisition: JobRequisitionDto): void {
     facade = {
@@ -43,20 +44,30 @@ describe('RequisitionDetailComponent', () => {
   });
 
   it('a Draft requisition should only show the submit-for-approval action', () => {
-    setup({ id: 'r1', approvalStatus: RequisitionApprovalStatus._0, status: JobRequisitionStatus._0, isPublished: false });
+    setup({
+      id: 'r1',
+      approvalStatus: RequisitionApprovalStatus._0,
+      status: JobRequisitionStatus._0,
+      isPublished: false,
+    });
 
-    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map(
-      (element: Element) => (element as HTMLElement).getAttribute('data-testid'),
+    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map((element: Element) =>
+      (element as HTMLElement).getAttribute('data-testid'),
     );
 
     expect(testIds).toEqual(['submit-for-approval-action']);
   });
 
   it('a PendingApproval requisition should only show approve/reject actions', () => {
-    setup({ id: 'r1', approvalStatus: RequisitionApprovalStatus._1, status: JobRequisitionStatus._0, isPublished: false });
+    setup({
+      id: 'r1',
+      approvalStatus: RequisitionApprovalStatus._1,
+      status: JobRequisitionStatus._0,
+      isPublished: false,
+    });
 
-    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map(
-      (element: Element) => (element as HTMLElement).getAttribute('data-testid'),
+    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map((element: Element) =>
+      (element as HTMLElement).getAttribute('data-testid'),
     );
 
     expect(testIds).toEqual(expect.arrayContaining(['approve-action', 'reject-action']));
@@ -65,20 +76,30 @@ describe('RequisitionDetailComponent', () => {
   });
 
   it('an Approved, Open, unpublished requisition should only show the publish action', () => {
-    setup({ id: 'r1', approvalStatus: RequisitionApprovalStatus._2, status: JobRequisitionStatus._0, isPublished: false });
+    setup({
+      id: 'r1',
+      approvalStatus: RequisitionApprovalStatus._2,
+      status: JobRequisitionStatus._0,
+      isPublished: false,
+    });
 
-    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map(
-      (element: Element) => (element as HTMLElement).getAttribute('data-testid'),
+    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map((element: Element) =>
+      (element as HTMLElement).getAttribute('data-testid'),
     );
 
     expect(testIds).toEqual(['publish-action']);
   });
 
   it('an already-published requisition should show no workflow actions', () => {
-    setup({ id: 'r1', approvalStatus: RequisitionApprovalStatus._2, status: JobRequisitionStatus._0, isPublished: true });
+    setup({
+      id: 'r1',
+      approvalStatus: RequisitionApprovalStatus._2,
+      status: JobRequisitionStatus._0,
+      isPublished: true,
+    });
 
-    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map(
-      (element: Element) => (element as HTMLElement).getAttribute('data-testid'),
+    const testIds = Array.from(fixture.nativeElement.querySelectorAll('[data-testid]')).map((element: Element) =>
+      (element as HTMLElement).getAttribute('data-testid'),
     );
 
     expect(testIds).toHaveLength(0);

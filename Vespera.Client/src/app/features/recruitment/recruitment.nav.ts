@@ -1,5 +1,5 @@
-import { Permissions } from '../../core/authorization/permissions';
 import { NavItem } from '../../core/navigation/nav-item.model';
+import { Permissions } from 'vespera-shared';
 
 /** One top-level entry point (the requisition list) — candidate pipeline/detail are reached by
  * drilling into a requisition/card, same as assets.nav.ts didn't give asset-detail/

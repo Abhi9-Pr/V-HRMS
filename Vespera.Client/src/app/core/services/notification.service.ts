@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { TokenStorageService } from '../auth/token-storage.service';
+import { TokenStorageService } from 'vespera-shared';
 import {
   AnnouncementPublishedPayload,
   ApprovalsCountChangedPayload,

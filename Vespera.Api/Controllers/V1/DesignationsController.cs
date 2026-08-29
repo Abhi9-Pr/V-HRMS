@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Vespera.Api.Authorization;
@@ -17,18 +18,50 @@ public sealed class DesignationsController : ControllerBase
     private const string IdempotencyKeyHeader = "Idempotency-Key";
 
     private readonly ISender _sender;
+    private readonly ICompactResponseContext _compactResponseContext;
 
-    public DesignationsController(ISender sender)
+    public DesignationsController(ISender sender, ICompactResponseContext compactResponseContext)
     {
         _sender = sender;
+        _compactResponseContext = compactResponseContext;
     }
 
+    /// <summary>Supports conditional GET (see docs/api-mobile-contract.md) and the
+    /// <c>X-Response-Shape: compact</c> negotiation — a mobile caller gets back
+    /// <see cref="DesignationSummaryDto"/> items instead of the full <see cref="DesignationDto"/>.</summary>
     /// <response code="200">A page of designations.</response>
+    /// <response code="304">Nothing has changed since the given <c>If-None-Match</c> tag.</response>
     [HttpGet]
     [HasPermission(Permissions.Designations.Read)]
     [ProducesResponseType(typeof(PagedResult<DesignationDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> List([FromQuery] PagedRequest paging, CancellationToken cancellationToken) =>
-        (await _sender.Send(new GetDesignationsQuery(paging), cancellationToken)).ToActionResult(this);
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    public async Task<IActionResult> List([FromQuery] PagedRequest paging, CancellationToken cancellationToken)
+    {
+        var etagResult = await _sender.Send(new GetDesignationsETagQuery(), cancellationToken);
+        if (etagResult.IsFailure)
+        {
+            return etagResult.ToActionResult(this);
+        }
+
+        if (ETagNegotiation.TryShortCircuit(HttpContext, etagResult.Value))
+        {
+            return new EmptyResult();
+        }
+
+        var result = await _sender.Send(new GetDesignationsQuery(paging), cancellationToken);
+        if (result.IsFailure)
+        {
+            return result.ToActionResult(this);
+        }
+
+        if (_compactResponseContext.IsCompact)
+        {
+            return Ok(new PagedResult<DesignationSummaryDto>(
+                result.Value.Items.Adapt<List<DesignationSummaryDto>>(), result.Value.Page, result.Value.PageSize, result.Value.TotalCount));
+        }
+
+        return Ok(result.Value);
+    }
 
     /// <response code="200">The designation.</response>
     /// <response code="404">No such designation.</response>

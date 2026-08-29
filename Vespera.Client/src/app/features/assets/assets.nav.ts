@@ -1,5 +1,5 @@
-import { Permissions } from '../../core/authorization/permissions';
 import { NavItem } from '../../core/navigation/nav-item.model';
+import { Permissions } from 'vespera-shared';
 
 /** Assets has four top-level screens gated by different permissions, same multi-item shape
  * expensesNavItem* established — a caller with only Assets.Recover, say, should still see the

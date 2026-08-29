@@ -1,8 +1,6 @@
 import { Component, Input, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { AnnouncementSummaryDto } from '../../../../core/api/generated/api-client';
-import { Permissions } from '../../../../core/authorization/permissions';
 import { PermissionButtonComponent } from '../../../../shared/buttons/permission-button.component';
 import { MarkdownPipe } from '../../../../shared/pipes/markdown.pipe';
 import { TimezoneDatePipe } from '../../../../shared/pipes/timezone-date.pipe';
@@ -10,6 +8,7 @@ import { priorityLabelByName } from '../../dashboard.labels';
 import { AnnouncementsFacade } from '../../data/announcements.facade';
 import { CreateAnnouncementDialogComponent } from './create-announcement-dialog.component';
 import { ReadReceiptsDialogComponent } from './read-receipts-dialog.component';
+import { AnnouncementSummaryDto, Permissions } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-announcements-board-widget',

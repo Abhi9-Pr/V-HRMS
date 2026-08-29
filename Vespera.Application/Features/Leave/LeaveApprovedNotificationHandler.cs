@@ -40,7 +40,14 @@ public sealed class LeaveApprovedNotificationHandler : INotificationHandler<Doma
                 recipient.Id.Value.ToString(),
                 "Leave request approved",
                 $"Your leave request for {domainEvent.Period.Start:yyyy-MM-dd} to {domainEvent.Period.End:yyyy-MM-dd} has been approved.",
-                new Dictionary<string, string> { ["email"] = recipient.Email.Value }),
+                new Dictionary<string, string>
+                {
+                    ["email"] = recipient.Email.Value,
+                    ["tenantId"] = domainEvent.TenantId.Value.ToString(),
+                    ["entityType"] = "LeaveRequest",
+                    ["entityId"] = domainEvent.LeaveRequestId.Value.ToString(),
+                    ["deepLink"] = $"vespera://leave/requests/{domainEvent.LeaveRequestId.Value}",
+                }),
             cancellationToken);
     }
 }

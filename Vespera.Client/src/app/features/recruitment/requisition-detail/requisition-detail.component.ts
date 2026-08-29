@@ -5,15 +5,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { JobRequisitionDto, JobRequisitionStatus, RequisitionApprovalStatus } from '../../../core/api/generated/api-client';
-import { Permissions } from '../../../core/authorization/permissions';
-import { ApiError } from '../../../core/http/api-error.model';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
 import { RecruitmentFacade } from '../data/recruitment.facade';
 import { JOB_REQUISITION_STATUS_LABELS, REQUISITION_APPROVAL_STATUS_LABELS } from '../recruitment.labels';
+import {
+  ApiError,
+  JobRequisitionDto,
+  JobRequisitionStatus,
+  Permissions,
+  RequisitionApprovalStatus,
+} from 'vespera-shared';
 
 /**
  * Action buttons are gated by RequisitionApprovalStatus (and, for Publish, also
@@ -47,7 +51,8 @@ export class RequisitionDetailComponent implements OnInit {
   readonly Permissions = Permissions;
   readonly RequisitionApprovalStatus = RequisitionApprovalStatus;
   readonly statusLabel = (status: JobRequisitionStatus): string => JOB_REQUISITION_STATUS_LABELS[status];
-  readonly approvalStatusLabel = (status: RequisitionApprovalStatus): string => REQUISITION_APPROVAL_STATUS_LABELS[status];
+  readonly approvalStatusLabel = (status: RequisitionApprovalStatus): string =>
+    REQUISITION_APPROVAL_STATUS_LABELS[status];
 
   readonly requisition = this.recruitmentFacade.requisition;
   readonly loading = this.recruitmentFacade.requisitionLoading;
@@ -132,12 +137,20 @@ export class RequisitionDetailComponent implements OnInit {
   }
 
   approve(): void {
-    this.runAction(this.recruitmentFacade.decideApproval(this.requisitionId, { approved: true, comment: this.decisionForm.getRawValue().comment }));
+    this.runAction(
+      this.recruitmentFacade.decideApproval(this.requisitionId, {
+        approved: true,
+        comment: this.decisionForm.getRawValue().comment,
+      }),
+    );
   }
 
   reject(): void {
     this.runAction(
-      this.recruitmentFacade.decideApproval(this.requisitionId, { approved: false, comment: this.decisionForm.getRawValue().comment }),
+      this.recruitmentFacade.decideApproval(this.requisitionId, {
+        approved: false,
+        comment: this.decisionForm.getRawValue().comment,
+      }),
     );
   }
 

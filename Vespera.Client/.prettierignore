@@ -1,4 +1,4 @@
 dist/
 coverage/
 node_modules/
-src/app/core/api/generated/
+projects/vespera-shared/src/lib/api/generated/

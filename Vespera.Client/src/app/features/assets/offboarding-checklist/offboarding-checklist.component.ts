@@ -1,12 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { Permissions } from '../../../core/authorization/permissions';
-import { ApiError } from '../../../core/http/api-error.model';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
 import { AssetsFacade } from '../data/assets.facade';
+import { ApiError, Permissions } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-offboarding-checklist',

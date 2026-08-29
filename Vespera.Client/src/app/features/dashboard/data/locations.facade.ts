@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { LocationDto, LocationsClient } from '../../../core/api/generated/api-client';
+import { LocationDto, LocationsClient } from 'vespera-shared';
 
 /** Minimal read-only wrapper for the one place the dashboard needs a location picker
  * (the department/location-scoped announcement dialog) — a full locations admin facade belongs

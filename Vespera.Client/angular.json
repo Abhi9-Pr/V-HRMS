@@ -92,6 +92,49 @@
           }
         }
       }
+    },
+    "vespera-shared": {
+      "projectType": "library",
+      "root": "projects/vespera-shared",
+      "sourceRoot": "projects/vespera-shared/src",
+      "prefix": "vespera",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/vespera-shared/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/vespera-shared/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/vespera-shared/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/vespera-shared/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/vespera-shared/**/*.ts",
+              "projects/vespera-shared/**/*.html"
+            ],
+            "eslintConfig": "projects/vespera-shared/eslint.config.js"
+          }
+        }
+      }
     }
   }
 }

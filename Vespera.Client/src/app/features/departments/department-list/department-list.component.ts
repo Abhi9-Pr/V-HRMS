@@ -2,9 +2,6 @@ import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, inject, signa
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { catchError, of } from 'rxjs';
-import { DepartmentDto } from '../../../core/api/generated/api-client';
-import { Permissions } from '../../../core/authorization/permissions';
-import { ApiError } from '../../../core/http/api-error.model';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
 import { ConfirmDialogComponent } from '../../../shared/dialogs/confirm-dialog.component';
 import { DataTableColumn, DataTableQuery } from '../../../shared/data-table/data-table.model';
@@ -12,6 +9,7 @@ import { DataTableComponent } from '../../../shared/data-table/data-table.compon
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { DepartmentsFacade } from '../data/departments.facade';
 import { DepartmentFormDialogComponent } from '../department-form/department-form-dialog.component';
+import { ApiError, DepartmentDto, Permissions } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-department-list',
@@ -68,7 +66,11 @@ export class DepartmentListComponent implements OnInit, AfterViewInit {
     this.openFormDialog({ mode: 'edit', department, availableParents: this.departments() });
   }
 
-  private openFormDialog(data: { mode: 'create' | 'edit'; department?: DepartmentDto; availableParents: DepartmentDto[] }): void {
+  private openFormDialog(data: {
+    mode: 'create' | 'edit';
+    department?: DepartmentDto;
+    availableParents: DepartmentDto[];
+  }): void {
     this.dialog
       .open(DepartmentFormDialogComponent, { width: '480px', data })
       .afterClosed()
@@ -82,7 +84,11 @@ export class DepartmentListComponent implements OnInit, AfterViewInit {
   confirmDelete(department: DepartmentDto): void {
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: { title: 'Delete department', message: `Delete "${department.name}"? This cannot be undone.`, danger: true },
+        data: {
+          title: 'Delete department',
+          message: `Delete "${department.name}"? This cannot be undone.`,
+          danger: true,
+        },
       })
       .afterClosed()
       .subscribe((confirmed) => {

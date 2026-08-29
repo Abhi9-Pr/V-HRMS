@@ -4,10 +4,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { catchError, of } from 'rxjs';
-import { InvestmentDeclarationQueueItemDto, InvestmentDeclarationReviewClient } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { EmptyStateComponent } from '../../../shared/states/empty-state.component';
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
+import { ApiError, InvestmentDeclarationQueueItemDto, InvestmentDeclarationReviewClient } from 'vespera-shared';
 
 /** Finance's review queue: every Submitted declaration with at least one still-Pending line.
  * Approving/rejecting a specific line index is deliberately blunt (no per-line detail view here
@@ -16,7 +15,14 @@ import { LoadingStateComponent } from '../../../shared/states/loading-state.comp
 @Component({
   selector: 'vespera-investment-declaration-review',
   standalone: true,
-  imports: [MatTableModule, MatButtonModule, MatFormFieldModule, MatInputModule, LoadingStateComponent, EmptyStateComponent],
+  imports: [
+    MatTableModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    LoadingStateComponent,
+    EmptyStateComponent,
+  ],
   templateUrl: './investment-declaration-review.component.html',
 })
 export class InvestmentDeclarationReviewComponent implements OnInit {

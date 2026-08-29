@@ -1,7 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
+import { DataTableQuery } from '../../../shared/data-table/data-table.model';
 import {
   AddCommentRequest,
+  ApiError,
   AssignTicketRequest,
   CreatePublicHolidayRequest,
   CreatePublicHolidayResponse,
@@ -23,9 +25,7 @@ import {
   TicketSummaryDto,
   TicketsClient,
   UploadAttachmentResponse,
-} from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
-import { DataTableQuery } from '../../../shared/data-table/data-table.model';
+} from 'vespera-shared';
 
 /**
  * Wraps TicketsClient/TicketCategoriesClient/SlaPoliciesClient/PublicHolidaysClient behind
@@ -150,51 +150,57 @@ export class HelpdeskFacade {
     this.categoriesLoadingSignal.set(true);
     this.categoriesErrorSignal.set(null);
 
-    this.categoriesClient.ticketCategories_GetCategories(query.page, query.pageSize, query.sortBy, query.sortDescending).subscribe({
-      next: (result) => {
-        this.categoriesSignal.set(result.items ?? []);
-        this.categoriesTotalCountSignal.set(result.totalCount ?? 0);
-        this.categoriesLoadingSignal.set(false);
-      },
-      error: (apiError: ApiError) => {
-        this.categoriesErrorSignal.set(apiError);
-        this.categoriesLoadingSignal.set(false);
-      },
-    });
+    this.categoriesClient
+      .ticketCategories_GetCategories(query.page, query.pageSize, query.sortBy, query.sortDescending)
+      .subscribe({
+        next: (result) => {
+          this.categoriesSignal.set(result.items ?? []);
+          this.categoriesTotalCountSignal.set(result.totalCount ?? 0);
+          this.categoriesLoadingSignal.set(false);
+        },
+        error: (apiError: ApiError) => {
+          this.categoriesErrorSignal.set(apiError);
+          this.categoriesLoadingSignal.set(false);
+        },
+      });
   }
 
   loadPolicies(query: DataTableQuery): void {
     this.policiesLoadingSignal.set(true);
     this.policiesErrorSignal.set(null);
 
-    this.policiesClient.slaPolicies_GetPolicies(query.page, query.pageSize, query.sortBy, query.sortDescending).subscribe({
-      next: (result) => {
-        this.policiesSignal.set(result.items ?? []);
-        this.policiesTotalCountSignal.set(result.totalCount ?? 0);
-        this.policiesLoadingSignal.set(false);
-      },
-      error: (apiError: ApiError) => {
-        this.policiesErrorSignal.set(apiError);
-        this.policiesLoadingSignal.set(false);
-      },
-    });
+    this.policiesClient
+      .slaPolicies_GetPolicies(query.page, query.pageSize, query.sortBy, query.sortDescending)
+      .subscribe({
+        next: (result) => {
+          this.policiesSignal.set(result.items ?? []);
+          this.policiesTotalCountSignal.set(result.totalCount ?? 0);
+          this.policiesLoadingSignal.set(false);
+        },
+        error: (apiError: ApiError) => {
+          this.policiesErrorSignal.set(apiError);
+          this.policiesLoadingSignal.set(false);
+        },
+      });
   }
 
   loadHolidays(query: DataTableQuery): void {
     this.holidaysLoadingSignal.set(true);
     this.holidaysErrorSignal.set(null);
 
-    this.holidaysClient.publicHolidays_GetHolidays(query.page, query.pageSize, query.sortBy, query.sortDescending).subscribe({
-      next: (result) => {
-        this.holidaysSignal.set(result.items ?? []);
-        this.holidaysTotalCountSignal.set(result.totalCount ?? 0);
-        this.holidaysLoadingSignal.set(false);
-      },
-      error: (apiError: ApiError) => {
-        this.holidaysErrorSignal.set(apiError);
-        this.holidaysLoadingSignal.set(false);
-      },
-    });
+    this.holidaysClient
+      .publicHolidays_GetHolidays(query.page, query.pageSize, query.sortBy, query.sortDescending)
+      .subscribe({
+        next: (result) => {
+          this.holidaysSignal.set(result.items ?? []);
+          this.holidaysTotalCountSignal.set(result.totalCount ?? 0);
+          this.holidaysLoadingSignal.set(false);
+        },
+        error: (apiError: ApiError) => {
+          this.holidaysErrorSignal.set(apiError);
+          this.holidaysLoadingSignal.set(false);
+        },
+      });
   }
 
   raiseTicket(request: RaiseTicketRequest): Observable<RaiseTicketResponse> {
@@ -202,7 +208,10 @@ export class HelpdeskFacade {
   }
 
   uploadAttachment(ticketId: string, file: File): Observable<UploadAttachmentResponse> {
-    return this.ticketsClient.tickets_UploadAttachment(ticketId, crypto.randomUUID(), { data: file, fileName: file.name });
+    return this.ticketsClient.tickets_UploadAttachment(ticketId, crypto.randomUUID(), {
+      data: file,
+      fileName: file.name,
+    });
   }
 
   addComment(ticketId: string, request: AddCommentRequest): Observable<void> {

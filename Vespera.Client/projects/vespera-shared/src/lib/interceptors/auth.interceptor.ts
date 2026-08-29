@@ -1,9 +1,9 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth/auth.service';
 import { TokenStorageService } from '../auth/token-storage.service';
 import { TenantResolutionService } from '../api/tenant-resolution.service';
+import { API_BASE_URL } from '../api/generated/api-client';
 
 const TENANT_HEADER = 'X-Tenant-Id';
 
@@ -12,7 +12,8 @@ const TENANT_HEADER = 'X-Tenant-Id';
  * which run before any token exists — get `X-Tenant-Id` instead, from whatever tenant the login
  * screen already resolved via TenantResolutionService. */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith(environment.apiBaseUrl)) {
+  const apiBaseUrl = inject(API_BASE_URL, { optional: true });
+  if (!apiBaseUrl || !req.url.startsWith(apiBaseUrl)) {
     return next(req);
   }
 

@@ -6,9 +6,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { TicketCommentDto, TicketDto, TicketPriority, TicketStatus } from '../../../core/api/generated/api-client';
-import { Permissions } from '../../../core/authorization/permissions';
-import { ApiError } from '../../../core/http/api-error.model';
 import { FileUploaderComponent } from '../../../shared/file-uploader/file-uploader.component';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
@@ -17,6 +14,7 @@ import { ErrorStateComponent } from '../../../shared/states/error-state.componen
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
 import { HelpdeskFacade } from '../data/helpdesk.facade';
 import { TICKET_PRIORITY_LABELS, TICKET_STATUS_LABELS } from '../helpdesk.labels';
+import { ApiError, Permissions, TicketCommentDto, TicketDto, TicketPriority, TicketStatus } from 'vespera-shared';
 
 interface ThreadedComment {
   comment: TicketCommentDto;
@@ -60,7 +58,9 @@ export class TicketDetailComponent implements OnInit {
   readonly loading = this.helpdeskFacade.ticketLoading;
   readonly error = this.helpdeskFacade.ticketError;
 
-  readonly threadedComments = computed<ThreadedComment[]>(() => this.buildThreadedComments(this.ticket()?.comments ?? []));
+  readonly threadedComments = computed<ThreadedComment[]>(() =>
+    this.buildThreadedComments(this.ticket()?.comments ?? []),
+  );
 
   readonly replyingToId = signal<string | null>(null);
   readonly pendingAttachmentReference = signal<string | null>(null);

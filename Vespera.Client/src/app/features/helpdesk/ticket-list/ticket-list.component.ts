@@ -2,8 +2,6 @@ import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, inject } from
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { TicketSummaryDto } from '../../../core/api/generated/api-client';
-import { Permissions } from '../../../core/authorization/permissions';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
 import { DataTableColumn, DataTableQuery } from '../../../shared/data-table/data-table.model';
 import { DataTableComponent } from '../../../shared/data-table/data-table.component';
@@ -11,6 +9,7 @@ import { ErrorStateComponent } from '../../../shared/states/error-state.componen
 import { HelpdeskFacade } from '../data/helpdesk.facade';
 import { TICKET_PRIORITY_LABELS, TICKET_STATUS_LABELS } from '../helpdesk.labels';
 import { TicketCreateDialogComponent } from './ticket-create-dialog.component';
+import { Permissions, TicketSummaryDto } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-ticket-list',
@@ -34,8 +33,16 @@ export class TicketListComponent implements OnInit, AfterViewInit {
 
   columns: DataTableColumn<TicketSummaryDto>[] = [
     { key: 'subject', header: 'Subject', cell: (row) => row.subject ?? '' },
-    { key: 'priority', header: 'Priority', cell: (row) => (row.priority !== undefined ? TICKET_PRIORITY_LABELS[row.priority] : '') },
-    { key: 'status', header: 'Status', cell: (row) => (row.status !== undefined ? TICKET_STATUS_LABELS[row.status] : '') },
+    {
+      key: 'priority',
+      header: 'Priority',
+      cell: (row) => (row.priority !== undefined ? TICKET_PRIORITY_LABELS[row.priority] : ''),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      cell: (row) => (row.status !== undefined ? TICKET_STATUS_LABELS[row.status] : ''),
+    },
     { key: 'dueAt', header: 'Due', cell: (row) => (row.dueAt ? new Date(row.dueAt).toLocaleString() : '—') },
     { key: 'assignedTo', header: 'Assigned to', cell: (row) => row.assignedTo ?? '—' },
     { key: 'actions', header: '', cell: () => '' },
@@ -48,7 +55,9 @@ export class TicketListComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.columns = this.columns.map((column) => (column.key === 'actions' ? { ...column, cellTemplate: this.actionsCellTemplate } : column));
+    this.columns = this.columns.map((column) =>
+      column.key === 'actions' ? { ...column, cellTemplate: this.actionsCellTemplate } : column,
+    );
   }
 
   onQueryChange(query: DataTableQuery): void {

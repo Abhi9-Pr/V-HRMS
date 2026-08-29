@@ -2,10 +2,9 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AnnouncementReceiptsReportDto } from '../../../../core/api/generated/api-client';
-import { ApiError } from '../../../../core/http/api-error.model';
 import { TimezoneDatePipe } from '../../../../shared/pipes/timezone-date.pipe';
 import { AnnouncementsFacade } from '../../data/announcements.facade';
+import { AnnouncementReceiptsReportDto, ApiError } from 'vespera-shared';
 
 /** HR compliance view: who in an announcement's audience has (and hasn't) acknowledged it — see
  * GetAnnouncementReceiptsReportQueryHandler. Opened from the announcements widget, gated by

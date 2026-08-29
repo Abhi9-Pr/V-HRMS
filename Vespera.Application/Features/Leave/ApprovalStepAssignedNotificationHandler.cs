@@ -77,7 +77,14 @@ public sealed class ApprovalStepAssignedNotificationHandler : INotificationHandl
                 "Leave approval needed",
                 $"A leave request ({leaveRequest.Period.Start:yyyy-MM-dd} to {leaveRequest.Period.End:yyyy-MM-dd}, " +
                 $"{leaveRequest.RequestedDays} day(s)) needs your approval.",
-                new Dictionary<string, string> { ["email"] = recipient.Email.Value }),
+                new Dictionary<string, string>
+                {
+                    ["email"] = recipient.Email.Value,
+                    ["tenantId"] = tenantId.Value.ToString(),
+                    ["entityType"] = "LeaveRequest",
+                    ["entityId"] = leaveRequest.Id.Value.ToString(),
+                    ["deepLink"] = $"vespera://leave/approvals/{leaveRequest.Id.Value}",
+                }),
             cancellationToken);
     }
 

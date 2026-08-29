@@ -6,9 +6,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { AssetStatus, Currency, DepreciationMethod } from '../../../core/api/generated/api-client';
-import { Permissions } from '../../../core/authorization/permissions';
-import { ApiError } from '../../../core/http/api-error.model';
 import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
@@ -18,6 +15,7 @@ import { ErrorStateComponent } from '../../../shared/states/error-state.componen
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
 import { AssetsFacade } from '../data/assets.facade';
 import { ASSET_STATUS_LABELS, CURRENCY_LABELS, DEPRECIATION_METHOD_LABELS } from '../assets.labels';
+import { ApiError, AssetStatus, Currency, DepreciationMethod, Permissions } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-asset-detail',
@@ -47,7 +45,9 @@ export class AssetDetailComponent implements OnInit {
   readonly Permissions = Permissions;
   readonly AssetStatus = AssetStatus;
   readonly currencies = Object.values(Currency).filter((value): value is Currency => typeof value === 'number');
-  readonly depreciationMethods = Object.values(DepreciationMethod).filter((value): value is DepreciationMethod => typeof value === 'number');
+  readonly depreciationMethods = Object.values(DepreciationMethod).filter(
+    (value): value is DepreciationMethod => typeof value === 'number',
+  );
   readonly currencyLabel = (currency: Currency): string => CURRENCY_LABELS[currency];
   readonly statusLabel = (status: AssetStatus): string => ASSET_STATUS_LABELS[status];
   readonly depreciationMethodLabel = (method: DepreciationMethod): string => DEPRECIATION_METHOD_LABELS[method];

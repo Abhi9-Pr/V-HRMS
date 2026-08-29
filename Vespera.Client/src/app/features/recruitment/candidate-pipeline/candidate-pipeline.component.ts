@@ -6,13 +6,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { CandidateCardDto, PipelineStageDto } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
 import { RecruitmentFacade } from '../data/recruitment.facade';
 import { CANDIDATE_STATUS_LABELS } from '../recruitment.labels';
+import { ApiError, CandidateCardDto, PipelineStageDto } from 'vespera-shared';
 
 const UNASSIGNED_COLUMN_ID = '__unassigned__';
 
@@ -55,7 +54,8 @@ export class CandidatePipelineComponent implements OnInit {
 
   readonly loading = this.recruitmentFacade.pipelineLoading;
   readonly error = this.recruitmentFacade.pipelineError;
-  readonly statusLabel = (status: CandidateCardDto['status']): string => (status !== undefined ? CANDIDATE_STATUS_LABELS[status] : '');
+  readonly statusLabel = (status: CandidateCardDto['status']): string =>
+    status !== undefined ? CANDIDATE_STATUS_LABELS[status] : '';
 
   readonly columns = signal<PipelineColumn[]>([]);
   readonly dropError = signal<string | null>(null);
@@ -144,7 +144,12 @@ export class CandidatePipelineComponent implements OnInit {
       .pipe(
         catchError((apiError: ApiError) => {
           // Revert: move the card back to its original position in its original column.
-          transferArrayItem(targetContainerData, sourceContainerData, targetContainerData.indexOf(candidate), sourceIndex);
+          transferArrayItem(
+            targetContainerData,
+            sourceContainerData,
+            targetContainerData.indexOf(candidate),
+            sourceIndex,
+          );
           this.dropError.set(apiError.message);
           return of(null);
         }),

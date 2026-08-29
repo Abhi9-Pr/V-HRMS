@@ -1,4 +1,4 @@
-import { AnnouncementAudienceScope, AnnouncementPriority, RsvpResponse, TodoUrgency } from '../../core/api/generated/api-client';
+import { AnnouncementAudienceScope, AnnouncementPriority, RsvpResponse, TodoUrgency } from 'vespera-shared';
 
 /** Enums cross the wire as their numeric ordinal (see docs/CONTRIBUTING-frontend.md — no
  * JsonStringEnumConverter is configured API-wide), so every enum gets a label map here, the same
@@ -30,5 +30,10 @@ export const rsvpResponseLabels: Record<RsvpResponse, string> = {
 
 /** String-keyed variants for fields the backend already renders as `.ToString()` (e.g.
  * AnnouncementSummaryDto.priority, TodoItemDto.urgency) rather than the raw numeric enum. */
-export const priorityLabelByName: Record<string, string> = { Low: 'Low', Normal: 'Normal', High: 'High', Critical: 'Critical' };
+export const priorityLabelByName: Record<string, string> = {
+  Low: 'Low',
+  Normal: 'Normal',
+  High: 'High',
+  Critical: 'Critical',
+};
 export const urgencyLabelByName: Record<string, string> = { Low: 'Low', Medium: 'Medium', High: 'High' };

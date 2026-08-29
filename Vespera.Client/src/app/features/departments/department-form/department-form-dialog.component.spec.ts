@@ -2,10 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
-import { ApiError } from '../../../core/http/api-error.model';
 import { DepartmentsFacade } from '../data/departments.facade';
 import { DepartmentFormDialogComponent } from './department-form-dialog.component';
 import { DepartmentFormDialogData } from './department-form-dialog.model';
+import { ApiError } from 'vespera-shared';
 
 describe('DepartmentFormDialogComponent', () => {
   let fixture: ComponentFixture<DepartmentFormDialogComponent>;
@@ -48,12 +48,19 @@ describe('DepartmentFormDialogComponent', () => {
     fixture.componentInstance.form.controls.name.setValue('Platform Engineering');
     fixture.componentInstance.submit();
 
-    expect(facade.update).toHaveBeenCalledWith('dept-1', { name: 'Platform Engineering', parentDepartmentId: undefined });
+    expect(facade.update).toHaveBeenCalledWith('dept-1', {
+      name: 'Platform Engineering',
+      parentDepartmentId: undefined,
+    });
     expect(fixture.componentInstance.form.controls.code.disabled).toBe(true);
   });
 
   it('should show the API error message and not close on failure', () => {
-    const apiError: ApiError = { status: 409, code: 'department.code_conflict', message: 'That code is already in use.' };
+    const apiError: ApiError = {
+      status: 409,
+      code: 'department.code_conflict',
+      message: 'That code is already in use.',
+    };
     facade = { create: jest.fn().mockReturnValue(throwError(() => apiError)), update: jest.fn() };
     setup({ mode: 'create', availableParents: [] });
 

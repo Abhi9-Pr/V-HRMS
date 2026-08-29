@@ -5,10 +5,9 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { catchError, map, of } from 'rxjs';
-import { Currency } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { ExpensesFacade } from '../data/expenses.facade';
 import { CURRENCY_LABELS } from '../expenses.labels';
+import { ApiError, Currency } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-claim-create-dialog',

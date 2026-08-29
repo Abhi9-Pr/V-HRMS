@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { TokenStorageService } from 'vespera-shared';
 
 const REFRESH_TOKEN_KEY = 'vespera.refreshToken';
 const DEVICE_ID_KEY = 'vespera.deviceId';
@@ -10,11 +11,10 @@ const DEVICE_ID_KEY = 'vespera.deviceId';
  * `POST /auth/refresh` takes it in the JSON body and the API sets no cookies at all, so true
  * httpOnly storage isn't possible without a backend change out of this phase's scope. sessionStorage
  * (tab-scoped, gone on tab close, not shared cross-tab like localStorage) is the pragmatic
- * middle ground. Everything reads/writes through this one service, so swapping in a real
- * httpOnly-cookie flow later touches only this file.
+ * middle ground. Registered as the `TokenStorageService` port's implementation in app.config.ts.
  */
 @Injectable({ providedIn: 'root' })
-export class TokenStorageService {
+export class SessionStorageTokenStorageService implements TokenStorageService {
   private accessToken: string | null = null;
 
   getAccessToken(): string | null {

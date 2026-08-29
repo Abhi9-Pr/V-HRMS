@@ -4,7 +4,7 @@ import {
   JobRequisitionStatus,
   OfferLetterStatus,
   RequisitionApprovalStatus,
-} from '../../core/api/generated/api-client';
+} from 'vespera-shared';
 
 /**
  * These backend enums have no JsonStringEnumConverter, so NSwag generates them as bare numeric

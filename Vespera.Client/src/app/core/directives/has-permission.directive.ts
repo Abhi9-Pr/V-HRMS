@@ -1,6 +1,5 @@
 import { Directive, EffectRef, Input, OnDestroy, TemplateRef, ViewContainerRef, effect, inject } from '@angular/core';
-import { AuthService } from '../auth/auth.service';
-import { hasPermission } from '../auth/permission.util';
+import { AuthService, hasPermission } from 'vespera-shared';
 
 /** `*vesperaHasPermission="'Departments.Manage'"` — renders the host element only if the current
  * user has the permission (or every permission in an array). Structural, like *ngIf. Shares

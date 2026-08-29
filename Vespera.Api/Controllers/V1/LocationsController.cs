@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Vespera.Api.Authorization;
@@ -17,18 +18,50 @@ public sealed class LocationsController : ControllerBase
     private const string IdempotencyKeyHeader = "Idempotency-Key";
 
     private readonly ISender _sender;
+    private readonly ICompactResponseContext _compactResponseContext;
 
-    public LocationsController(ISender sender)
+    public LocationsController(ISender sender, ICompactResponseContext compactResponseContext)
     {
         _sender = sender;
+        _compactResponseContext = compactResponseContext;
     }
 
+    /// <summary>Supports conditional GET (see docs/api-mobile-contract.md) and the
+    /// <c>X-Response-Shape: compact</c> negotiation — a mobile caller gets back
+    /// <see cref="LocationSummaryDto"/> items instead of the full <see cref="LocationDto"/>.</summary>
     /// <response code="200">A page of locations.</response>
+    /// <response code="304">Nothing has changed since the given <c>If-None-Match</c> tag.</response>
     [HttpGet]
     [HasPermission(Permissions.Locations.Read)]
     [ProducesResponseType(typeof(PagedResult<LocationDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> List([FromQuery] PagedRequest paging, CancellationToken cancellationToken) =>
-        (await _sender.Send(new GetLocationsQuery(paging), cancellationToken)).ToActionResult(this);
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    public async Task<IActionResult> List([FromQuery] PagedRequest paging, CancellationToken cancellationToken)
+    {
+        var etagResult = await _sender.Send(new GetLocationsETagQuery(), cancellationToken);
+        if (etagResult.IsFailure)
+        {
+            return etagResult.ToActionResult(this);
+        }
+
+        if (ETagNegotiation.TryShortCircuit(HttpContext, etagResult.Value))
+        {
+            return new EmptyResult();
+        }
+
+        var result = await _sender.Send(new GetLocationsQuery(paging), cancellationToken);
+        if (result.IsFailure)
+        {
+            return result.ToActionResult(this);
+        }
+
+        if (_compactResponseContext.IsCompact)
+        {
+            return Ok(new PagedResult<LocationSummaryDto>(
+                result.Value.Items.Adapt<List<LocationSummaryDto>>(), result.Value.Page, result.Value.PageSize, result.Value.TotalCount));
+        }
+
+        return Ok(result.Value);
+    }
 
     /// <response code="200">The location.</response>
     /// <response code="404">No such location.</response>

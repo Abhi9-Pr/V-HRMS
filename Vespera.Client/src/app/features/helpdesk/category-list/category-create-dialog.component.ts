@@ -5,8 +5,8 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, map, of } from 'rxjs';
-import { ApiError } from '../../../core/http/api-error.model';
 import { HelpdeskFacade } from '../data/helpdesk.facade';
+import { ApiError } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-category-create-dialog',

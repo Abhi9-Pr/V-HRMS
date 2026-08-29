@@ -1,8 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
+import { DataTableQuery } from '../../../shared/data-table/data-table.model';
 import {
   AllocateSeatRequest,
   AllocateSeatResponse,
+  ApiError,
   AssetDetailDto,
   AssetDto,
   AssetOffboardingChecklistDto,
@@ -26,9 +28,7 @@ import {
   UnusedSeatsReportRowDto,
   UploadSignatureResponse,
   WriteOffRequest,
-} from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
-import { DataTableQuery } from '../../../shared/data-table/data-table.model';
+} from 'vespera-shared';
 
 /**
  * Wraps AssetsClient/LicensesClient/AssetRecoveriesClient/OffboardingChecklistsClient behind
@@ -168,17 +168,19 @@ export class AssetsFacade {
     this.pendingRecoveriesLoadingSignal.set(true);
     this.pendingRecoveriesErrorSignal.set(null);
 
-    this.recoveriesClient.assetRecoveries_GetPending(query.page, query.pageSize, query.sortBy, query.sortDescending).subscribe({
-      next: (result) => {
-        this.pendingRecoveriesSignal.set(result.items ?? []);
-        this.pendingRecoveriesTotalCountSignal.set(result.totalCount ?? 0);
-        this.pendingRecoveriesLoadingSignal.set(false);
-      },
-      error: (apiError: ApiError) => {
-        this.pendingRecoveriesErrorSignal.set(apiError);
-        this.pendingRecoveriesLoadingSignal.set(false);
-      },
-    });
+    this.recoveriesClient
+      .assetRecoveries_GetPending(query.page, query.pageSize, query.sortBy, query.sortDescending)
+      .subscribe({
+        next: (result) => {
+          this.pendingRecoveriesSignal.set(result.items ?? []);
+          this.pendingRecoveriesTotalCountSignal.set(result.totalCount ?? 0);
+          this.pendingRecoveriesLoadingSignal.set(false);
+        },
+        error: (apiError: ApiError) => {
+          this.pendingRecoveriesErrorSignal.set(apiError);
+          this.pendingRecoveriesLoadingSignal.set(false);
+        },
+      });
   }
 
   loadOffboardingChecklist(employeeId: string): void {
@@ -210,7 +212,10 @@ export class AssetsFacade {
   }
 
   uploadHandoverSignature(assignmentId: string, file: File): Observable<UploadSignatureResponse> {
-    return this.assetsClient.assets_UploadHandoverSignature(assignmentId, crypto.randomUUID(), { data: file, fileName: file.name });
+    return this.assetsClient.assets_UploadHandoverSignature(assignmentId, crypto.randomUUID(), {
+      data: file,
+      fileName: file.name,
+    });
   }
 
   recordCondition(assignmentId: string, request: RecordConditionRequest): Observable<void> {

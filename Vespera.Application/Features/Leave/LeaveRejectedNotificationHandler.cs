@@ -36,7 +36,14 @@ public sealed class LeaveRejectedNotificationHandler : INotificationHandler<Doma
                 recipient.Id.Value.ToString(),
                 "Leave request rejected",
                 $"Your leave request was rejected: {domainEvent.Reason}",
-                new Dictionary<string, string> { ["email"] = recipient.Email.Value }),
+                new Dictionary<string, string>
+                {
+                    ["email"] = recipient.Email.Value,
+                    ["tenantId"] = domainEvent.TenantId.Value.ToString(),
+                    ["entityType"] = "LeaveRequest",
+                    ["entityId"] = domainEvent.LeaveRequestId.Value.ToString(),
+                    ["deepLink"] = $"vespera://leave/requests/{domainEvent.LeaveRequestId.Value}",
+                }),
             cancellationToken);
     }
 }

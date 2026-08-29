@@ -6,10 +6,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { catchError, map, of } from 'rxjs';
-import { TicketPriority } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { HelpdeskFacade } from '../data/helpdesk.facade';
 import { TICKET_PRIORITY_LABELS } from '../helpdesk.labels';
+import { ApiError, TicketPriority } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-ticket-create-dialog',
@@ -22,7 +21,9 @@ export class TicketCreateDialogComponent {
   private readonly helpdeskFacade = inject(HelpdeskFacade);
   private readonly dialogRef = inject(MatDialogRef<TicketCreateDialogComponent>);
 
-  readonly priorities = Object.values(TicketPriority).filter((value): value is TicketPriority => typeof value === 'number');
+  readonly priorities = Object.values(TicketPriority).filter(
+    (value): value is TicketPriority => typeof value === 'number',
+  );
   readonly priorityLabel = (priority: TicketPriority): string => TICKET_PRIORITY_LABELS[priority];
 
   readonly saving = signal(false);

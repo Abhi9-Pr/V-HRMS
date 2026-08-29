@@ -1,4 +1,4 @@
-import { TicketPriority, TicketStatus } from '../../core/api/generated/api-client';
+import { TicketPriority, TicketStatus } from 'vespera-shared';
 
 /**
  * Neither backend enum has a JsonStringEnumConverter registered, so NSwag generates them as bare

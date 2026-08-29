@@ -3,13 +3,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
-import { AuthService } from '../../../core/auth/auth.service';
 import { ExpensesFacade } from '../data/expenses.facade';
 import { ClaimListComponent } from './claim-list.component';
+import { AuthService } from 'vespera-shared';
 
 describe('ClaimListComponent', () => {
   let fixture: ComponentFixture<ClaimListComponent>;
-  let facade: jest.Mocked<Pick<ExpensesFacade, 'loadMyClaims' | 'claims' | 'claimsTotalCount' | 'claimsLoading' | 'claimsError'>>;
+  let facade: jest.Mocked<
+    Pick<ExpensesFacade, 'loadMyClaims' | 'claims' | 'claimsTotalCount' | 'claimsLoading' | 'claimsError'>
+  >;
   let dialog: jest.Mocked<Pick<MatDialog, 'open'>>;
   let router: jest.Mocked<Pick<Router, 'navigate'>>;
 

@@ -5,8 +5,8 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, map, of } from 'rxjs';
-import { ApiError } from '../../../core/http/api-error.model';
 import { HelpdeskFacade } from '../data/helpdesk.facade';
+import { ApiError } from 'vespera-shared';
 
 /** Backend TimeOnly fields serialize as "HH:mm:ss" — there's no native Material time picker in
  * this codebase, so a plain `<input type="time">` (which yields "HH:mm") is padded to "HH:mm:ss"
@@ -46,7 +46,8 @@ export class SlaPolicyCreateDialogComponent {
     this.saving.set(true);
     this.error.set(null);
 
-    const { name, responseTimeHours, resolutionTimeHours, businessHoursStart, businessHoursEnd } = this.form.getRawValue();
+    const { name, responseTimeHours, resolutionTimeHours, businessHoursStart, businessHoursEnd } =
+      this.form.getRawValue();
 
     this.helpdeskFacade
       .createPolicy({

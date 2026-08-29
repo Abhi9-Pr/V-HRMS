@@ -20,12 +20,29 @@ public sealed class LeaveTypesController : ControllerBase
         _sender = sender;
     }
 
+    /// <summary>Supports conditional GET — see docs/api-mobile-contract.md's reference-data
+    /// caching convention.</summary>
     /// <response code="200">Every leave type configured for the tenant.</response>
+    /// <response code="304">Nothing has changed since the given <c>If-None-Match</c> tag.</response>
     [HttpGet]
     [HasPermission(Permissions.Leave.Request)]
     [ProducesResponseType(typeof(IReadOnlyList<LeaveTypeDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListLeaveTypes(CancellationToken cancellationToken) =>
-        (await _sender.Send(new GetLeaveTypesQuery(), cancellationToken)).ToActionResult(this);
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    public async Task<IActionResult> ListLeaveTypes(CancellationToken cancellationToken)
+    {
+        var etagResult = await _sender.Send(new GetLeaveTypesETagQuery(), cancellationToken);
+        if (etagResult.IsFailure)
+        {
+            return etagResult.ToActionResult(this);
+        }
+
+        if (ETagNegotiation.TryShortCircuit(HttpContext, etagResult.Value))
+        {
+            return new EmptyResult();
+        }
+
+        return (await _sender.Send(new GetLeaveTypesQuery(), cancellationToken)).ToActionResult(this);
+    }
 
     /// <response code="200">The new leave type's id.</response>
     [HttpPost]

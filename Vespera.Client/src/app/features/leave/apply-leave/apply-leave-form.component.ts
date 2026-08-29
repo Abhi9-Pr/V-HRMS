@@ -6,10 +6,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { catchError, map, of } from 'rxjs';
-import { ApiError } from '../../../core/http/api-error.model';
 import { DateRange, DateRangePickerComponent } from '../../../shared/date-range-picker/date-range-picker.component';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
 import { LeaveFacade } from '../data/leave.facade';
+import { ApiError } from 'vespera-shared';
 
 /** Excludes weekends and any date in `holidays` — the same rule
  * `Vespera.Domain.Services.LeaveDayCounter` applies server-side with the sandwich rule off. A

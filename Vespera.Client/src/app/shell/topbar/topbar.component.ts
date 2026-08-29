@@ -5,10 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router } from '@angular/router';
-import { AuthService } from '../../core/auth/auth.service';
-import { TenantResolutionService } from '../../core/api/tenant-resolution.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { AuthService, TenantResolutionService } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-topbar',

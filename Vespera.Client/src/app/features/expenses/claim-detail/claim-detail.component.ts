@@ -8,9 +8,6 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { Currency, ExpenseClaimStatus } from '../../../core/api/generated/api-client';
-import { Permissions } from '../../../core/authorization/permissions';
-import { ApiError } from '../../../core/http/api-error.model';
 import { HasPermissionDirective } from '../../../core/directives/has-permission.directive';
 import { FileUploaderComponent } from '../../../shared/file-uploader/file-uploader.component';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
@@ -21,6 +18,7 @@ import { ErrorStateComponent } from '../../../shared/states/error-state.componen
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
 import { ExpensesFacade } from '../data/expenses.facade';
 import { CURRENCY_LABELS, EXPENSE_CLAIM_STATUS_LABELS } from '../expenses.labels';
+import { ApiError, Currency, ExpenseClaimStatus, Permissions } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-claim-detail',
@@ -166,7 +164,14 @@ export class ClaimDetailComponent implements OnInit {
         this.addingLine.set(false);
         this.receiptReference.set(null);
         this.ocrConfidence.set(null);
-        this.lineForm.reset({ category: '', amount: 0, currency: Currency._0, expenseDate: new Date(), vendor: '', taxAmount: null });
+        this.lineForm.reset({
+          category: '',
+          amount: 0,
+          currency: Currency._0,
+          expenseDate: new Date(),
+          vendor: '',
+          taxAmount: null,
+        });
         this.reload();
       });
   }

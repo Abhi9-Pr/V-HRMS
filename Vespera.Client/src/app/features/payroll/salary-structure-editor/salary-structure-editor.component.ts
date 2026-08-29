@@ -7,9 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { catchError, of } from 'rxjs';
-import { SalaryStructuresClient } from '../../../core/api/generated/api-client';
-import { ApiError } from '../../../core/http/api-error.model';
 import { FormErrorComponent } from '../../../shared/form/form-error.component';
+import { ApiError, SalaryStructuresClient } from 'vespera-shared';
 
 type FormulaKind = 'FixedAmount' | 'PercentageOfComponent' | 'SumOfComponents' | 'RemainderOfCtc';
 
@@ -23,7 +22,14 @@ interface EditableLine {
 }
 
 function newLine(): EditableLine {
-  return { componentId: '', formulaKind: 'FixedAmount', fixedAmount: 0, referenceComponentId: '', percent: 0, sumComponentIds: '' };
+  return {
+    componentId: '',
+    formulaKind: 'FixedAmount',
+    fixedAmount: 0,
+    referenceComponentId: '',
+    percent: 0,
+    sumComponentIds: '',
+  };
 }
 
 /**
@@ -95,7 +101,12 @@ export class SalaryStructureEditorComponent {
       referenceComponentId: line.formulaKind === 'PercentageOfComponent' ? line.referenceComponentId : undefined,
       percent: line.formulaKind === 'PercentageOfComponent' ? line.percent : undefined,
       sumComponentIds:
-        line.formulaKind === 'SumOfComponents' ? line.sumComponentIds.split(',').map((id) => id.trim()).filter(Boolean) : undefined,
+        line.formulaKind === 'SumOfComponents'
+          ? line.sumComponentIds
+              .split(',')
+              .map((id) => id.trim())
+              .filter(Boolean)
+          : undefined,
     }));
 
     // Named create8 by the generated client: "Create" collides with several other controllers'
