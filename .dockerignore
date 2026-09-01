@@ -1,0 +1,23 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/.angular/
+.git
+.github
+.claude
+tests
+docs
+TestResults
+*.md
+
+# Both API and Client images build from repo root (npm workspaces need every workspace's
+# package.json present — see Vespera.Client/Dockerfile). Vespera.Mobile isn't built here, but its
+# package.json still has to reach the context for `npm ci` to resolve the workspace lockfile.
+Vespera.Mobile/**
+!Vespera.Mobile/package.json
+
+Vespera.Client/e2e/test-results
+Vespera.Client/e2e/playwright-report
+Vespera.Client/coverage
+Vespera.Client/*.log

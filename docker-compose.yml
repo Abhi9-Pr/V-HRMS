@@ -1,0 +1,96 @@
+# Full-stack local/demo/CI environment: db, api, client, redis, seq, otel-collector — one
+# `docker compose up -d` on a machine with only Docker gets a seeded, working app. See
+# docs/docker-compose.md for how this relates to the Phase 3 dev auto-provisioner (they are
+# separate mechanisms and must not be pointed at each other's database).
+#
+# The api service runs ASPNETCORE_ENVIRONMENT=Development on purpose (not Production): this stack
+# is a sandbox, so it keeps today's auto-migrate + auto-seed startup behavior. A real production
+# deploy uses the migration bundle (tools/publish-migrations-bundle.*) and ASPNETCORE_ENVIRONMENT=
+# Production instead, which does NOT auto-migrate — see DatabaseServiceCollectionExtensions.cs.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: vespera
+      POSTGRES_USER: vespera
+      POSTGRES_PASSWORD: vespera-compose-only
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vespera -d vespera"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      # Offset from the auto-provisioner's own default host port (55432, see
+      # appsettings.Development.json / tools/vespera-db.*) so both can coexist without a port
+      # clash if a developer has both running at once.
+      - "55433:5432"
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  seq:
+    image: datalust/seq:latest
+    environment:
+      ACCEPT_EULA: "Y"
+    volumes:
+      - seqdata:/data
+    ports:
+      - "8082:80"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./otel-collector-config.yml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+
+  api:
+    build:
+      context: .
+      dockerfile: Vespera.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      # appsettings.Development.json ships in the image and supplies everything else (JWT
+      # signing key, CORS origins, storage/OCR/virus-scan config) — only the database needs
+      # overriding here, from the file's default self-provisioning Mode to this stack's own db.
+      Vespera__Database__Mode: External
+      ConnectionStrings__VesperaExternal: "Host=db;Port=5432;Database=vespera;Username=vespera;Password=vespera-compose-only"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/live"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+
+  client:
+    build:
+      context: .
+      dockerfile: Vespera.Client/Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "4200:80"
+
+volumes:
+  pgdata:
+  redisdata:
+  seqdata:

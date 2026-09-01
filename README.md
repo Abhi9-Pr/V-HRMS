@@ -33,11 +33,30 @@ Dependencies point inward only: `Api -> Infrastructure -> Application -> Domain`
 
 ## Getting started
 
+### Option A — Docker only
+
+Requires nothing but Docker (with Compose v2, bundled with Docker Desktop and modern Docker
+Engine):
+
+```bash
+docker compose up -d --build
+```
+
+Wait for `docker compose ps` to show `api` and `client` as healthy, then open
+`http://localhost:4200` — the demo tenant (code `DEMO`) is already seeded; see
+`docs/CONTRIBUTING-frontend.md` for the seeded login credentials. See `docs/docker-compose.md`
+for how this stack relates to the auto-provisioner used by Option B below — the two must not be
+pointed at the same database.
+
+### Option B — running the API and client directly
+
 ```bash
 dotnet restore
 dotnet build
 dotnet test
 ```
+
+Then follow "Running the app against the real API" in `docs/CONTRIBUTING-frontend.md`.
 
 ## Contributing
 

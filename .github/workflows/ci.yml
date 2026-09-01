@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 env:
   DOTNET_NOLOGO: true
@@ -39,3 +39,28 @@ jobs:
         with:
           name: test-results
           path: TestResults
+
+  docker-build:
+    # Build-only verification that both Dockerfiles still produce an image — no push, no
+    # registry credentials needed yet. Push/deploy steps land once there's a pipeline stage
+    # (staging deploy) to actually consume the images.
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Vespera.Api/Dockerfile
+          push: false
+
+      - name: Build Client image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Vespera.Client/Dockerfile
+          push: false

@@ -1,0 +1,35 @@
+# Placeholder collector config for the docker-compose stack (see docker-compose.yml). Receives
+# OTLP and exports to its own debug log for now — the API doesn't emit any traces/metrics yet.
+# A later observability phase wires Vespera.Api up with the OpenTelemetry SDK and replaces the
+# debug exporter here with a real backend (e.g. an OTLP exporter pointed at Seq, which supports
+# OTLP ingestion directly).
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch: {}
+
+exporters:
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]

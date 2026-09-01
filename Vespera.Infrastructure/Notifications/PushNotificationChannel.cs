@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Vespera.Application.Abstractions.Persistence;
 using Vespera.Application.Abstractions.Services;
 using Vespera.Application.Features.Mobile;
@@ -17,12 +18,12 @@ public sealed class PushNotificationChannel : INotificationChannel
 {
     private static readonly string[] DeepLinkMetadataKeys = ["entityType", "entityId", "deepLink"];
 
-    private readonly IReadRepositoryAdmin<DeviceRegistration> _deviceRegistrationsAdmin;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly IPushSender _pushSender;
 
-    public PushNotificationChannel(IReadRepositoryAdmin<DeviceRegistration> deviceRegistrationsAdmin, IPushSender pushSender)
+    public PushNotificationChannel(IServiceScopeFactory scopeFactory, IPushSender pushSender)
     {
-        _deviceRegistrationsAdmin = deviceRegistrationsAdmin;
+        _scopeFactory = scopeFactory;
         _pushSender = pushSender;
     }
 
@@ -36,7 +37,15 @@ public sealed class PushNotificationChannel : INotificationChannel
             return;
         }
 
-        var devices = await _deviceRegistrationsAdmin.ListIgnoringFiltersAsync(
+        // This channel is registered as a singleton (see NotificationsServiceCollectionExtensions,
+        // matching every other INotificationChannel), but IReadRepositoryAdmin<DeviceRegistration>
+        // is EF-backed and scoped to a DbContext — resolving it via constructor injection fails
+        // DI's ValidateOnBuild check. A short-lived scope per send is the standard fix for a
+        // singleton that needs a scoped dependency.
+        using var scope = _scopeFactory.CreateScope();
+        var deviceRegistrationsAdmin = scope.ServiceProvider.GetRequiredService<IReadRepositoryAdmin<DeviceRegistration>>();
+
+        var devices = await deviceRegistrationsAdmin.ListIgnoringFiltersAsync(
             new ActiveDeviceRegistrationsByUserSpecification(new TenantId(tenantIdValue), new UserId(userIdValue)), cancellationToken);
         if (devices.Count == 0)
         {
