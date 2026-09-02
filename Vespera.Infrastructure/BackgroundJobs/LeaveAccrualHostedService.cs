@@ -85,7 +85,8 @@ public sealed class LeaveAccrualHostedService : BackgroundService
         {
             foreach (var employee in activeEmployees.Where(e => e.TenantId == policy.TenantId))
             {
-                var balance = await LoadOrOpenBalanceAsync(balancesAdmin, balanceWriter, policy.TenantId, employee.Id, policy.LeaveTypeId, cancellationToken);
+                var (balance, isNewBalance) = await LoadOrOpenBalanceAsync(
+                    balancesAdmin, balanceWriter, policy.TenantId, employee.Id, policy.LeaveTypeId, cancellationToken);
 
                 // Assess the carry-forward cap against the prior year's closing balance before this
                 // year's accrual is posted, so the January accrual never inflates what gets forfeited.
@@ -99,7 +100,16 @@ public sealed class LeaveAccrualHostedService : BackgroundService
                     postedCount++;
                 }
 
-                balanceWriter.Update(balance);
+                // A brand-new balance is already tracked as Added (see LoadOrOpenBalanceAsync) —
+                // calling Update() on it too would force its EF state to Modified, which emits an
+                // UPDATE instead of an INSERT for a row that doesn't exist yet, silently affecting
+                // zero rows and leaving its owned LeaveLedgerEntries with no parent row to reference
+                // (a foreign-key violation on SaveChanges). Same isNew-gated shape as
+                // AttendanceDayComputationHostedService's AttendanceDay writer.
+                if (!isNewBalance)
+                {
+                    balanceWriter.Update(balance);
+                }
             }
         }
 
@@ -157,7 +167,7 @@ public sealed class LeaveAccrualHostedService : BackgroundService
         return result.IsSuccess;
     }
 
-    private static async Task<LeaveBalance> LoadOrOpenBalanceAsync(
+    private static async Task<(LeaveBalance Balance, bool IsNew)> LoadOrOpenBalanceAsync(
         IReadRepositoryAdmin<LeaveBalance> balancesAdmin, IWriteRepository<LeaveBalance> balanceWriter,
         Domain.Common.TenantId tenantId, EmployeeId employeeId, LeaveTypeId leaveTypeId, CancellationToken cancellationToken)
     {
@@ -165,12 +175,12 @@ public sealed class LeaveAccrualHostedService : BackgroundService
             new LeaveBalanceByEmployeeAndTypeSpecification(tenantId, employeeId, leaveTypeId), cancellationToken);
         if (matches.Count > 0)
         {
-            return matches[0];
+            return (matches[0], false);
         }
 
         var balance = LeaveBalance.Open(tenantId, employeeId, leaveTypeId);
         await balanceWriter.AddAsync(balance, cancellationToken);
-        return balance;
+        return (balance, true);
     }
 
     private sealed class ActiveEmployeesSpecification : ISpecification<Employee>
