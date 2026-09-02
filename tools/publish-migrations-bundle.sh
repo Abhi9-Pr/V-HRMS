@@ -10,6 +10,12 @@
 #
 # Applying it:
 #   ./artifacts/efbundle --connection "Host=...;Database=...;Username=...;Password=..."
+#
+# NOTE: with no IDesignTimeDbContextFactory<VesperaDbContext>, `dotnet ef` has to build the whole
+# app host (via Vespera.Api's Program.cs) to locate the DbContext, which runs the app's own
+# Phase 3 auto-provisioner as a side effect — on a machine with a locally reachable Postgres this
+# can create/reuse a throwaway "vespera_dev" database while just building the bundle. Harmless,
+# but worth knowing before this runs somewhere unexpected.
 
 set -euo pipefail
 

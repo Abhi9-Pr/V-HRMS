@@ -21,6 +21,14 @@
     <!-- Bulk employee import (M7): CSV/Excel parsing lives at this layer, not Application -->
     <PackageReference Include="CsvHelper" />
     <PackageReference Include="ClosedXML" />
+    <!-- `dotnet ef` (migrations add/bundle/database update) needs the Design package on whichever
+         project is passed as the startup project itself — Vespera.Infrastructure's own reference
+         is PrivateAssets="all" so it doesn't flow out to here via the ProjectReference. See
+         tools/publish-migrations-bundle.*. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <!--
