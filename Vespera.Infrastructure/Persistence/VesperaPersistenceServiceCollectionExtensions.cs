@@ -33,6 +33,7 @@ public static class VesperaPersistenceServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.AddScoped<ITenantContext, HttpTenantContext>();
         services.AddScoped<ICurrentUser, HttpCurrentUser>();
+        services.AddScoped<ICorrelationIdProvider, HttpContextCorrelationIdProvider>();
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
         services.AddDataProtection();

@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 using System.Text.Json;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Vespera.Application.Abstractions.Services;
 using Vespera.Application.Common;
+using Vespera.Application.Observability;
 using Vespera.Domain.Common;
 using Vespera.Infrastructure.Persistence;
 using Vespera.Infrastructure.Persistence.Outbox;
@@ -34,12 +36,21 @@ public sealed class OutboxDispatcherHostedService : BackgroundService
     private readonly IOptions<BackgroundJobsOptions> _options;
     private readonly ILogger<OutboxDispatcherHostedService> _logger;
 
+    // Age of the oldest still-pending row as of the last poll — an ObservableGauge is pulled by
+    // the OTel SDK on its own export cadence, not pushed on every poll, so it just reads whatever
+    // this field was last set to rather than triggering a DB query itself.
+    private double _oldestPendingAgeSeconds;
+
     public OutboxDispatcherHostedService(
         IServiceScopeFactory scopeFactory, IOptions<BackgroundJobsOptions> options, ILogger<OutboxDispatcherHostedService> logger)
     {
         _scopeFactory = scopeFactory;
         _options = options;
         _logger = logger;
+
+        VesperaMetrics.Meter.CreateObservableGauge(
+            "vespera.outbox.lag_seconds", () => _oldestPendingAgeSeconds,
+            unit: "s", description: "Age of the oldest pending outbox message as of the last dispatcher poll.");
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -79,9 +90,17 @@ public sealed class OutboxDispatcherHostedService : BackgroundService
         // DateTimeOffset nor translate the combined nullable-OR condition alongside the enum
         // comparison. Pending rows are a small, actively-drained set in practice, so filtering
         // after a single fetch is a fine trade for portability across every supported provider.
-        var due = (await dbContext.Set<OutboxMessageEntity>()
-                .Where(m => m.Status == OutboxMessageStatus.Pending)
-                .ToListAsync(cancellationToken))
+        var pending = await dbContext.Set<OutboxMessageEntity>()
+            .Where(m => m.Status == OutboxMessageStatus.Pending)
+            .ToListAsync(cancellationToken);
+
+        // The lag gauge reflects the whole pending backlog, not just this poll's due-and-batched
+        // subset — a message stuck behind MaxBackoffSeconds retries should still show up as lag.
+        _oldestPendingAgeSeconds = pending.Count > 0
+            ? (now - pending.Min(m => m.OccurredOn)).TotalSeconds
+            : 0;
+
+        var due = pending
             .Where(m => m.NextAttemptAt is null || m.NextAttemptAt <= now)
             .OrderBy(m => m.OccurredOn)
             .Take(options.BatchSize)
@@ -89,6 +108,10 @@ public sealed class OutboxDispatcherHostedService : BackgroundService
 
         foreach (var message in due)
         {
+            using var correlationScope = message.CorrelationId is null
+                ? null
+                : _logger.BeginScope(new Dictionary<string, object> { ["CorrelationId"] = message.CorrelationId });
+
             try
             {
                 await DispatchAsync(message, publisher, notificationDispatcher, cancellationToken);

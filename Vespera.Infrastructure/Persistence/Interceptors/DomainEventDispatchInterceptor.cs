@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Vespera.Application.Abstractions.Services;
 using Vespera.Domain.Common;
 using Vespera.Infrastructure.Persistence.Outbox;
 
@@ -16,20 +17,27 @@ namespace Vespera.Infrastructure.Persistence.Interceptors;
 /// </summary>
 public sealed class DomainEventDispatchInterceptor : SaveChangesInterceptor
 {
+    private readonly ICorrelationIdProvider _correlationIdProvider;
+
+    public DomainEventDispatchInterceptor(ICorrelationIdProvider correlationIdProvider)
+    {
+        _correlationIdProvider = correlationIdProvider;
+    }
+
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
-        DispatchEvents(eventData.Context);
+        DispatchEvents(eventData.Context, _correlationIdProvider.Current);
         return base.SavingChanges(eventData, result);
     }
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
-        DispatchEvents(eventData.Context);
+        DispatchEvents(eventData.Context, _correlationIdProvider.Current);
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
-    private static void DispatchEvents(DbContext? context)
+    private static void DispatchEvents(DbContext? context, string? correlationId)
     {
         if (context is null)
         {
@@ -50,6 +58,7 @@ public sealed class DomainEventDispatchInterceptor : SaveChangesInterceptor
                 context.Add(new OutboxMessageEntity
                 {
                     Id = Guid.NewGuid(),
+                    CorrelationId = correlationId,
                     Type = eventType.AssemblyQualifiedName!,
                     Payload = JsonSerializer.Serialize(domainEvent, eventType),
                     OccurredOn = domainEvent.OccurredOn,

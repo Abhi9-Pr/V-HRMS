@@ -20,6 +20,13 @@ public sealed class OutboxMessageEntity
 
     public Guid? TenantId { get; set; }
 
+    /// <summary>The correlation id of the request that raised this message, if any — carried
+    /// forward so <see cref="BackgroundJobs.OutboxDispatcherHostedService"/> can log dispatch
+    /// against the same id, giving a single correlation id spanning the original request and the
+    /// async work it eventually triggered. Null when there was no ambient HTTP request (e.g. a
+    /// message written from another hosted service).</summary>
+    public string? CorrelationId { get; set; }
+
     /// <summary>Assembly-qualified CLR type name of the payload, used to deserialize <see cref="Payload"/>.</summary>
     public string Type { get; set; } = string.Empty;
 

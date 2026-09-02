@@ -12,6 +12,7 @@ public sealed class OutboxMessageEntityConfiguration : IEntityTypeConfiguration<
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id).ValueGeneratedNever();
 
+        builder.Property(e => e.CorrelationId).HasMaxLength(64);
         builder.Property(e => e.Type).IsRequired().HasMaxLength(1024);
         builder.Property(e => e.Payload).IsRequired();
         builder.Property(e => e.OccurredOn).IsRequired();

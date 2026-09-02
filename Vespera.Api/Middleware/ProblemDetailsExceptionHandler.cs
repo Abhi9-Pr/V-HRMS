@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Vespera.Application.Abstractions.Services;
 
 namespace Vespera.Api.Middleware;
 
@@ -22,7 +23,7 @@ public sealed class ProblemDetailsExceptionHandler : IExceptionHandler
     {
         LogUnhandledException(_logger, httpContext.Request.Method, httpContext.Request.Path, exception);
 
-        var correlationId = httpContext.Items.TryGetValue(CorrelationIdMiddleware.HttpContextItemKey, out var value) ? value : null;
+        var correlationId = httpContext.Items.TryGetValue(ICorrelationIdProvider.HttpContextItemKey, out var value) ? value : null;
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
         await httpContext.Response.WriteAsJsonAsync(

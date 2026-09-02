@@ -42,6 +42,10 @@ services:
     image: datalust/seq:latest
     environment:
       ACCEPT_EULA: "Y"
+      # Seq 2026.1+ refuses to start without an explicit first-run auth decision. No auth,
+      # matching every other service in this dev-only stack (db/redis/otel-collector are all
+      # open too) — this is not a production configuration.
+      SEQ_FIRSTRUN_NOAUTHENTICATION: "true"
     volumes:
       - seqdata:/data
     ports:
@@ -68,9 +72,17 @@ services:
       # overriding here, from the file's default self-provisioning Mode to this stack's own db.
       Vespera__Database__Mode: External
       ConnectionStrings__VesperaExternal: "Host=db;Port=5432;Database=vespera;Username=vespera;Password=vespera-compose-only"
+      # Serilog's Seq sink and the OTel OTLP exporter both already default to these compose
+      # hostnames in appsettings.Development.json — no override needed here, just startup
+      # ordering below. Both are non-blocking if unreachable (buffered/dropped, never crash
+      # the app), so a slow seq/otel-collector start doesn't hold up the api container.
     depends_on:
       db:
         condition: service_healthy
+      seq:
+        condition: service_started
+      otel-collector:
+        condition: service_started
     ports:
       - "8080:8080"
     healthcheck:

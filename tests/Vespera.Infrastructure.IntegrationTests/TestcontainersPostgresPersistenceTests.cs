@@ -88,7 +88,7 @@ public sealed class TestcontainersPostgresPersistenceTests : IAsyncLifetime
             new TenantGuardInterceptor(tenantAContext),
             new AuditableEntityInterceptor(dateTimeProvider, currentUser),
             new AuditLogInterceptor(currentUser),
-            new DomainEventDispatchInterceptor()))
+            new DomainEventDispatchInterceptor(Substitute.For<ICorrelationIdProvider>())))
         {
             var department = Department.Create(tenantA, "Engineering", "ENG", null, now, "seed").Value;
             writeContext.Add(department);

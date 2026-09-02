@@ -1,8 +1,12 @@
-# Placeholder collector config for the docker-compose stack (see docker-compose.yml). Receives
-# OTLP and exports to its own debug log for now — the API doesn't emit any traces/metrics yet.
-# A later observability phase wires Vespera.Api up with the OpenTelemetry SDK and replaces the
-# debug exporter here with a real backend (e.g. an OTLP exporter pointed at Seq, which supports
-# OTLP ingestion directly).
+# Receives OTLP traces/metrics from Vespera.Api (see TelemetryServiceCollectionExtensions.cs) and
+# re-exports them to Seq's own OTLP ingestion endpoints. Seq 2026.1+ natively ingests OTLP traces
+# and metrics (HTTP/protobuf at /ingest/otlp/v1/{traces,metrics}) and has dashboards built on top —
+# no separate Prometheus/Grafana needed for this stack. "logs" isn't wired: Vespera.Api's
+# structured logs go to Seq directly via Serilog.Sinks.Seq instead (see docs/observability.md for
+# why the two are kept separate), so this collector never receives a "logs" signal.
+#
+# gRPC OTLP would need TLS Seq isn't configured with here, so the app -> collector and
+# collector -> Seq hops both use HTTP/protobuf throughout.
 
 receivers:
   otlp:
@@ -16,20 +20,20 @@ processors:
   batch: {}
 
 exporters:
-  debug:
-    verbosity: detailed
+  otlphttp/seq:
+    # The collector appends /v1/traces and /v1/metrics itself; Seq's own docs say to configure
+    # the endpoint without those suffixes when going through a collector.
+    endpoint: http://seq/ingest/otlp
+    tls:
+      insecure: true
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug]
+      exporters: [otlphttp/seq]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug]
-    logs:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [debug]
+      exporters: [otlphttp/seq]

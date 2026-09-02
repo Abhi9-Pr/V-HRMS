@@ -14,11 +14,13 @@ public sealed class EfOutboxWriter : IOutboxWriter
 {
     private readonly VesperaDbContext _dbContext;
     private readonly ITenantContext _tenantContext;
+    private readonly ICorrelationIdProvider _correlationIdProvider;
 
-    public EfOutboxWriter(VesperaDbContext dbContext, ITenantContext tenantContext)
+    public EfOutboxWriter(VesperaDbContext dbContext, ITenantContext tenantContext, ICorrelationIdProvider correlationIdProvider)
     {
         _dbContext = dbContext;
         _tenantContext = tenantContext;
+        _correlationIdProvider = correlationIdProvider;
     }
 
     public async Task WriteAsync(OutboxMessage message, CancellationToken cancellationToken) =>
@@ -27,6 +29,7 @@ public sealed class EfOutboxWriter : IOutboxWriter
             {
                 Id = Guid.NewGuid(),
                 TenantId = _tenantContext.HasTenant ? _tenantContext.TenantId.Value : null,
+                CorrelationId = _correlationIdProvider.Current,
                 Type = message.Type,
                 Payload = message.Payload,
                 OccurredOn = message.OccurredOn,

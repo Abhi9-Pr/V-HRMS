@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using Vespera.Application.Abstractions.Identity;
+using Vespera.Application.Abstractions.Services;
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
 using Vespera.Domain.ValueObjects;
@@ -23,7 +24,8 @@ public class DomainEventDispatchInterceptorTests
         tenantContext.TenantId.Returns(TenantId);
 
         using var factory = new SqliteVesperaDbContextFactory();
-        using var dbContext = factory.Create(tenantContext, new FakePiiProtector(), new DomainEventDispatchInterceptor());
+        using var dbContext = factory.Create(
+            tenantContext, new FakePiiProtector(), new DomainEventDispatchInterceptor(Substitute.For<ICorrelationIdProvider>()));
 
         var employee = Employee.Onboard(
             TenantId, EmployeeCode.Create("EMP-100").Value, "Ada", "Lovelace",
@@ -43,5 +45,31 @@ public class DomainEventDispatchInterceptorTests
         outboxRows.Should().ContainSingle();
         outboxRows[0].Status.Should().Be(OutboxMessageStatus.Pending);
         outboxRows[0].Type.Should().Contain("EmployeeOnboarded");
+    }
+
+    [Fact]
+    public async Task SaveChangesAsync_Should_Stamp_The_Outbox_Row_With_The_Ambient_Correlation_Id()
+    {
+        var tenantContext = Substitute.For<ITenantContext>();
+        tenantContext.HasTenant.Returns(true);
+        tenantContext.TenantId.Returns(TenantId);
+
+        var correlationIdProvider = Substitute.For<ICorrelationIdProvider>();
+        correlationIdProvider.Current.Returns("test-correlation-id");
+
+        using var factory = new SqliteVesperaDbContextFactory();
+        using var dbContext = factory.Create(tenantContext, new FakePiiProtector(), new DomainEventDispatchInterceptor(correlationIdProvider));
+
+        var employee = Employee.Onboard(
+            TenantId, EmployeeCode.Create("EMP-101").Value, "Grace", "Hopper",
+            EmailAddress.Create("grace@vespera.test").Value, PhoneNumber.Create("+14155552672").Value,
+            new DateOnly(1990, 1, 1), new DateOnly(2026, 1, 1), DepartmentId.New(), DesignationId.New(), LocationId.New(),
+            Now, "seed").Value;
+
+        dbContext.Add(employee);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+
+        var outboxRow = (await dbContext.Set<OutboxMessageEntity>().ToListAsync(CancellationToken.None)).Single();
+        outboxRow.CorrelationId.Should().Be("test-correlation-id");
     }
 }

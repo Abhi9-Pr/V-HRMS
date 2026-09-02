@@ -15,6 +15,9 @@ builder.Configuration.AddCommandLine(args, new Dictionary<string, string>
     ["--db-mode"] = "Vespera:Database:Mode",
 });
 
+builder.AddVesperaLogging();
+builder.AddVesperaTelemetry();
+
 builder.AddVesperaDatabase();
 builder.AddVesperaIdentity();
 builder.AddVesperaApplication();

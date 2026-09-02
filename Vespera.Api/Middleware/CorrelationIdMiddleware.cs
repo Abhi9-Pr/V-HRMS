@@ -1,9 +1,10 @@
+using Vespera.Application.Abstractions.Services;
+
 namespace Vespera.Api.Middleware;
 
 public sealed class CorrelationIdMiddleware
 {
     public const string HeaderName = "X-Correlation-Id";
-    public const string HttpContextItemKey = "CorrelationId";
 
     private readonly RequestDelegate _next;
 
@@ -18,7 +19,7 @@ public sealed class CorrelationIdMiddleware
             ? existing.ToString()
             : Guid.NewGuid().ToString("N");
 
-        context.Items[HttpContextItemKey] = correlationId;
+        context.Items[ICorrelationIdProvider.HttpContextItemKey] = correlationId;
         context.Response.Headers[HeaderName] = correlationId;
 
         using (context.RequestServices.GetRequiredService<ILoggerFactory>()
