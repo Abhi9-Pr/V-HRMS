@@ -85,6 +85,34 @@ public class AssetOffboardingFlowTests : IClassFixture<VesperaWebApplicationFact
         checklist!.Items.Should().ContainSingle(i => i.Description.Contains(assetId.ToString()));
     }
 
+    [Fact]
+    public async Task Assign_Should_Return_NotFound_For_An_Asset_Owned_By_Another_Tenant()
+    {
+        var (rohanClient, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-asset-idor");
+
+        var ananyaId = await GetEmployeeIdByEmailAsync("ananya.iyer@demo.vespera.test");
+
+        var createAssetResponse = await rohanClient.PostAsJsonAsync("/api/v1/assets", new
+        {
+            assetTag = $"AST-{Guid.NewGuid():N}"[..12],
+            category = "Laptop",
+            purchaseCost = 80000m,
+            purchaseCostCurrency = Currency.Inr,
+            purchaseDate = new DateOnly(2026, 1, 1),
+            serialNumber = (string?)null,
+            macAddress = (string?)null,
+            warrantyExpiryDate = (DateOnly?)null,
+        });
+        createAssetResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var assetId = (await createAssetResponse.Content.ReadFromJsonAsync<IdResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        var assignAttempt = await otherTenantClient.PostAsJsonAsync($"/api/v1/assets/{assetId}/assign", new { employeeId = ananyaId });
+        assignAttempt.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private async Task DrainOutboxAsync()
     {
         using var scope = _factory.Services.CreateScope();

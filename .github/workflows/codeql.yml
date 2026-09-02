@@ -1,0 +1,48 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    # Catches newly-published CodeQL query patterns against unchanged code, not just new diffs.
+    - cron: "23 4 * * 1"
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # csharp covers Vespera.Domain/Application/Infrastructure/Api/tests; javascript-typescript
+        # covers Vespera.Client and Vespera.Mobile — one CodeQL run per language, same repo.
+        language: [csharp, javascript-typescript]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Setup .NET 8
+        if: matrix.language == 'csharp'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build (C# only — CodeQL needs a compiled build to analyze)
+        if: matrix.language == 'csharp'
+        run: dotnet build Vespera.sln --configuration Release
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"

@@ -1,0 +1,21 @@
+title = "Vespera gitleaks config"
+
+# Use gitleaks' own default rule set, then allowlist the specific, intentionally-fake secrets that
+# ship in this repo for local dev/test only — every one of them is named "dev-only"/"test-only" and
+# documented in AGENTS.md as never for production use. Allowlisting by exact string (not by whole
+# file) so a genuine secret accidentally added to the same files still gets caught.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known dev/test-only placeholder secrets, never used in production"
+regexes = [
+  '''dev-only-signing-key-not-for-production-use-32chars\+''',
+  '''dev-only-signing-secret-not-for-production-use''',
+  '''test-only-signing-key-not-for-production-use-32chars\+''',
+  '''integration-test-signing-key-not-for-production-32chars\+''',
+  # DevelopmentSeeder.DemoPassword — seeded demo-user password, Development/IntegrationTesting only.
+  '''Passw0rd!23456''',
+  # DevelopmentSeeder.FinanceAdminTotpSecretBase32 — seeded demo TOTP secret, same scope as above.
+  '''JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP''',
+]

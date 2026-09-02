@@ -57,6 +57,18 @@ public class PayrollMakerCheckerDryRunExecutorTests : IClassFixture<VesperaWebAp
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden, "Fatima created this run, even though Vikram (not her) ran its dry-run compute");
     }
 
+    [Fact]
+    public async Task Get_Should_Return_NotFound_For_A_PayrollRun_Owned_By_Another_Tenant()
+    {
+        var (_, _, payrollRunId) = await CreateRunWithDistinctCreatorAndDryRunExecutorAsync();
+
+        var otherTenantFinanceClient = await _factory.CreateSecondTenantFinanceAdminClientAsync();
+
+        var response = await otherTenantFinanceClient.GetAsync($"/api/v1/finance/payroll-runs/{payrollRunId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound, "a genuinely Finance.Admin caller in a different tenant should not see this run at all");
+    }
+
     /// <summary>Builds a second payroll run (month 6, distinct from the seeded demo run) directly
     /// through the domain — Fatima as creator, Vikram as dry-run executor — and drives it to
     /// Approved, exactly the state <c>PayrollController.Finalize</c> requires before either

@@ -107,6 +107,32 @@ public class BiometricDevicesCrudTests : IClassFixture<VesperaWebApplicationFact
         days.Should().Contain(d => d.Punches.Any(p => p.Source == PunchSource.Biometric));
     }
 
+    [Fact]
+    public async Task Resolving_A_Quarantined_Punch_Owned_By_Another_Tenant_Should_Return_NotFound()
+    {
+        var tenantId = new TenantId(await _factory.GetDemoTenantIdAsync());
+        Guid quarantineId;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<VesperaDbContext>();
+            var device = BiometricDevice.Register(
+                tenantId, Domain.Eis.LocationId.New(), BiometricVendorType.ZKTeco, "device.local", 4370, null,
+                DateTimeOffset.UtcNow, "seed").Value;
+            var entry = QuarantinedBiometricPunch.Create(
+                tenantId, device.Id, "ZK-UNMATCHED-IDOR", DateTimeOffset.UtcNow, PunchType.In, "rec-integration-idor");
+            dbContext.Add(device);
+            dbContext.Add(entry);
+            await dbContext.SaveChangesAsync();
+            quarantineId = entry.Id.Value;
+        }
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        var resolveResponse = await otherTenantClient.PostAsJsonAsync(
+            $"/api/v1/biometric-devices/quarantined-punches/{quarantineId}/resolve", new { employeeId = Guid.NewGuid() });
+        resolveResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private sealed record CreatedResponse(Guid Id);
 
     private sealed record BiometricDeviceResponse(Guid Id, string Host);

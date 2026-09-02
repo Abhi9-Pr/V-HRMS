@@ -87,6 +87,27 @@ public class LocationsCrudTests : IClassFixture<VesperaWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task Get_Update_Delete_Should_Return_NotFound_For_A_Location_Owned_By_Another_Tenant()
+    {
+        var (ownerClient, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-locations-idor-owner");
+
+        var createResponse = await ownerClient.PostAsJsonAsync(
+            "/api/v1/locations",
+            new { name = "Cross-Tenant Target", addressLine = "1 Isolation Way", city = "Pune", country = "India", latitude = 18.5204, longitude = 73.8567, timeZoneId = "Asia/Kolkata" });
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var id = (await createResponse.Content.ReadFromJsonAsync<CreatedResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        (await otherTenantClient.GetAsync($"/api/v1/locations/{id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.PutAsJsonAsync(
+            $"/api/v1/locations/{id}",
+            new { latitude = 0.0, longitude = 0.0, addressLine = "Hijacked", city = "Hijacked", country = "Hijacked" })).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.DeleteAsync($"/api/v1/locations/{id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private sealed record CreatedResponse(Guid Id);
 
     private sealed record LocationResponse(

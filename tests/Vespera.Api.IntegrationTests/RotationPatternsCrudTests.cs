@@ -92,6 +92,32 @@ public class RotationPatternsCrudTests : IClassFixture<VesperaWebApplicationFact
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task Get_Update_Delete_Should_Return_NotFound_For_A_RotationPattern_Owned_By_Another_Tenant()
+    {
+        var (client, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-rotation-patterns-idor-owner");
+
+        var shiftResponse = await client.PostAsJsonAsync(
+            "/api/v1/shifts", new { name = "IDOR Shift", startTime = "09:00:00", endTime = "18:00:00", graceMinutes = 10, breakMinutes = 0 });
+        shiftResponse.EnsureSuccessStatusCode();
+        var shift = await shiftResponse.Content.ReadFromJsonAsync<CreatedResponse>();
+
+        var createResponse = await client.PostAsJsonAsync(
+            "/api/v1/rotation-patterns",
+            new { name = "Cross-Tenant Target", days = new object[] { new { sequenceNumber = 0, shiftId = shift!.Id } } });
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var id = (await createResponse.Content.ReadFromJsonAsync<CreatedResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        (await otherTenantClient.GetAsync($"/api/v1/rotation-patterns/{id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.PutAsJsonAsync(
+            $"/api/v1/rotation-patterns/{id}",
+            new { days = new object[] { new { sequenceNumber = 0, shiftId = shift.Id } } })).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.DeleteAsync($"/api/v1/rotation-patterns/{id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private sealed record CreatedResponse(Guid Id);
 
     private sealed record RotationPatternDayResponse(int SequenceNumber, Guid? ShiftId);

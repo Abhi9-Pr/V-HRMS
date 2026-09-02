@@ -75,6 +75,34 @@ public class ReportingRelationshipsCrudTests : IClassFixture<VesperaWebApplicati
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task List_Should_Return_Empty_And_End_Should_Return_NotFound_For_A_Line_Owned_By_Another_Tenant()
+    {
+        var (client, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-reporting-relationships-idor-owner");
+
+        var (departmentId, designationId, locationId) = await CreateMastersAsync(client);
+        var manager = await CreateEmployeeAsync(client, departmentId, designationId, locationId);
+        var report = await CreateEmployeeAsync(client, departmentId, designationId, locationId);
+
+        var lineResponse = await client.PostAsJsonAsync(
+            $"/api/v1/employees/{report}/reports-to", new { managerId = manager, validFrom = "2026-01-01", validTo = (string?)null });
+        var lineId = (await lineResponse.Content.ReadFromJsonAsync<CreatedResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        // Unlike EmployeeDocumentsCrudTests' list endpoint, this one does not validate that
+        // employeeId belongs to the caller's tenant before listing — it returns whatever the
+        // tenant-scoped query filter leaves, which for another tenant's employeeId is always
+        // empty. No cross-tenant data is exposed either way; the response shape just differs.
+        var listResponse = await otherTenantClient.GetAsync($"/api/v1/employees/{report}/reports-to");
+        listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var lines = await listResponse.Content.ReadFromJsonAsync<List<ReportingRelationshipResponse>>();
+        lines.Should().BeEmpty();
+        (await otherTenantClient.PostAsJsonAsync($"/api/v1/employees/{report}/reports-to/{lineId}/end", new { validTo = "2026-06-30" }))
+            .StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private static async Task<(Guid DepartmentId, Guid DesignationId, Guid LocationId)> CreateMastersAsync(HttpClient client)
     {
         var departmentResponse = await client.PostAsJsonAsync(

@@ -109,6 +109,28 @@ public class OnboardingCrudTests : IClassFixture<VesperaWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task Get_PersonalDetails_Should_Return_NotFound_For_A_Draft_Owned_By_Another_Tenant()
+    {
+        var (client, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-onboarding-idor-owner");
+
+        var startResponse = await client.PostAsync("/api/v1/onboarding", null);
+        var draftId = (await startResponse.Content.ReadFromJsonAsync<IdResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        (await otherTenantClient.GetAsync($"/api/v1/onboarding/{draftId}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.PutAsJsonAsync($"/api/v1/onboarding/{draftId}/personal-details", new
+        {
+            firstName = "Hijacked",
+            lastName = "Draft",
+            workEmail = $"hijacked.{Guid.NewGuid():N}@vespera.test",
+            phone = "+14155552672",
+            dateOfBirth = "1992-05-01",
+        })).StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private static async Task<(Guid DepartmentId, Guid DesignationId, Guid LocationId)> CreateMastersAsync(HttpClient client)
     {
         var departmentResponse = await client.PostAsJsonAsync(

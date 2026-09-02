@@ -144,6 +144,46 @@ public class HelpdeskSlaEscalationFlowTests : IClassFixture<VesperaWebApplicatio
         report.ByCategory.Should().ContainSingle(c => c.CategoryId == categoryId && c.Breached == 1);
     }
 
+    [Fact]
+    public async Task Get_Should_Return_NotFound_For_A_Ticket_Owned_By_Another_Tenant()
+    {
+        var tenantId = await _factory.GetDemoTenantIdAsync();
+        var rohanClient = await CreateAuthenticatedClientAsync(
+            _factory, tenantId, "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-helpdesk-idor");
+
+        var hrDepartmentId = await GetDepartmentIdByCodeAsync("HR");
+
+        var createPolicyResponse = await rohanClient.PostAsJsonAsync("/api/v1/helpdesk/sla-policies", new
+        {
+            name = $"IdorPolicy-{Guid.NewGuid():N}"[..20],
+            responseTimeHours = 2,
+            resolutionTimeHours = 10,
+            businessHoursStart = new TimeOnly(9, 0),
+            businessHoursEnd = new TimeOnly(18, 0),
+        });
+        createPolicyResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var slaPolicyId = (await createPolicyResponse.Content.ReadFromJsonAsync<IdResponse>())!.Id;
+
+        var createCategoryResponse = await rohanClient.PostAsJsonAsync("/api/v1/helpdesk/ticket-categories", new
+        {
+            name = $"IdorCategory-{Guid.NewGuid():N}"[..20], departmentId = hrDepartmentId, defaultSlaPolicyId = slaPolicyId,
+        });
+        createCategoryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var categoryId = (await createCategoryResponse.Content.ReadFromJsonAsync<IdResponse>())!.Id;
+
+        var raiseTicketResponse = await rohanClient.PostAsJsonAsync("/api/v1/helpdesk/tickets", new
+        {
+            categoryId, subject = "IDOR probe", description = "Cross-tenant ticket access test.", priority = TicketPriority.Low,
+        });
+        raiseTicketResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var ticketId = (await raiseTicketResponse.Content.ReadFromJsonAsync<IdResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        var getAttempt = await otherTenantClient.GetAsync($"/api/v1/helpdesk/tickets/{ticketId}");
+        getAttempt.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private static async Task<HttpClient> CreateAuthenticatedClientAsync(
         WebApplicationFactory<Program> factory, Guid tenantId, string email, string password, string deviceId, string? totpCode = null)
     {

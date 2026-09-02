@@ -96,6 +96,49 @@ public class OffboardingCrudTests : IClassFixture<VesperaWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task Get_Should_Return_NotFound_For_A_Checklist_Owned_By_Another_Tenant()
+    {
+        var (client, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-offboarding-idor-owner");
+
+        var departmentResponse = await client.PostAsJsonAsync("/api/v1/departments", new { name = "Ops IDOR", code = $"OPI-{Guid.NewGuid():N}"[..16] });
+        var department = await departmentResponse.Content.ReadFromJsonAsync<CreatedResponse>();
+        var designationResponse = await client.PostAsJsonAsync(
+            "/api/v1/designations", new { title = $"Analyst-{Guid.NewGuid():N}", grade = 2 });
+        var designation = await designationResponse.Content.ReadFromJsonAsync<CreatedResponse>();
+        var locationResponse = await client.PostAsJsonAsync(
+            "/api/v1/locations",
+            new { name = "Ops IDOR Campus", addressLine = "1 Exit Way", city = "Pune", country = "India", latitude = 18.5204, longitude = 73.8567, timeZoneId = "Asia/Kolkata" });
+        var location = await locationResponse.Content.ReadFromJsonAsync<CreatedResponse>();
+
+        var createResponse = await client.PostAsJsonAsync("/api/v1/employees", new
+        {
+            code = $"EMP-{Guid.NewGuid():N}"[..12],
+            firstName = "Leaving",
+            lastName = "IdorTarget",
+            workEmail = $"leaving.idor.{Guid.NewGuid():N}@vespera.test",
+            phone = "+14155552671",
+            dateOfBirth = "1990-01-01",
+            dateOfJoining = "2020-01-15",
+            departmentId = department!.Id,
+            designationId = designation!.Id,
+            locationId = location!.Id,
+        });
+        var employeeId = (await createResponse.Content.ReadFromJsonAsync<CreatedResponse>())!.Id;
+
+        var exitResponse = await client.PostAsJsonAsync(
+            $"/api/v1/employees/{employeeId}/exit", new { exitDate = "2026-01-31", reason = "Resignation" });
+        exitResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        await DrainOutboxAsync();
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        (await otherTenantClient.GetAsync($"/api/v1/employees/{employeeId}/offboarding")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.PostAsync($"/api/v1/employees/{employeeId}/offboarding/confirm-assets-recovered", null))
+            .StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     /// <summary>Runs one real outbox-dispatch pass — the exact mechanism a live
     /// OutboxDispatcherHostedService would run on its poll interval, just invoked directly since
     /// that hosted service isn't registered under "IntegrationTesting".</summary>

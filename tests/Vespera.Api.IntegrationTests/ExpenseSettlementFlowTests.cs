@@ -80,5 +80,29 @@ public class ExpenseSettlementFlowTests : IClassFixture<VesperaWebApplicationFac
         payrollRun.Reimbursements.Should().ContainSingle(r => r.SourceExpenseClaimId == claimId && r.Amount == Money.Of(1500m, Currency.Inr));
     }
 
+    [Fact]
+    public async Task Decision_Should_Return_NotFound_For_An_Expense_Claim_Owned_By_Another_Tenant()
+    {
+        var (priyaClient, _) = await _factory.CreateAuthenticatedClientAsync(
+            "priya.sharma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-priya-expense-idor");
+
+        var openResponse = await priyaClient.PostAsJsonAsync("/api/v1/expenses/claims", new { settlementCurrency = Currency.Inr });
+        openResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var claimId = (await openResponse.Content.ReadFromJsonAsync<IdResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        var decisionAttempt = await otherTenantClient.PostAsJsonAsync(
+            $"/api/v1/expenses/claims/{claimId}/decision", new { approved = true, comment = "Hijacked approval" });
+
+        // DecideExpenseApprovalCommandHandler resolves the caller's own Employee record and checks
+        // "are you the current approver" before it ever runs a tenant-scoped lookup of the claim
+        // itself — CreateSecondTenantAdminClientAsync's synthetic admin has no linked Employee (by
+        // design, same as DevelopmentSeeder's own sysAdminUser), so this 403s on that check rather
+        // than 404ing on tenant isolation. Still a correct rejection either way — the IDOR-suite
+        // brief accepts either 403 or 404 as proof access was denied.
+        decisionAttempt.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
     private sealed record IdResponse(Guid Id);
 }

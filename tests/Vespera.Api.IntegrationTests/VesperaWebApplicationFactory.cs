@@ -7,8 +7,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Vespera.Application.Abstractions.Identity;
 using Vespera.Application.Abstractions.Services;
+using Vespera.Application.Authorization;
 using Vespera.Domain.IdentityAccess;
+using Vespera.Domain.ValueObjects;
+using Vespera.Infrastructure.Identity;
 using Vespera.Infrastructure.Persistence;
 using Vespera.Infrastructure.Persistence.Seed;
 
@@ -78,6 +82,152 @@ public sealed class VesperaWebApplicationFactory : WebApplicationFactory<Program
         client.DefaultRequestHeaders.Remove("X-Tenant-Id");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
         return (client, login);
+    }
+
+    /// <summary>Creates a brand-new second tenant with one Admin-equivalent user (every
+    /// permission except Finance.Admin — the same shape as DevelopmentSeeder's own admin role)
+    /// and logs in as them. For <c>CrossTenantIsolationTests</c>: a cross-tenant request made by a
+    /// user with equivalent privileges to the demo tenant's admin means a 404 response can only be
+    /// explained by tenant isolation, never by the caller simply lacking the permission for that
+    /// action.</summary>
+    public async Task<HttpClient> CreateSecondTenantAdminClientAsync()
+    {
+        var email = $"idor-admin-{Guid.NewGuid():N}@vespera.test";
+        Guid tenantId;
+
+        using (var scope = Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<VesperaDbContext>();
+            var credentialStore = scope.ServiceProvider.GetRequiredService<IUserCredentialStore>();
+
+            var now = DateTimeOffset.UtcNow;
+            const string createdBy = "test";
+
+            var tenant = Tenant.Create("IDOR Second Tenant", $"IDOR-{Guid.NewGuid():N}"[..12], now, createdBy).Value;
+            tenant.Reactivate(now, createdBy);
+            dbContext.Add(tenant);
+            var tid = tenant.Id;
+
+            var allPermissions = await dbContext.Set<Permission>().AsNoTracking().ToListAsync();
+            var role = Role.Create(tid, "IdorAdmin", now, createdBy).Value;
+            foreach (var permission in allPermissions.Where(p => p.Code != Permissions.Finance.Admin))
+            {
+                role.Grant(permission.Id, now, createdBy);
+            }
+
+            dbContext.Add(role);
+
+            var user = User.Create(tid, EmailAddress.Create(email).Value, null, now, createdBy);
+            user.AssignRole(role.Id, now, createdBy);
+            dbContext.Add(user);
+
+            // Not yet in the database — TransactionBehavior-style, nothing commits until the
+            // SaveChangesAsync below (same as DevelopmentSeeder's own credential staging).
+            await credentialStore.CreateAsync(user.Id, email, DevelopmentSeeder.DemoPassword, CancellationToken.None);
+            await dbContext.SaveChangesAsync(CancellationToken.None);
+
+            tenantId = tid.Value;
+        }
+
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Add("X-Tenant-Id", tenantId.ToString());
+
+        var response = await client.PostAsJsonAsync(
+            "/api/v1/auth/login", new { email, password = DevelopmentSeeder.DemoPassword, deviceId = "idor-test-device" });
+        response.EnsureSuccessStatusCode();
+
+        var login = await response.Content.ReadFromJsonAsync<LoginResponse>()
+            ?? throw new InvalidOperationException("Login did not return a body.");
+
+        client.DefaultRequestHeaders.Remove("X-Tenant-Id");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
+        return client;
+    }
+
+    /// <summary>Same shape as <see cref="CreateSecondTenantAdminClientAsync"/> but scoped to
+    /// exactly the permission set DevelopmentSeeder grants its own "Finance" role (vikram/fatima),
+    /// and TOTP-enrolled with the same fixed <see cref="DevelopmentSeeder.FinanceAdminTotpSecretBase32"/>
+    /// secret so login can compute a valid code via <see cref="TotpTestHelper"/>. For finance-wall
+    /// IDOR tests: the second-tenant caller must genuinely hold Finance.Admin (in a different
+    /// tenant) for a 404 there to prove tenant isolation rather than a missing permission.</summary>
+    public async Task<HttpClient> CreateSecondTenantFinanceAdminClientAsync()
+    {
+        var email = $"idor-finance-admin-{Guid.NewGuid():N}@vespera.test";
+        Guid tenantId;
+
+        using (var scope = Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<VesperaDbContext>();
+            var credentialStore = scope.ServiceProvider.GetRequiredService<IUserCredentialStore>();
+
+            var now = DateTimeOffset.UtcNow;
+            const string createdBy = "test";
+
+            var tenant = Tenant.Create("IDOR Second Finance Tenant", $"IDORFIN-{Guid.NewGuid():N}", now, createdBy).Value;
+            tenant.Reactivate(now, createdBy);
+            dbContext.Add(tenant);
+            var tid = tenant.Id;
+
+            var financePermissionCodes = new[]
+            {
+                Permissions.Finance.Admin,
+                Permissions.Payroll.Read,
+                Permissions.Payroll.Write,
+                Permissions.Payroll.Finalize,
+                Permissions.Expenses.ManagePolicy,
+                Permissions.Expenses.Settle,
+                Permissions.Recruitment.ApproveRequisitions,
+                Permissions.Workspace.ViewDashboard,
+            };
+            // Filtered in-memory (not via a translated .Where(p => financePermissionCodes
+            // .Contains(p.Code)) query) — that shape crashes EF's expression-tree interpreter on
+            // this array (ReadOnlySpan/generic-constraint failure inside
+            // ParameterExtractingExpressionVisitor), unrelated to the query's own logic.
+            var allPermissions = await dbContext.Set<Permission>().AsNoTracking().ToListAsync();
+            var permissions = allPermissions.Where(p => financePermissionCodes.Contains(p.Code)).ToList();
+
+            var role = Role.Create(tid, "IdorFinanceAdmin", now, createdBy).Value;
+            foreach (var permission in permissions)
+            {
+                role.Grant(permission.Id, now, createdBy);
+            }
+
+            dbContext.Add(role);
+
+            var user = User.Create(tid, EmailAddress.Create(email).Value, null, now, createdBy);
+            user.AssignRole(role.Id, now, createdBy);
+            dbContext.Add(user);
+
+            await credentialStore.CreateAsync(user.Id, email, DevelopmentSeeder.DemoPassword, CancellationToken.None);
+
+            // Same pattern as DevelopmentSeeder's own vikram/fatima TOTP enrollment: the
+            // ApplicationUser row credentialStore.CreateAsync just staged isn't in the database
+            // yet, so this reads the change tracker's local set rather than a query that would
+            // find nothing.
+            var applicationUser = dbContext.Set<ApplicationUser>().Local.Single(u => u.Id == user.Id.Value);
+            applicationUser.AuthenticatorKey = DevelopmentSeeder.FinanceAdminTotpSecretBase32;
+            applicationUser.TwoFactorEnabled = true;
+
+            await dbContext.SaveChangesAsync(CancellationToken.None);
+
+            tenantId = tid.Value;
+        }
+
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Add("X-Tenant-Id", tenantId.ToString());
+
+        var code = TotpTestHelper.ComputeCurrentCode(DevelopmentSeeder.FinanceAdminTotpSecretBase32);
+        var response = await client.PostAsJsonAsync(
+            "/api/v1/auth/login",
+            new { email, password = DevelopmentSeeder.DemoPassword, deviceId = "idor-finance-test-device", totpCode = code });
+        response.EnsureSuccessStatusCode();
+
+        var login = await response.Content.ReadFromJsonAsync<LoginResponse>()
+            ?? throw new InvalidOperationException("Login did not return a body.");
+
+        client.DefaultRequestHeaders.Remove("X-Tenant-Id");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
+        return client;
     }
 
     protected override void Dispose(bool disposing)

@@ -72,6 +72,25 @@ public class DepartmentsCrudTests : IClassFixture<VesperaWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task Get_Update_Delete_Should_Return_NotFound_For_A_Department_Owned_By_Another_Tenant()
+    {
+        var (ownerClient, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-departments-idor-owner");
+
+        var createResponse = await ownerClient.PostAsJsonAsync(
+            "/api/v1/departments", new { name = "Cross-Tenant Target", code = $"XT-{Guid.NewGuid():N}"[..10] });
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var id = (await createResponse.Content.ReadFromJsonAsync<CreatedResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        (await otherTenantClient.GetAsync($"/api/v1/departments/{id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.PutAsJsonAsync(
+            $"/api/v1/departments/{id}", new { name = "Hijacked", parentDepartmentId = (Guid?)null })).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.DeleteAsync($"/api/v1/departments/{id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private sealed record CreatedResponse(Guid Id);
 
     private sealed record DepartmentResponse(Guid Id, string Name, string Code, Guid? ParentDepartmentId);

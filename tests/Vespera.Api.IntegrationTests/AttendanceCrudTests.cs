@@ -125,6 +125,23 @@ public class AttendanceCrudTests : IClassFixture<VesperaWebApplicationFactory>
         body.Should().Contain("attendance.punch.ip_not_allowed");
     }
 
+    [Fact]
+    public async Task Punch_For_An_Employee_Owned_By_Another_Tenant_Should_Not_Succeed()
+    {
+        var (hrClient, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-attendance-idor");
+        var priyaEmployeeId = await GetPriyaEmployeeIdAsync(hrClient);
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        var response = await otherTenantClient.PostAsJsonAsync("/api/v1/attendance/punch", new
+        {
+            employeeId = priyaEmployeeId, punchType = "In", latitude = HeadOfficeLatitude, longitude = HeadOfficeLongitude,
+        });
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NoContent, "an employee id from another tenant must never be a valid punch target");
+    }
+
     private static async Task<HttpClient> LoginAsync(WebApplicationFactory<Program> factory, Guid tenantId, string email)
     {
         var client = factory.CreateClient();

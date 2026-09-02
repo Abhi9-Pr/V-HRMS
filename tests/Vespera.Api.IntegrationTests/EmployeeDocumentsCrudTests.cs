@@ -99,6 +99,32 @@ public class EmployeeDocumentsCrudTests : IClassFixture<VesperaWebApplicationFac
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task GetDownloadUrl_Should_Return_NotFound_For_A_Document_Owned_By_Another_Tenant()
+    {
+        var (client, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-employee-documents-idor-owner");
+
+        var employeeId = await CreateEmployeeAsync(client);
+
+        using var uploadContent = new MultipartFormDataContent();
+        var fileContent = new ByteArrayContent("idor test bytes"u8.ToArray());
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+        uploadContent.Add(fileContent, "File", "passport.jpg");
+        uploadContent.Add(new StringContent("Id"), "DocumentType");
+        var uploadResponse = await client.PostAsync($"/api/v1/employees/{employeeId}/documents", uploadContent);
+        var documentId = (await uploadResponse.Content.ReadFromJsonAsync<UploadResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        // Cross-tenant employeeId means the parent lookup itself must fail before the document
+        // list/download-url is even reachable — confirmed 404 on both, not just the single-document path.
+        (await otherTenantClient.GetAsync($"/api/v1/employees/{employeeId}/documents/{documentId}/download-url"))
+            .StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.GetAsync($"/api/v1/employees/{employeeId}/documents"))
+            .StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private static async Task<Guid> CreateEmployeeAsync(HttpClient client)
     {
         var departmentResponse = await client.PostAsJsonAsync(

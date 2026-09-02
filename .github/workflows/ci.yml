@@ -40,6 +40,46 @@ jobs:
           name: test-results
           path: TestResults
 
+  security-scan:
+    # Dependency + secret scanning. SAST lives in its own workflow (codeql.yml) since CodeQL's
+    # own action manages triggers/scheduling differently from a plain job. Runs independently of
+    # build-and-test (no `needs`) so a vulnerable/leaked dependency is reported even if the build
+    # itself is red for an unrelated reason.
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks scans full history, not just the checked-out commit
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore (.NET)
+        run: dotnet restore Vespera.sln
+
+      - name: Scan .NET dependencies for known vulnerabilities
+        run: |
+          dotnet list Vespera.sln package --vulnerable --include-transitive 2>&1 | tee vulnerable-packages.txt
+          if grep -q "has the following vulnerable packages" vulnerable-packages.txt; then
+            echo "::error::Vulnerable NuGet packages found — see the step output above."
+            exit 1
+          fi
+
+      - name: Install npm workspace dependencies
+        run: npm ci
+
+      - name: Scan npm dependencies for known vulnerabilities
+        run: npm audit --audit-level=high
+
+      - name: Scan for committed secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   docker-build:
     # Build-only verification that both Dockerfiles still produce an image — no push, no
     # registry credentials needed yet. Push/deploy steps land once there's a pipeline stage

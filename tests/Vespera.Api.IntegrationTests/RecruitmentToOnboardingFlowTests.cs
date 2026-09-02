@@ -182,6 +182,27 @@ public class RecruitmentToOnboardingFlowTests : IClassFixture<VesperaWebApplicat
         newEmployee.DateOfJoining.Should().Be(joiningDate);
     }
 
+    [Fact]
+    public async Task Get_Should_Return_NotFound_For_A_Requisition_Owned_By_Another_Tenant()
+    {
+        var (rohanClient, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-recruitment-idor");
+
+        var engineeringDepartmentId = await GetDepartmentIdByCodeAsync("ENG");
+
+        var createRequisitionResponse = await rohanClient.PostAsJsonAsync(
+            "/api/v1/recruitment/requisitions",
+            new { title = $"Cross-Tenant Target {Guid.NewGuid():N}", departmentId = engineeringDepartmentId, openingsCount = 1 });
+        createRequisitionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var requisitionId = (await createRequisitionResponse.Content.ReadFromJsonAsync<IdResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        var response = await otherTenantClient.GetAsync($"/api/v1/recruitment/requisitions/{requisitionId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private static async Task<JobRequisitionResponse> GetRequisitionAsync(HttpClient client, Guid requisitionId) =>
         await client.GetFromJsonAsync<JobRequisitionResponse>($"/api/v1/recruitment/requisitions/{requisitionId}")
         ?? throw new InvalidOperationException();

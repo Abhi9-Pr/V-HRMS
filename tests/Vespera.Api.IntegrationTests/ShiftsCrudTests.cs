@@ -103,6 +103,25 @@ public class ShiftsCrudTests : IClassFixture<VesperaWebApplicationFactory>
         freshResponse.Headers.ETag.Should().NotBe(etag);
     }
 
+    [Fact]
+    public async Task Get_Update_Delete_Should_Return_NotFound_For_A_Shift_Owned_By_Another_Tenant()
+    {
+        var (client, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-shifts-idor-owner");
+
+        var createResponse = await client.PostAsJsonAsync(
+            "/api/v1/shifts", new { name = "Cross-Tenant Target", startTime = "09:00:00", endTime = "18:00:00", graceMinutes = 10, breakMinutes = 30 });
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var id = (await createResponse.Content.ReadFromJsonAsync<CreatedResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        (await otherTenantClient.GetAsync($"/api/v1/shifts/{id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.PutAsJsonAsync(
+            $"/api/v1/shifts/{id}", new { name = "Hijacked", startTime = "14:00:00", endTime = "22:00:00", breakMinutes = 45 })).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.DeleteAsync($"/api/v1/shifts/{id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private sealed record CreatedResponse(Guid Id);
 
     private sealed record ShiftResponse(Guid Id, string Name, int BreakMinutes);

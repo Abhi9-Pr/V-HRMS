@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # Central package management (Directory.Packages.props) means every .csproj shares one
+  # version set — a single NuGet entry rooted at the repo covers the whole solution.
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      dotnet-minor-patch:
+        update-types: ["minor", "patch"]
+
+  # npm workspaces (root package.json lists Vespera.Client and Vespera.Mobile) — one root
+  # package-lock.json covers both, same reasoning as the NuGet entry above.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      npm-minor-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

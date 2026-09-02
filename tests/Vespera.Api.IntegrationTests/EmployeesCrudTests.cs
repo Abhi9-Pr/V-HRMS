@@ -146,6 +146,53 @@ public class EmployeesCrudTests : IClassFixture<VesperaWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task GetById_Update_Should_Return_NotFound_For_An_Employee_Owned_By_Another_Tenant()
+    {
+        var (client, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-employees-idor-owner");
+
+        var departmentResponse = await client.PostAsJsonAsync("/api/v1/departments", new { name = "IDOR Dept", code = $"IDR-{Guid.NewGuid():N}"[..16] });
+        var department = await departmentResponse.Content.ReadFromJsonAsync<CreatedResponse>();
+        var designationResponse = await client.PostAsJsonAsync(
+            "/api/v1/designations", new { title = $"Researcher-{Guid.NewGuid():N}", grade = 3 });
+        var designation = await designationResponse.Content.ReadFromJsonAsync<CreatedResponse>();
+        var locationResponse = await client.PostAsJsonAsync(
+            "/api/v1/locations",
+            new { name = "IDOR Campus", addressLine = "2 Innovation Way", city = "Pune", country = "India", latitude = 18.5204, longitude = 73.8567, timeZoneId = "Asia/Kolkata" });
+        var location = await locationResponse.Content.ReadFromJsonAsync<CreatedResponse>();
+
+        var createResponse = await client.PostAsJsonAsync("/api/v1/employees", new
+        {
+            code = $"EMP-{Guid.NewGuid():N}"[..12],
+            firstName = "Cross",
+            lastName = "Tenant",
+            workEmail = $"cross.tenant.{Guid.NewGuid():N}@vespera.test",
+            phone = "+33612345678",
+            dateOfBirth = "1990-01-01",
+            dateOfJoining = "2026-01-15",
+            departmentId = department!.Id,
+            designationId = designation!.Id,
+            locationId = location!.Id,
+        });
+        var id = (await createResponse.Content.ReadFromJsonAsync<CreatedResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        (await otherTenantClient.GetAsync($"/api/v1/employees/{id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.PutAsJsonAsync($"/api/v1/employees/{id}", new
+        {
+            firstName = "Hijacked",
+            lastName = "Employee",
+            workEmail = $"hijacked.{Guid.NewGuid():N}@vespera.test",
+            phone = "+14155552671",
+            pan = (string?)null,
+            bankAccount = (string?)null,
+            annualCtcAmount = (decimal?)null,
+            annualCtcCurrency = (string?)null,
+        })).StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private static async Task<Guid> FindEmployeeIdByFullNameAsync(HttpClient client, string fullName)
     {
         var response = await client.GetAsync("/api/v1/employees?page=1&pageSize=100");

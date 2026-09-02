@@ -190,6 +190,54 @@ public sealed class LeaveApprovalEngineTests : IClassFixture<VesperaWebApplicati
         mine!.Single(r => r.Id == submitted.LeaveRequestId).Status.Should().Be("Cancelled");
     }
 
+    [Fact]
+    public async Task Approve_Should_Return_NotFound_For_A_Leave_Request_Owned_By_Another_Tenant()
+    {
+        var tenantId = new TenantId(await _factory.GetDemoTenantIdAsync());
+        var now = DateTimeOffset.UtcNow;
+        var suffix = Guid.NewGuid().ToString("N")[..8];
+
+        var requester = await CreateEmployeeUserAsync(tenantId, "IdorRequester", suffix, "Employee");
+        var manager = await CreateEmployeeUserAsync(tenantId, "IdorManager", suffix, "Manager");
+
+        var from = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(14));
+        var to = from.AddDays(1);
+
+        Guid leaveTypeId;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<VesperaDbContext>();
+
+            dbContext.Add(ReportingRelationship.Create(tenantId, requester.EmployeeId, manager.EmployeeId, new DateOnly(2020, 1, 1), null).Value);
+
+            var leaveType = LeaveType.Create(tenantId, $"IdorLeave-{suffix}", isPaid: true, carryForwardLimit: 0, now, "test").Value;
+            var leavePolicy = LeavePolicy.Create(
+                tenantId, leaveType.Id, annualEntitlementDays: 12, accrualRatePerMonth: 1, maxCarryForwardDays: 0,
+                new DateOnly(2020, 1, 1), null).Value;
+            leavePolicy.ConfigureBalanceRules(NegativeBalancePolicy.AllowNegative, maxNegativeBalanceDays: 30, sandwichLeaveEnabled: true);
+
+            dbContext.AddRange(leaveType, leavePolicy);
+            await dbContext.SaveChangesAsync();
+
+            leaveTypeId = leaveType.Id.Value;
+        }
+
+        var (requesterClient, _) = await _factory.CreateAuthenticatedClientAsync(
+            requester.Email, DevelopmentSeeder.DemoPassword, $"device-{suffix}-idor-req");
+
+        var submitResponse = await requesterClient.PostAsJsonAsync("/api/v1/leave/requests", new
+        {
+            leaveTypeId, from, to, reason = "Cross-tenant IDOR test", acknowledgeInsufficientBalance = false,
+        });
+        submitResponse.StatusCode.Should().Be(HttpStatusCode.OK, await submitResponse.Content.ReadAsStringAsync());
+        var submitted = (await submitResponse.Content.ReadFromJsonAsync<SubmitResponse>())!;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        var approveAttempt = await otherTenantClient.PostAsync($"/api/v1/leave/requests/{submitted.LeaveRequestId}/approve", null);
+        approveAttempt.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private async Task<decimal> GetAvailableAsync(Guid leaveBalanceId)
     {
         using var scope = _factory.Services.CreateScope();

@@ -71,6 +71,18 @@ public class FinancePolicyWallTests : IClassFixture<VesperaWebApplicationFactory
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
+    [Fact]
+    public async Task Get_Should_Return_NotFound_For_A_PayrollRun_Owned_By_Another_Tenant()
+    {
+        var payrollRunId = await GetSeededPayrollRunIdAsync();
+
+        var otherTenantFinanceClient = await _factory.CreateSecondTenantFinanceAdminClientAsync();
+
+        var response = await otherTenantFinanceClient.GetAsync($"/api/v1/finance/payroll-runs/{payrollRunId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound, "a genuinely Finance.Admin caller in a different tenant should not see this run at all");
+    }
+
     private async Task<Guid> GetSeededPayrollRunIdAsync()
     {
         using var scope = _factory.Services.CreateScope();

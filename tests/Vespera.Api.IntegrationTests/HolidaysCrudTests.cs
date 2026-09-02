@@ -115,6 +115,31 @@ public class HolidaysCrudTests : IClassFixture<VesperaWebApplicationFactory>
         freshResponse.Headers.ETag.Should().NotBe(etag);
     }
 
+    [Fact]
+    public async Task Get_Update_Delete_Should_Return_NotFound_For_A_Holiday_Owned_By_Another_Tenant()
+    {
+        var (ownerClient, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-holidays-idor-owner");
+
+        var locationResponse = await ownerClient.PostAsJsonAsync(
+            "/api/v1/locations",
+            new { name = "IDOR Campus", addressLine = "1 Isolation Way", city = "Pune", country = "India", latitude = 18.5204, longitude = 73.8567, timeZoneId = "Asia/Kolkata" });
+        locationResponse.EnsureSuccessStatusCode();
+        var location = await locationResponse.Content.ReadFromJsonAsync<CreatedResponse>();
+
+        var createResponse = await ownerClient.PostAsJsonAsync(
+            "/api/v1/holidays", new { locationId = location!.Id, date = "2026-03-01", name = "Cross-Tenant Target" });
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var id = (await createResponse.Content.ReadFromJsonAsync<CreatedResponse>())!.Id;
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+
+        (await otherTenantClient.GetAsync($"/api/v1/holidays/{id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.PutAsJsonAsync(
+            $"/api/v1/holidays/{id}", new { name = "Hijacked", date = "2026-03-02" })).StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await otherTenantClient.DeleteAsync($"/api/v1/holidays/{id}")).StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private sealed record CreatedResponse(Guid Id);
 
     private sealed record HolidayResponse(Guid Id, Guid LocationId, string Name);

@@ -151,6 +151,37 @@ public class RegularizationsCrudTests : IClassFixture<VesperaWebApplicationFacto
         approveResponse.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task Approve_Should_Return_NotFound_For_A_Regularization_Owned_By_Another_Tenant()
+    {
+        var (hrClient, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-regularization-idor");
+        var priyaEmployeeId = await GetPriyaEmployeeIdAsync(hrClient);
+
+        var (priyaClient, _) = await _factory.CreateAuthenticatedClientAsync(
+            "priya.sharma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-priya-regularization-idor");
+
+        await ResetPriyaAttendanceDayAsync(priyaEmployeeId);
+        var inResponse = await priyaClient.PostAsJsonAsync(
+            "/api/v1/attendance/punch", new { employeeId = priyaEmployeeId, punchType = "In", latitude = (double?)null, longitude = (double?)null });
+        inResponse.StatusCode.Should().Be(HttpStatusCode.NoContent, await inResponse.Content.ReadAsStringAsync());
+
+        var day = await GetCurrentAttendanceDayAsync(priyaClient, priyaEmployeeId);
+
+        using var submitContent = new MultipartFormDataContent
+        {
+            { new StringContent(day.Id.ToString()), "AttendanceDayId" },
+            { new StringContent("Forgot to punch out (IDOR test)"), "Reason" },
+        };
+        var submitResponse = await priyaClient.PostAsync("/api/v1/regularizations", submitContent);
+        var submitted = await submitResponse.Content.ReadFromJsonAsync<SubmitRegularizationResponse>(JsonOptions);
+
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+        var approveResponse = await otherTenantClient.PostAsync($"/api/v1/regularizations/{submitted!.Id}/approve", null);
+
+        approveResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     /// <summary>Runs one real outbox-dispatch pass — the exact mechanism a live
     /// OutboxDispatcherHostedService would run on its poll interval, just invoked directly since
     /// that hosted service isn't registered under "IntegrationTesting".</summary>

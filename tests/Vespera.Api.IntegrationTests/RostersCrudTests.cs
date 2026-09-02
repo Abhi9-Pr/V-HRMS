@@ -124,6 +124,73 @@ public class RostersCrudTests : IClassFixture<VesperaWebApplicationFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task Get_Should_Not_Return_Shift_Data_For_An_Employee_Owned_By_Another_Tenant()
+    {
+        var (client, _) = await _factory.CreateAuthenticatedClientAsync(
+            "rohan.verma@demo.vespera.test", DevelopmentSeeder.DemoPassword, "device-rohan-rosters-idor-owner");
+
+        var department = await CreateAsync(client, "/api/v1/departments", new { name = "Ops IDOR", code = $"OPSX-{Guid.NewGuid():N}"[..16] });
+        var designation = await CreateAsync(client, "/api/v1/designations", new { title = $"Analyst-{Guid.NewGuid():N}", grade = 2 });
+        var location = await CreateAsync(client, "/api/v1/locations", new
+        {
+            name = "Ops IDOR Campus", addressLine = "1 Ops Way", city = "Pune", country = "India",
+            latitude = 18.5204, longitude = 73.8567, timeZoneId = "Asia/Kolkata",
+        });
+        var employee = await CreateAsync(client, "/api/v1/employees", new
+        {
+            code = $"EMP-{Guid.NewGuid():N}"[..12],
+            firstName = "Xavier",
+            lastName = "IdorTarget",
+            workEmail = $"xavier.idor.{Guid.NewGuid():N}@vespera.test",
+            phone = "+14155552674",
+            dateOfBirth = "1990-01-01",
+            dateOfJoining = "2026-01-15",
+            departmentId = department.Id,
+            designationId = designation.Id,
+            locationId = location.Id,
+        });
+        var shift = await CreateAsync(client, "/api/v1/shifts", new { name = "IDOR Shift", startTime = "09:00:00", endTime = "18:00:00", graceMinutes = 10, breakMinutes = 0 });
+        var rotationPattern = await CreateAsync(client, "/api/v1/rotation-patterns", new
+        {
+            name = "IDOR Rotation",
+            days = new object[] { new { sequenceNumber = 0, shiftId = shift.Id } },
+        });
+
+        var rangeStart = new DateOnly(2026, 6, 1);
+        var rangeEnd = new DateOnly(2026, 6, 2);
+
+        var generateResponse = await client.PostAsJsonAsync("/api/v1/rosters/generate", new
+        {
+            rotationPatternId = rotationPattern.Id,
+            employeeIds = new[] { employee.Id },
+            rangeStart,
+            rangeEnd,
+            patternAnchorDate = rangeStart,
+        });
+        generateResponse.EnsureSuccessStatusCode();
+        var publishResponse = await client.PostAsJsonAsync("/api/v1/rosters/publish", new { employeeIds = new[] { employee.Id }, rangeStart, rangeEnd });
+        publishResponse.EnsureSuccessStatusCode();
+
+        // No single-resource {id} route exists here — rosters are queried by employeeId, so the
+        // isolation proof is that another tenant's employeeId either resolves to nothing (no
+        // matching employee, so no rows) or is rejected outright — never that Tenant A's actual
+        // shift assignment leaks into Tenant B's response.
+        var otherTenantClient = await _factory.CreateSecondTenantAdminClientAsync();
+        var response = await otherTenantClient.GetAsync(
+            $"/api/v1/rosters?rangeStart={rangeStart:yyyy-MM-dd}&rangeEnd={rangeEnd:yyyy-MM-dd}&employeeId={employee.Id}");
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            var result = await response.Content.ReadFromJsonAsync<RosterResultResponse>();
+            result!.Employees.Should().BeEmpty("the queried employee belongs to a different tenant and must not be resolvable");
+        }
+        else
+        {
+            response.StatusCode.Should().BeOneOf(HttpStatusCode.NotFound, HttpStatusCode.Forbidden);
+        }
+    }
+
     private static async Task<CreatedResponse> CreateAsync(HttpClient client, string url, object payload)
     {
         var response = await client.PostAsJsonAsync(url, payload);
