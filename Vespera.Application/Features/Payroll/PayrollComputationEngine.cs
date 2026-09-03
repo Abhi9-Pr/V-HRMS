@@ -19,7 +19,11 @@ public sealed class PayrollComputationEngine
 
     public PayrollComputationEngine(IEnumerable<IPayrollComponentRule> rules)
     {
-        _rules = [.. rules.OrderBy(rule => rule.Order)];
+        // Explicit type arguments on OrderBy, not inferred: Stryker's per-mutant recompilation loses
+        // type inference here regardless of collection-expression vs ToList() syntax, which silently
+        // excludes every mutation in this class from the mutation-testing run (see docs/testing.md).
+        // Pinning <IPayrollComponentRule, int> removes the inference step the mutated copy trips on.
+        _rules = rules.OrderBy<IPayrollComponentRule, int>(rule => rule.Order).ToList();
     }
 
     public PayrollLineInput ComputeForEmployee(PayrollContext context)
