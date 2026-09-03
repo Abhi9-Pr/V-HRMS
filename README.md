@@ -62,3 +62,15 @@ Then follow "Running the app against the real API" in `docs/CONTRIBUTING-fronten
 
 Read `AGENTS.md` before making changes — it defines the solution layout, SOLID rules, and
 coding standards that the architecture tests enforce.
+
+## Documentation map
+
+New to the codebase? Start at [`docs/onboarding.md`](docs/onboarding.md) — it's the reading order
+and the "how do I...?" index for everything below, not a duplicate of it.
+
+- [`docs/adr/`](docs/adr/) — architecture decision records: what was decided and why.
+- [`docs/mobile-integration-guide.md`](docs/mobile-integration-guide.md) — how to consume the API
+  from `Vespera.Mobile`.
+- [`docs/runbook.md`](docs/runbook.md) — operating a running deployment: health checks, logs,
+  rollback, migrations, known-pattern incidents.
+- [`docs/deployment.md`](docs/deployment.md) — the CI pipeline, image tagging, staging/production.
