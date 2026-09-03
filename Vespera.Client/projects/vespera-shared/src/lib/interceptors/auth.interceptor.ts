@@ -12,8 +12,15 @@ const TENANT_HEADER = 'X-Tenant-Id';
  * which run before any token exists — get `X-Tenant-Id` instead, from whatever tenant the login
  * screen already resolved via TenantResolutionService. */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  // `apiBaseUrl` is legitimately '' for a same-origin production deployment (see
+  // environment.prod.ts) — `''.startsWith('')` is true for every request, which is correct and
+  // intended. Only skip this interceptor when the DI token itself was never provided at all
+  // (`== null` catches both null and undefined, but not ''); a `!apiBaseUrl` falsy check would
+  // wrongly treat '' the same as "no token provided" and silently skip every request, which is
+  // exactly what happened here before this fix — no Authorization or X-Tenant-Id header was ever
+  // attached in any same-origin deployment.
   const apiBaseUrl = inject(API_BASE_URL, { optional: true });
-  if (!apiBaseUrl || !req.url.startsWith(apiBaseUrl)) {
+  if (apiBaseUrl == null || !req.url.startsWith(apiBaseUrl)) {
     return next(req);
   }
 
