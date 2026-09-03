@@ -71,7 +71,7 @@ export class PayslipViewerComponent implements OnInit {
     this.error.set(null);
 
     this.client
-      .generate({ payrollRunId, employeeId })
+      .payslips_Generate({ payrollRunId, employeeId })
       .pipe(
         catchError((apiError: ApiError) => {
           this.error.set(apiError.message);
@@ -94,7 +94,7 @@ export class PayslipViewerComponent implements OnInit {
     }
 
     this.client
-      .getDownloadUrl2(payslipId)
+      .payslips_GetDownloadUrl(payslipId)
       .pipe(
         catchError((apiError: ApiError) => {
           this.error.set(apiError.message);

@@ -240,6 +240,10 @@ public static class DevelopmentSeeder
             tid, EmployeeCode.Create("EMP-001").Value, "Priya", "Sharma",
             EmailAddress.Create("priya.sharma@demo.vespera.test").Value, PhoneNumber.Create("+919812345001").Value,
             new DateOnly(1994, 4, 12), new DateOnly(2024, 1, 15), engineering.Id, softwareEngineer.Id, headOffice.Id, now, createdBy).Value;
+        // The payroll fixture below (RecomputeLines for Priya) leads to a real payslip-generation
+        // flow in the app — GeneratePayslipCommandHandler needs a PAN on record for the payslip's
+        // password scheme (PAN + DOB day/month), which no seeded employee had until now.
+        priya.UpdateStatutoryDetails(PanNumber.Create("ABCDE1234F").Value, null, now, createdBy);
 
         var rohan = Employee.Onboard(
             tid, EmployeeCode.Create("EMP-002").Value, "Rohan", "Verma",
@@ -316,6 +320,17 @@ public static class DevelopmentSeeder
             applicationUser.AuthenticatorKey = FinanceAdminTotpSecretBase32;
             applicationUser.TwoFactorEnabled = true;
         }
+
+        // GeneratePayslipCommandHandler re-resolves a real SalaryStructure for the payslip's
+        // fine-grained line breakdown (the payroll run below only carries the rolled-up
+        // Gross/Deductions/Net) — a plain fixed-amount Basic line, valid for the whole FY, matching
+        // the run fixture's own Gross figure below so the two don't visibly disagree.
+        var basicComponent = SalaryComponent.Create(tid, "Basic", SalaryComponentType.Earning, isTaxable: true, now, createdBy).Value;
+        dbContext.Add(basicComponent);
+        dbContext.Add(SalaryStructure.Create(
+            tid, priya.Id, Money.Of(80000m, Currency.Inr),
+            [SalaryStructureLine.Of(basicComponent.Id, SalaryComponentFormula.FixedAmount(Money.Of(80000m, Currency.Inr)))],
+            fyStart, fyEnd).Value);
 
         // A payroll run "created" and dry-run by Vikram, driven through the real domain
         // transitions to Approved — used by FinancePolicyWallTests to prove maker-checker: Vikram

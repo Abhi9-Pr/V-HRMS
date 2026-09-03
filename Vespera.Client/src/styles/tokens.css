@@ -17,7 +17,7 @@
   --vespera-color-text-muted: #64748b;
   --vespera-color-danger: #dc2626;
   --vespera-color-warning: #d97706;
-  --vespera-color-success: #16a34a;
+  --vespera-color-success: #166534; /* darker than a typical brand green — #16a34a fails WCAG AA (4.5:1) for normal-size text on white */
 
   --vespera-space-1: 4px;
   --vespera-space-2: 8px;

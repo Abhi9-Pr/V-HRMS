@@ -14,11 +14,7 @@
   } @else {
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" role="list" aria-label="Dashboard widgets">
       @for (entry of facade.renderableWidgets(); track entry.preference.widgetKey) {
-        <section
-          class="rounded-lg border border-border bg-surface p-4"
-          [class]="sizeSpanClass(entry.preference.size)"
-          role="listitem"
-        >
+        <li class="rounded-lg border border-border bg-surface p-4" [class]="sizeSpanClass(entry.preference.size)">
           <h2 class="mb-3 flex items-center gap-2 text-sm font-semibold">
             <mat-icon aria-hidden="true" class="!text-base">{{ entry.registry.icon }}</mat-icon>
             {{ entry.registry.title }}
@@ -31,7 +27,7 @@
               {{ entry.envelope.errorMessage ?? 'This widget is temporarily unavailable.' }}
             </p>
           }
-        </section>
+        </li>
       }
 
       @if (facade.renderableWidgets().length === 0) {

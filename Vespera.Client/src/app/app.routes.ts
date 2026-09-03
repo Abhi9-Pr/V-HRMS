@@ -49,6 +49,14 @@ export const routes: Routes = [
         path: 'helpdesk',
         loadChildren: () => import('./features/helpdesk/helpdesk.routes').then((m) => m.HELPDESK_ROUTES),
       },
+      {
+        path: 'leave',
+        loadChildren: () => import('./features/leave/leave.routes').then((m) => m.LEAVE_ROUTES),
+      },
+      {
+        path: 'payroll',
+        loadChildren: () => import('./features/payroll/payroll.routes').then((m) => m.PAYROLL_ROUTES),
+      },
     ],
   },
   {

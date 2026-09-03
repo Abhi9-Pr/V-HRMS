@@ -1473,6 +1473,19 @@ export interface IAttendanceClient {
      * @return OK
      */
     attendance_Recompute(body?: RecomputeAttendanceDayRequest | undefined): Observable<void>;
+    /**
+     * Attendance status for many employees over a date range — the "team attendance"
+                screen. Bounded by paging (employee axis) and a 31-day cap on the range (query validator),
+                so this can never turn into an unbounded scan.
+     * @param departmentId (optional) 
+     * @param locationId (optional) 
+     * @param rangeStart (optional) 
+     * @param rangeEnd (optional) 
+     * @param page (optional) 
+     * @param pageSize (optional) 
+     * @return The requested page of the grid.
+     */
+    attendance_GetGrid(departmentId?: string | undefined, locationId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, page?: number | undefined, pageSize?: number | undefined): Observable<AttendanceGridRowDtoPagedResult>;
 }
 
 @Injectable()
@@ -1741,6 +1754,89 @@ export class AttendanceClient implements IAttendanceClient {
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Attendance status for many employees over a date range — the "team attendance"
+                screen. Bounded by paging (employee axis) and a 31-day cap on the range (query validator),
+                so this can never turn into an unbounded scan.
+     * @param departmentId (optional) 
+     * @param locationId (optional) 
+     * @param rangeStart (optional) 
+     * @param rangeEnd (optional) 
+     * @param page (optional) 
+     * @param pageSize (optional) 
+     * @return The requested page of the grid.
+     */
+    attendance_GetGrid(departmentId?: string | undefined, locationId?: string | undefined, rangeStart?: Date | undefined, rangeEnd?: Date | undefined, page?: number | undefined, pageSize?: number | undefined): Observable<AttendanceGridRowDtoPagedResult> {
+        let url_ = this.baseUrl + "/api/v1/attendance/grid?";
+        if (departmentId === null)
+            throw new globalThis.Error("The parameter 'departmentId' cannot be null.");
+        else if (departmentId !== undefined)
+            url_ += "DepartmentId=" + encodeURIComponent("" + departmentId) + "&";
+        if (locationId === null)
+            throw new globalThis.Error("The parameter 'locationId' cannot be null.");
+        else if (locationId !== undefined)
+            url_ += "LocationId=" + encodeURIComponent("" + locationId) + "&";
+        if (rangeStart === null)
+            throw new globalThis.Error("The parameter 'rangeStart' cannot be null.");
+        else if (rangeStart !== undefined)
+            url_ += "RangeStart=" + encodeURIComponent(rangeStart ? "" + rangeStart.toISOString() : "") + "&";
+        if (rangeEnd === null)
+            throw new globalThis.Error("The parameter 'rangeEnd' cannot be null.");
+        else if (rangeEnd !== undefined)
+            url_ += "RangeEnd=" + encodeURIComponent(rangeEnd ? "" + rangeEnd.toISOString() : "") + "&";
+        if (page === null)
+            throw new globalThis.Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAttendance_GetGrid(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAttendance_GetGrid(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<AttendanceGridRowDtoPagedResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<AttendanceGridRowDtoPagedResult>;
+        }));
+    }
+
+    protected processAttendance_GetGrid(response: HttpResponseBase): Observable<AttendanceGridRowDtoPagedResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as AttendanceGridRowDtoPagedResult;
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -3652,6 +3748,9 @@ export class DashboardClient implements IDashboardClient {
 
 export interface IDepartmentsClient {
     /**
+     * Supports conditional GET (see docs/api-mobile-contract.md) and the
+                `X-Response-Shape: compact` negotiation — a mobile caller gets back
+                Vespera.Application.Features.Departments.DepartmentSummaryDto items instead of the full Vespera.Application.Features.Departments.DepartmentDto.
      * @param page (optional) 
      * @param pageSize (optional) 
      * @param sortBy (optional) 
@@ -3693,6 +3792,9 @@ export class DepartmentsClient implements IDepartmentsClient {
     }
 
     /**
+     * Supports conditional GET (see docs/api-mobile-contract.md) and the
+                `X-Response-Shape: compact` negotiation — a mobile caller gets back
+                Vespera.Application.Features.Departments.DepartmentSummaryDto items instead of the full Vespera.Application.Features.Departments.DepartmentDto.
      * @param page (optional) 
      * @param pageSize (optional) 
      * @param sortBy (optional) 
@@ -3753,6 +3855,10 @@ export class DepartmentsClient implements IDepartmentsClient {
             let result200: any = null;
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as DepartmentDtoPagedResult;
             return _observableOf(result200);
+            }));
+        } else if (status === 304) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Nothing has changed since the given `If-None-Match` tag.", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -4008,6 +4114,9 @@ export class DepartmentsClient implements IDepartmentsClient {
 
 export interface IDesignationsClient {
     /**
+     * Supports conditional GET (see docs/api-mobile-contract.md) and the
+                `X-Response-Shape: compact` negotiation — a mobile caller gets back
+                Vespera.Application.Features.Designations.DesignationSummaryDto items instead of the full Vespera.Application.Features.Designations.DesignationDto.
      * @param page (optional) 
      * @param pageSize (optional) 
      * @param sortBy (optional) 
@@ -4049,6 +4158,9 @@ export class DesignationsClient implements IDesignationsClient {
     }
 
     /**
+     * Supports conditional GET (see docs/api-mobile-contract.md) and the
+                `X-Response-Shape: compact` negotiation — a mobile caller gets back
+                Vespera.Application.Features.Designations.DesignationSummaryDto items instead of the full Vespera.Application.Features.Designations.DesignationDto.
      * @param page (optional) 
      * @param pageSize (optional) 
      * @param sortBy (optional) 
@@ -4109,6 +4221,10 @@ export class DesignationsClient implements IDesignationsClient {
             let result200: any = null;
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as DesignationDtoPagedResult;
             return _observableOf(result200);
+            }));
+        } else if (status === 304) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Nothing has changed since the given `If-None-Match` tag.", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -4352,6 +4468,159 @@ export class DesignationsClient implements IDesignationsClient {
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("No such designation.", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+export interface IDeviceRegistrationsClient {
+    /**
+     * Registers this device for push, or — if the caller already registered this exact
+                device id — refreshes its push token and reactivates it. Safe to call on every app launch;
+                see RegisterDeviceCommandHandler's upsert-by-device-id doc comment.
+     * @param body (optional) 
+     * @return The device registration's id.
+     */
+    deviceRegistrations_Register(body?: RegisterDeviceRequest | undefined): Observable<RegisterDeviceResponse>;
+    /**
+     * Stops push delivery to one of the caller's own devices — call on sign-out.
+     * @return OK
+     */
+    deviceRegistrations_Deactivate(deviceRegistrationId: string): Observable<void>;
+}
+
+@Injectable()
+export class DeviceRegistrationsClient implements IDeviceRegistrationsClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * Registers this device for push, or — if the caller already registered this exact
+                device id — refreshes its push token and reactivates it. Safe to call on every app launch;
+                see RegisterDeviceCommandHandler's upsert-by-device-id doc comment.
+     * @param body (optional) 
+     * @return The device registration's id.
+     */
+    deviceRegistrations_Register(body?: RegisterDeviceRequest | undefined): Observable<RegisterDeviceResponse> {
+        let url_ = this.baseUrl + "/api/v1/mobile/devices";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeviceRegistrations_Register(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeviceRegistrations_Register(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RegisterDeviceResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RegisterDeviceResponse>;
+        }));
+    }
+
+    protected processDeviceRegistrations_Register(response: HttpResponseBase): Observable<RegisterDeviceResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as RegisterDeviceResponse;
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Validation failed.", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Stops push delivery to one of the caller's own devices — call on sign-out.
+     * @return OK
+     */
+    deviceRegistrations_Deactivate(deviceRegistrationId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/v1/mobile/devices/{deviceRegistrationId}";
+        if (deviceRegistrationId === undefined || deviceRegistrationId === null)
+            throw new globalThis.Error("The parameter 'deviceRegistrationId' must be defined.");
+        url_ = url_.replace("{deviceRegistrationId}", encodeURIComponent("" + deviceRegistrationId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeviceRegistrations_Deactivate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeviceRegistrations_Deactivate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeviceRegistrations_Deactivate(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not this device\'s owner.", status, _responseText, _headers);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("No such device registration.", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -7421,10 +7690,16 @@ export interface ILeaveClient {
      */
     leave_GetMyLeaveRequests(): Observable<LeaveRequestDto[]>;
     /**
+     * The `Idempotency-Key` header (if present) is what actually dedups this
+                command — see ApproveLeaveRequestCommand's IIdempotentRequest. Matters here specifically
+                because this is the action a push-notification deep link opens: a manager approving on
+                flaky mobile connectivity can safely retry without double-processing.
      * @return OK
      */
     leave_ApproveLeaveRequest(requestId: string): Observable<void>;
     /**
+     * The `Idempotency-Key` header (if present) is what actually dedups this
+                command — see RejectLeaveRequestCommand's IIdempotentRequest.
      * @param body (optional) 
      * @return OK
      */
@@ -7459,6 +7734,17 @@ export interface ILeaveClient {
      * @return OK
      */
     leave_EncashLeave(body?: EncashLeaveCommand | undefined): Observable<void>;
+    /**
+     * What's changed in the caller's own leave requests since since —
+                see docs/api-mobile-contract.md's delta-sync convention. Self-service only: always scoped
+                to whichever employee the caller's own account is linked to, never a request parameter.
+     * @param since (optional) 
+     * @param cursor (optional) 
+     * @param pageSize (optional) 
+     * @return Upserts since since (leave requests are never
+                tombstoned — see Vespera.Application.Features.Leave.GetMyLeaveDeltaSyncQuery's doc comment).
+     */
+    leave_Sync(since?: Date | undefined, cursor?: string | undefined, pageSize?: number | undefined): Observable<LeaveRequestSyncDtoDeltaSyncResult>;
 }
 
 @Injectable()
@@ -7586,6 +7872,10 @@ export class LeaveClient implements ILeaveClient {
     }
 
     /**
+     * The `Idempotency-Key` header (if present) is what actually dedups this
+                command — see ApproveLeaveRequestCommand's IIdempotentRequest. Matters here specifically
+                because this is the action a push-notification deep link opens: a manager approving on
+                flaky mobile connectivity can safely retry without double-processing.
      * @return OK
      */
     leave_ApproveLeaveRequest(requestId: string): Observable<void> {
@@ -7648,6 +7938,8 @@ export class LeaveClient implements ILeaveClient {
     }
 
     /**
+     * The `Idempotency-Key` header (if present) is what actually dedups this
+                command — see RejectLeaveRequestCommand's IIdempotentRequest.
      * @param body (optional) 
      * @return OK
      */
@@ -8068,6 +8360,75 @@ export class LeaveClient implements ILeaveClient {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * What's changed in the caller's own leave requests since since —
+                see docs/api-mobile-contract.md's delta-sync convention. Self-service only: always scoped
+                to whichever employee the caller's own account is linked to, never a request parameter.
+     * @param since (optional) 
+     * @param cursor (optional) 
+     * @param pageSize (optional) 
+     * @return Upserts since since (leave requests are never
+                tombstoned — see Vespera.Application.Features.Leave.GetMyLeaveDeltaSyncQuery's doc comment).
+     */
+    leave_Sync(since?: Date | undefined, cursor?: string | undefined, pageSize?: number | undefined): Observable<LeaveRequestSyncDtoDeltaSyncResult> {
+        let url_ = this.baseUrl + "/api/v1/leave/sync?";
+        if (since === null)
+            throw new globalThis.Error("The parameter 'since' cannot be null.");
+        else if (since !== undefined)
+            url_ += "since=" + encodeURIComponent(since ? "" + since.toISOString() : "") + "&";
+        if (cursor === null)
+            throw new globalThis.Error("The parameter 'cursor' cannot be null.");
+        else if (cursor !== undefined)
+            url_ += "cursor=" + encodeURIComponent("" + cursor) + "&";
+        if (pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processLeave_Sync(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processLeave_Sync(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LeaveRequestSyncDtoDeltaSyncResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LeaveRequestSyncDtoDeltaSyncResult>;
+        }));
+    }
+
+    protected processLeave_Sync(response: HttpResponseBase): Observable<LeaveRequestSyncDtoDeltaSyncResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as LeaveRequestSyncDtoDeltaSyncResult;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 export interface ILeavePoliciesClient {
@@ -8269,6 +8630,8 @@ export class LeavePoliciesClient implements ILeavePoliciesClient {
 
 export interface ILeaveTypesClient {
     /**
+     * Supports conditional GET — see docs/api-mobile-contract.md's reference-data
+                caching convention.
      * @return Every leave type configured for the tenant.
      */
     leaveTypes_ListLeaveTypes(): Observable<LeaveTypeDto[]>;
@@ -8296,6 +8659,8 @@ export class LeaveTypesClient implements ILeaveTypesClient {
     }
 
     /**
+     * Supports conditional GET — see docs/api-mobile-contract.md's reference-data
+                caching convention.
      * @return Every leave type configured for the tenant.
      */
     leaveTypes_ListLeaveTypes(): Observable<LeaveTypeDto[]> {
@@ -8336,6 +8701,10 @@ export class LeaveTypesClient implements ILeaveTypesClient {
             let result200: any = null;
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as LeaveTypeDto[];
             return _observableOf(result200);
+            }));
+        } else if (status === 304) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Nothing has changed since the given `If-None-Match` tag.", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -8799,6 +9168,9 @@ export class LicensesClient implements ILicensesClient {
 
 export interface ILocationsClient {
     /**
+     * Supports conditional GET (see docs/api-mobile-contract.md) and the
+                `X-Response-Shape: compact` negotiation — a mobile caller gets back
+                Vespera.Application.Features.Locations.LocationSummaryDto items instead of the full Vespera.Application.Features.Locations.LocationDto.
      * @param page (optional) 
      * @param pageSize (optional) 
      * @param sortBy (optional) 
@@ -8840,6 +9212,9 @@ export class LocationsClient implements ILocationsClient {
     }
 
     /**
+     * Supports conditional GET (see docs/api-mobile-contract.md) and the
+                `X-Response-Shape: compact` negotiation — a mobile caller gets back
+                Vespera.Application.Features.Locations.LocationSummaryDto items instead of the full Vespera.Application.Features.Locations.LocationDto.
      * @param page (optional) 
      * @param pageSize (optional) 
      * @param sortBy (optional) 
@@ -8900,6 +9275,10 @@ export class LocationsClient implements ILocationsClient {
             let result200: any = null;
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as LocationDtoPagedResult;
             return _observableOf(result200);
+            }));
+        } else if (status === 304) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Nothing has changed since the given `If-None-Match` tag.", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9317,6 +9696,79 @@ export class MobileAttendanceClient implements IMobileAttendanceClient {
             let result200: any = null;
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as AttendanceDaySummaryDtoDeltaSyncResult;
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+export interface IMobileBootstrapClient {
+    /**
+     * @return Everything the app needs to render its first screen.
+     */
+    mobileBootstrap_Get(): Observable<MobileBootstrapResponse>;
+}
+
+@Injectable()
+export class MobileBootstrapClient implements IMobileBootstrapClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return Everything the app needs to render its first screen.
+     */
+    mobileBootstrap_Get(): Observable<MobileBootstrapResponse> {
+        let url_ = this.baseUrl + "/api/v1/mobile/bootstrap";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMobileBootstrap_Get(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMobileBootstrap_Get(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MobileBootstrapResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MobileBootstrapResponse>;
+        }));
+    }
+
+    protected processMobileBootstrap_Get(response: HttpResponseBase): Observable<MobileBootstrapResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MobileBootstrapResponse;
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("The signed-in account isn\'t linked to an employee record.", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -13974,6 +14426,13 @@ export interface ISalaryStructuresClient {
      * @return The structure active for this employee on the given date, or null if none exists.
      */
     salaryStructures_GetForEmployee(employeeId: string, asOf?: Date | undefined): Observable<SalaryStructureDto>;
+    /**
+     * The prerequisite M:Vespera.Api.Controllers.V1.Finance.SalaryStructuresController.Create(Vespera.Application.Features.Payroll.CreateSalaryStructureCommand,System.Threading.CancellationToken) needs but never had an HTTP-reachable way
+                to satisfy — see Vespera.Application.Features.Payroll.CreateSalaryComponentCommand's own doc comment.
+     * @param body (optional) 
+     * @return The new component's id.
+     */
+    salaryStructures_CreateComponent(body?: CreateSalaryComponentCommand | undefined): Observable<string>;
 }
 
 @Injectable()
@@ -14098,6 +14557,63 @@ export class SalaryStructuresClient implements ISalaryStructuresClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as SalaryStructureDto;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * The prerequisite M:Vespera.Api.Controllers.V1.Finance.SalaryStructuresController.Create(Vespera.Application.Features.Payroll.CreateSalaryStructureCommand,System.Threading.CancellationToken) needs but never had an HTTP-reachable way
+                to satisfy — see Vespera.Application.Features.Payroll.CreateSalaryComponentCommand's own doc comment.
+     * @param body (optional) 
+     * @return The new component's id.
+     */
+    salaryStructures_CreateComponent(body?: CreateSalaryComponentCommand | undefined): Observable<string> {
+        let url_ = this.baseUrl + "/api/v1/finance/salary-structures/components";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSalaryStructures_CreateComponent(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSalaryStructures_CreateComponent(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string>;
+        }));
+    }
+
+    protected processSalaryStructures_CreateComponent(response: HttpResponseBase): Observable<string> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as string;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -16145,6 +16661,28 @@ export interface AttendanceDaySummaryDtoDeltaSyncResult {
     nextCursor?: string | undefined;
 }
 
+export interface AttendanceGridDayDto {
+    date?: Date;
+    status?: string | undefined;
+}
+
+export interface AttendanceGridRowDto {
+    employeeId?: string;
+    employeeCode?: string | undefined;
+    employeeName?: string | undefined;
+    days?: AttendanceGridDayDto[] | undefined;
+}
+
+export interface AttendanceGridRowDtoPagedResult {
+    items?: AttendanceGridRowDto[] | undefined;
+    page?: number;
+    pageSize?: number;
+    totalCount?: number;
+    readonly totalPages?: number;
+    readonly hasNextPage?: boolean;
+    readonly hasPreviousPage?: boolean;
+}
+
 export interface BankFileExportResult {
     fileName?: string | undefined;
     fileContent?: string | undefined;
@@ -16503,6 +17041,12 @@ export interface CreateRotationPatternResponse {
     id?: string;
 }
 
+export interface CreateSalaryComponentCommand {
+    name?: string | undefined;
+    componentType?: string | undefined;
+    isTaxable?: boolean;
+}
+
 export interface CreateSalaryStructureCommand {
     employeeId?: string;
     monthlyCtc?: number;
@@ -16640,6 +17184,12 @@ export interface DesignationDtoPagedResult {
     readonly hasPreviousPage?: boolean;
 }
 
+export enum DevicePlatform {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+}
+
 export interface DocumentDownloadUrlDto {
     url?: string | undefined;
     expiresAt?: Date;
@@ -16685,6 +17235,18 @@ export enum EmployeePiiField {
     _0 = 0,
     _1 = 1,
     _2 = 2,
+}
+
+export interface EmployeeProfileDto {
+    employeeId?: string;
+    code?: string | undefined;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    workEmail?: string | undefined;
+    departmentId?: string;
+    designationId?: string;
+    locationId?: string;
+    status?: string | undefined;
 }
 
 export interface EmployeeRosterDto {
@@ -16830,6 +17392,14 @@ export interface GenerateRosterRequest {
 
 export interface GenerateRosterResponse {
     rosterEntriesCreated?: number;
+}
+
+export interface GeofenceZoneDto {
+    id?: string;
+    name?: string | undefined;
+    latitude?: number;
+    longitude?: number;
+    radiusMetres?: number;
 }
 
 export interface HolidayDto {
@@ -16985,6 +17555,23 @@ export interface LeaveRequestDto {
     status?: string | undefined;
 }
 
+export interface LeaveRequestSyncDto {
+    id?: string;
+    employeeId?: string;
+    leaveTypeId?: string;
+    periodStart?: Date;
+    periodEnd?: Date;
+    requestedDays?: number;
+    status?: string | undefined;
+}
+
+export interface LeaveRequestSyncDtoDeltaSyncResult {
+    upserts?: LeaveRequestSyncDto[] | undefined;
+    tombstonedIds?: string[] | undefined;
+    syncedAt?: Date;
+    nextCursor?: string | undefined;
+}
+
 export interface LeaveTypeDto {
     id?: string;
     name?: string | undefined;
@@ -17032,6 +17619,19 @@ export interface LoginResult {
 
 export interface LogoutCommand {
     refreshToken?: string | undefined;
+}
+
+export interface MobileBootstrapDto {
+    profile?: EmployeeProfileDto;
+    upcomingShifts?: RosterDayDto[] | undefined;
+    geofences?: GeofenceZoneDto[] | undefined;
+    policyVersions?: PolicyVersionsDto;
+}
+
+export interface MobileBootstrapResponse {
+    bootstrap?: MobileBootstrapDto;
+    permissions?: string[] | undefined;
+    enabledFeatureFlags?: string[] | undefined;
 }
 
 export interface MoveToStageRequest {
@@ -17217,6 +17817,14 @@ export interface PipelineStageDto {
     sequenceNumber?: number;
 }
 
+export interface PolicyVersionsDto {
+    departments?: string | undefined;
+    designations?: string | undefined;
+    locations?: string | undefined;
+    leaveTypes?: string | undefined;
+    holidays?: string | undefined;
+}
+
 export interface ProblemDetails {
     type?: string | undefined;
     title?: string | undefined;
@@ -17349,6 +17957,16 @@ export interface RegisterBiometricDeviceRequest {
 }
 
 export interface RegisterBiometricDeviceResponse {
+    id?: string;
+}
+
+export interface RegisterDeviceRequest {
+    deviceId?: string | undefined;
+    platform?: DevicePlatform;
+    pushToken?: string | undefined;
+}
+
+export interface RegisterDeviceResponse {
     id?: string;
 }
 

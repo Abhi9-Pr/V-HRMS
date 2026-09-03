@@ -27,7 +27,11 @@ public sealed class LocalFileStorage : IFileStorage
     public async Task<string> UploadAsync(string fileName, Stream content, CancellationToken cancellationToken)
     {
         var storageKey = $"{Guid.NewGuid():N}-{fileName}";
-        await using var fileStream = File.Create(Path.Combine(_root, storageKey));
+        var path = Path.Combine(_root, storageKey);
+        // fileName carries its own subdirectories (e.g. "payslips/2026-09/EMP-001.pdf") —
+        // File.Create does not create missing parent directories itself.
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        await using var fileStream = File.Create(path);
         await content.CopyToAsync(fileStream, cancellationToken);
         return storageKey;
     }

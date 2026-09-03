@@ -13,14 +13,82 @@ export const Permissions = {
     Read: 'Payroll.Read',
     Write: 'Payroll.Write',
     Finalize: 'Payroll.Finalize',
+    SelfService: 'Payroll.SelfService',
   },
   Leave: {
     Request: 'Leave.Request',
     Approve: 'Leave.Approve',
+    Cancel: 'Leave.Cancel',
+    Encash: 'Leave.Encash',
+    ReadTeam: 'Leave.ReadTeam',
+    ManagePolicy: 'Leave.ManagePolicy',
+    ManageBlackout: 'Leave.ManageBlackout',
+    ManageDelegation: 'Leave.ManageDelegation',
   },
   Departments: {
     Read: 'Departments.Read',
     Manage: 'Departments.Manage',
+  },
+  Designations: {
+    Read: 'Designations.Read',
+    Manage: 'Designations.Manage',
+  },
+  Locations: {
+    Read: 'Locations.Read',
+    Manage: 'Locations.Manage',
+  },
+  EmployeeDocuments: {
+    Read: 'EmployeeDocuments.Read',
+    Manage: 'EmployeeDocuments.Manage',
+    Unmask: 'EmployeeDocuments.Unmask',
+  },
+  ReportingRelationships: {
+    Read: 'ReportingRelationships.Read',
+    Manage: 'ReportingRelationships.Manage',
+  },
+  OrgChart: {
+    Read: 'OrgChart.Read',
+  },
+  Onboarding: {
+    Read: 'Onboarding.Read',
+    Manage: 'Onboarding.Manage',
+  },
+  EmployeeImport: {
+    Manage: 'EmployeeImport.Manage',
+  },
+  Offboarding: {
+    Read: 'Offboarding.Read',
+    Manage: 'Offboarding.Manage',
+  },
+  Shifts: {
+    Read: 'Shifts.Read',
+    Manage: 'Shifts.Manage',
+  },
+  RotationPatterns: {
+    Read: 'RotationPatterns.Read',
+    Manage: 'RotationPatterns.Manage',
+  },
+  Rosters: {
+    Read: 'Rosters.Read',
+    Manage: 'Rosters.Manage',
+    Publish: 'Rosters.Publish',
+  },
+  Attendance: {
+    Read: 'Attendance.Read',
+    ReadTeam: 'Attendance.ReadTeam',
+    ManageTeam: 'Attendance.ManageTeam',
+  },
+  Regularizations: {
+    Request: 'Regularizations.Request',
+    Approve: 'Regularizations.Approve',
+    ReadTeam: 'Regularizations.ReadTeam',
+  },
+  Holidays: {
+    Read: 'Holidays.Read',
+    Manage: 'Holidays.Manage',
+  },
+  BiometricDevices: {
+    Manage: 'BiometricDevices.Manage',
   },
   Expenses: {
     Submit: 'Expenses.Submit',

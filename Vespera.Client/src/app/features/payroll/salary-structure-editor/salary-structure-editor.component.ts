@@ -109,10 +109,8 @@ export class SalaryStructureEditorComponent {
           : undefined,
     }));
 
-    // Named create8 by the generated client: "Create" collides with several other controllers'
-    // own action names — see departments.facade.ts's list2 for the same NSwag numbering.
     this.client
-      .create8({ employeeId, monthlyCtc, lines: lineRequests, validFrom, validTo: undefined })
+      .salaryStructures_Create({ employeeId, monthlyCtc, lines: lineRequests, validFrom, validTo: undefined })
       .pipe(
         catchError((apiError: ApiError) => {
           this.error.set(apiError.message);

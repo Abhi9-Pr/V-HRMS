@@ -56,7 +56,7 @@ export class InvestmentDeclarationComponent implements OnInit {
   private reload(): void {
     this.loading.set(true);
     this.client
-      .getMine(this.financialYear)
+      .investmentDeclarations_GetMine(this.financialYear)
       .pipe(
         catchError((apiError: ApiError) => {
           this.error.set(apiError.message);
@@ -81,7 +81,7 @@ export class InvestmentDeclarationComponent implements OnInit {
     const { section, amount, proofFileReference } = this.lineForm.getRawValue();
 
     this.client
-      .addLine({
+      .investmentDeclarations_AddLine({
         financialYear: this.financialYear,
         // TODO: no "choose your tax regime" UI exists yet - there's no GetTaxRegimeVersionsQuery
         // for this screen to list from. A real declaration needs the employee's actual chosen
@@ -112,7 +112,7 @@ export class InvestmentDeclarationComponent implements OnInit {
     this.error.set(null);
 
     this.client
-      .submit(this.financialYear)
+      .investmentDeclarations_Submit(this.financialYear)
       .pipe(
         catchError((apiError: ApiError) => {
           this.error.set(apiError.message);

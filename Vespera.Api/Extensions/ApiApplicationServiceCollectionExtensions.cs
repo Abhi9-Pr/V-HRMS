@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using Vespera.Api.Http;
 using Vespera.Api.Notifications;
+using Vespera.Api.Serialization;
 using Vespera.Application;
 using Vespera.Application.Abstractions.Services;
 
@@ -12,7 +13,8 @@ public static class ApiApplicationServiceCollectionExtensions
     {
         builder.Services.AddApplication();
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers()
+            .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new LenientDateOnlyJsonConverter()));
 
         builder.Services.AddApiVersioning(options =>
             {

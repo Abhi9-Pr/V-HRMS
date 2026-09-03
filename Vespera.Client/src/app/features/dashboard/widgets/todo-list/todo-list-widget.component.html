@@ -20,7 +20,7 @@
   <ul cdkDropList class="flex max-h-64 flex-col gap-1 overflow-y-auto" role="list" aria-label="My to-dos" (cdkDropListDropped)="drop($event)">
     @for (item of items(); track item.id) {
       <li cdkDrag role="listitem" class="flex items-center gap-2 rounded px-1 py-1 hover:bg-surface-alt">
-        <mat-checkbox [checked]="item.isDone" (change)="toggleDone(item, $event.checked)" [attr.aria-label]="item.title" />
+        <mat-checkbox [checked]="item.isDone" (change)="toggleDone(item, $event.checked)" [aria-label]="item.title ?? ''" />
         <span class="flex-1 text-sm" [class.line-through]="item.isDone" [class.text-muted]="item.isDone">
           {{ item.title }}
         </span>

@@ -86,6 +86,20 @@ public class LocalFileStorageTests : IDisposable
         text.Should().Be("hello world");
     }
 
+    [Fact]
+    public async Task UploadAsync_Should_Create_Missing_Subdirectories_In_The_File_Name()
+    {
+        // GeneratePayslipCommandHandler (and others) upload under a "category/period/file.ext"
+        // style key — File.Create does not create missing parent directories on its own.
+        using var content = new MemoryStream("hello"u8.ToArray());
+
+        var storageKey = await _storage.UploadAsync("payslips/2026-09/EMP-001.pdf", content, CancellationToken.None);
+
+        await using var downloaded = await _storage.DownloadAsync(storageKey, CancellationToken.None);
+        using var reader = new StreamReader(downloaded);
+        (await reader.ReadToEndAsync()).Should().Be("hello");
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_tempRoot))

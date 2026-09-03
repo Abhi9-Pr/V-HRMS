@@ -40,7 +40,7 @@ export class InvestmentDeclarationReviewComponent implements OnInit {
   private reload(): void {
     this.loading.set(true);
     this.client
-      .getReviewQueue(1, 50, undefined, undefined)
+      .investmentDeclarationReview_GetReviewQueue(1, 50, undefined, undefined)
       .pipe(
         catchError((apiError: ApiError) => {
           this.error.set(apiError.message);
@@ -56,7 +56,7 @@ export class InvestmentDeclarationReviewComponent implements OnInit {
 
   review(declarationId: string, lineIndex: number, approved: boolean, comment: string | null): void {
     this.client
-      .reviewLine(declarationId, lineIndex, { approved, comment: comment ?? undefined })
+      .investmentDeclarationReview_ReviewLine(declarationId, lineIndex, { approved, comment: comment ?? undefined })
       .pipe(
         catchError((apiError: ApiError) => {
           this.error.set(apiError.message);

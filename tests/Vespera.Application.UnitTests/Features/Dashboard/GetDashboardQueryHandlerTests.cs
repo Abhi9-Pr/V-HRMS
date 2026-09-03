@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Vespera.Application.Abstractions.Identity;
 using Vespera.Application.Abstractions.Persistence;
@@ -15,6 +17,7 @@ public class GetDashboardQueryHandlerTests
     private readonly IDashboardWidgetCache _cache = Substitute.For<IDashboardWidgetCache>();
     private readonly ITenantContext _tenantContext = Substitute.For<ITenantContext>();
     private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private readonly ILogger<GetDashboardQueryHandler> _logger = Substitute.For<ILogger<GetDashboardQueryHandler>>();
 
     public GetDashboardQueryHandlerTests()
     {
@@ -37,11 +40,30 @@ public class GetDashboardQueryHandlerTests
         return provider;
     }
 
+    /// <summary>
+    /// The handler resolves a fresh <see cref="IDashboardWidgetProvider"/> set from a new DI scope
+    /// per widget fetch (see GetDashboardQueryHandler's own doc comment on why) rather than reusing
+    /// the providers injected into its constructor — this fakes that scope factory so it hands back
+    /// the same test doubles the constructor already received.
+    /// </summary>
+    private static IServiceScopeFactory CreateScopeFactory(IReadOnlyList<IDashboardWidgetProvider> providers)
+    {
+        var serviceProvider = Substitute.For<IServiceProvider>();
+        serviceProvider.GetService(typeof(IEnumerable<IDashboardWidgetProvider>)).Returns(providers);
+
+        var scope = Substitute.For<IServiceScope>();
+        scope.ServiceProvider.Returns(serviceProvider);
+
+        var scopeFactory = Substitute.For<IServiceScopeFactory>();
+        scopeFactory.CreateScope().Returns(_ => scope);
+        return scopeFactory;
+    }
+
     [Fact]
     public async Task Handle_Should_Return_A_Successful_Envelope_For_Every_Visible_Widget()
     {
         var providers = new[] { CreateProvider("a", order: 0), CreateProvider("b", order: 1) };
-        var handler = new GetDashboardQueryHandler(_layouts, providers, _cache, _tenantContext, _currentUser);
+        var handler = new GetDashboardQueryHandler(_layouts, providers, _cache, _tenantContext, _currentUser, _logger, CreateScopeFactory(providers));
 
         var result = await handler.Handle(new GetDashboardQuery(), CancellationToken.None);
 
@@ -55,7 +77,8 @@ public class GetDashboardQueryHandlerTests
     {
         var brokenProvider = CreateProvider("broken", order: 0, payload: () => throw new InvalidOperationException("boom"));
         var healthyProvider = CreateProvider("healthy", order: 1);
-        var handler = new GetDashboardQueryHandler(_layouts, [brokenProvider, healthyProvider], _cache, _tenantContext, _currentUser);
+        IDashboardWidgetProvider[] providers = [brokenProvider, healthyProvider];
+        var handler = new GetDashboardQueryHandler(_layouts, providers, _cache, _tenantContext, _currentUser, _logger, CreateScopeFactory(providers));
 
         var result = await handler.Handle(new GetDashboardQuery(), CancellationToken.None);
 
@@ -75,7 +98,8 @@ public class GetDashboardQueryHandlerTests
         var failingProvider = CreateProvider(
             "failing", payload: () => Task.FromResult(Result.Failure<object?>(Error.Failure("widget.failed", "nope"))));
         var healthyProvider = CreateProvider("healthy", order: 1);
-        var handler = new GetDashboardQueryHandler(_layouts, [failingProvider, healthyProvider], _cache, _tenantContext, _currentUser);
+        IDashboardWidgetProvider[] providers = [failingProvider, healthyProvider];
+        var handler = new GetDashboardQueryHandler(_layouts, providers, _cache, _tenantContext, _currentUser, _logger, CreateScopeFactory(providers));
 
         var result = await handler.Handle(new GetDashboardQuery(), CancellationToken.None);
 
@@ -88,7 +112,8 @@ public class GetDashboardQueryHandlerTests
     {
         var hiddenProvider = CreateProvider("hidden", visible: false);
         var visibleProvider = CreateProvider("visible");
-        var handler = new GetDashboardQueryHandler(_layouts, [hiddenProvider, visibleProvider], _cache, _tenantContext, _currentUser);
+        IDashboardWidgetProvider[] providers = [hiddenProvider, visibleProvider];
+        var handler = new GetDashboardQueryHandler(_layouts, providers, _cache, _tenantContext, _currentUser, _logger, CreateScopeFactory(providers));
 
         var result = await handler.Handle(new GetDashboardQuery(), CancellationToken.None);
 

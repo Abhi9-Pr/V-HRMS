@@ -9,7 +9,7 @@ export const loadRuns$ = createEffect(
     actions$.pipe(
       ofType(PayrollActions.loadRuns),
       switchMap(({ page, pageSize }) =>
-        client.list8(page, pageSize, undefined, undefined).pipe(
+        client.payroll_List(page, pageSize, undefined, undefined).pipe(
           map((result) =>
             PayrollActions.loadRunsSuccess({ items: result.items ?? [], totalCount: result.totalCount ?? 0 }),
           ),
@@ -25,7 +25,7 @@ export const openRun$ = createEffect(
     actions$.pipe(
       ofType(PayrollActions.openRun),
       switchMap(({ month, year }) =>
-        client.open({ month, year, idempotencyKey: undefined }).pipe(
+        client.payroll_Open({ month, year, idempotencyKey: undefined }).pipe(
           map((payrollRunId) => PayrollActions.openRunSuccess({ payrollRunId })),
           catchError((error: ApiError) => of(PayrollActions.openRunFailure({ error }))),
         ),
@@ -39,11 +39,23 @@ export const loadRun$ = createEffect(
     actions$.pipe(
       ofType(PayrollActions.loadRun),
       switchMap(({ payrollRunId }) =>
-        client.getById7(payrollRunId).pipe(
+        client.payroll_GetById(payrollRunId).pipe(
           map((run) => PayrollActions.loadRunSuccess({ run })),
           catchError((error: ApiError) => of(PayrollActions.loadRunFailure({ error }))),
         ),
       ),
+    ),
+  { functional: true },
+);
+
+// Nothing else populates `currentRun` after a fresh open — without this, the wizard's own
+// `filter((run) => this.isNew() && run !== null)` subscription (its only navigation-to-the-new-run
+// trigger) never fires, and the "open a run" form just sits there with the button re-enabled.
+export const loadRunAfterOpen$ = createEffect(
+  (actions$ = inject(Actions)) =>
+    actions$.pipe(
+      ofType(PayrollActions.openRunSuccess),
+      map(({ payrollRunId }) => PayrollActions.loadRun({ payrollRunId })),
     ),
   { functional: true },
 );
@@ -56,7 +68,7 @@ export const freezeAttendance$ = createEffect(
     actions$.pipe(
       ofType(PayrollActions.freezeAttendance),
       switchMap(({ payrollRunId, overrideReason }) =>
-        client.freezeAttendance(payrollRunId, { overrideReason }).pipe(
+        client.payroll_FreezeAttendance(payrollRunId, { overrideReason }).pipe(
           map(() => PayrollActions.runTransitionSuccess({ payrollRunId })),
           catchError((error: ApiError) => of(PayrollActions.runTransitionFailure({ error }))),
         ),
@@ -70,7 +82,7 @@ export const runDryRun$ = createEffect(
     actions$.pipe(
       ofType(PayrollActions.runDryRun),
       switchMap(({ payrollRunId }) =>
-        client.runDryRun(payrollRunId).pipe(
+        client.payroll_RunDryRun(payrollRunId).pipe(
           map(() => PayrollActions.runTransitionSuccess({ payrollRunId })),
           catchError((error: ApiError) => of(PayrollActions.runTransitionFailure({ error }))),
         ),
@@ -84,7 +96,7 @@ export const submitForReview$ = createEffect(
     actions$.pipe(
       ofType(PayrollActions.submitForReview),
       switchMap(({ payrollRunId }) =>
-        client.submitForReview(payrollRunId).pipe(
+        client.payroll_SubmitForReview(payrollRunId).pipe(
           map(() => PayrollActions.runTransitionSuccess({ payrollRunId })),
           catchError((error: ApiError) => of(PayrollActions.runTransitionFailure({ error }))),
         ),
@@ -98,7 +110,7 @@ export const approveRun$ = createEffect(
     actions$.pipe(
       ofType(PayrollActions.approveRun),
       switchMap(({ payrollRunId }) =>
-        client.approve(payrollRunId).pipe(
+        client.payroll_Approve(payrollRunId).pipe(
           map(() => PayrollActions.runTransitionSuccess({ payrollRunId })),
           catchError((error: ApiError) => of(PayrollActions.runTransitionFailure({ error }))),
         ),
@@ -112,7 +124,7 @@ export const finalizeRun$ = createEffect(
     actions$.pipe(
       ofType(PayrollActions.finalizeRun),
       switchMap(({ payrollRunId }) =>
-        client.finalize(payrollRunId, undefined).pipe(
+        client.payroll_Finalize(payrollRunId, undefined).pipe(
           map(() => PayrollActions.runTransitionSuccess({ payrollRunId })),
           catchError((error: ApiError) => of(PayrollActions.runTransitionFailure({ error }))),
         ),
@@ -126,7 +138,7 @@ export const publishRun$ = createEffect(
     actions$.pipe(
       ofType(PayrollActions.publishRun),
       switchMap(({ payrollRunId }) =>
-        client.publish(payrollRunId).pipe(
+        client.payroll_Publish(payrollRunId).pipe(
           map(() => PayrollActions.runTransitionSuccess({ payrollRunId })),
           catchError((error: ApiError) => of(PayrollActions.runTransitionFailure({ error }))),
         ),
@@ -152,7 +164,7 @@ export const loadVariance$ = createEffect(
     actions$.pipe(
       ofType(PayrollActions.loadVariance),
       switchMap(({ payrollRunId }) =>
-        client.getVariance(payrollRunId).pipe(
+        client.payroll_GetVariance(payrollRunId).pipe(
           map((lines) => PayrollActions.loadVarianceSuccess({ lines })),
           catchError((error: ApiError) => of(PayrollActions.loadVarianceFailure({ error }))),
         ),

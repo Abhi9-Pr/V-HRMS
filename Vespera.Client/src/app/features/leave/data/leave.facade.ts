@@ -59,14 +59,14 @@ export class LeaveFacade {
   readonly error = this.errorSignal.asReadonly();
 
   loadLeaveTypes(): void {
-    this.leaveTypesClient.listLeaveTypes().subscribe({
+    this.leaveTypesClient.leaveTypes_ListLeaveTypes().subscribe({
       next: (types) => this.leaveTypesSignal.set(types ?? []),
       error: (apiError: ApiError) => this.errorSignal.set(apiError),
     });
   }
 
   loadBalance(leaveTypeId: string): void {
-    this.leaveClient.getLeaveBalance(leaveTypeId).subscribe({
+    this.leaveClient.leave_GetLeaveBalance(leaveTypeId).subscribe({
       next: (balance) => this.balanceSignal.set(balance),
       error: (apiError: ApiError) => this.errorSignal.set(apiError),
     });
@@ -76,7 +76,7 @@ export class LeaveFacade {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    this.leaveClient.getMyLeaveRequests().subscribe({
+    this.leaveClient.leave_GetMyLeaveRequests().subscribe({
       next: (requests) => {
         this.myRequestsSignal.set(requests ?? []);
         this.loadingSignal.set(false);
@@ -92,7 +92,7 @@ export class LeaveFacade {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    this.leaveClient.getApprovalInbox().subscribe({
+    this.leaveClient.leave_GetApprovalInbox().subscribe({
       next: (items) => {
         this.approvalInboxSignal.set(items ?? []);
         this.loadingSignal.set(false);
@@ -108,7 +108,7 @@ export class LeaveFacade {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    this.leaveClient.getTeamLeaveCalendar(from, to, departmentId).subscribe({
+    this.leaveClient.leave_GetTeamLeaveCalendar(from, to, departmentId).subscribe({
       next: (days) => {
         this.teamCalendarSignal.set(days ?? []);
         this.loadingSignal.set(false);
@@ -123,14 +123,14 @@ export class LeaveFacade {
   /** Every holiday in the tenant, unfiltered by location — a client-side day-count preview aid
    * only; the server (location-aware) is the source of truth for what actually gets charged. */
   loadHolidays(): void {
-    this.holidaysClient.list5(1, 500, undefined, undefined, undefined).subscribe({
+    this.holidaysClient.holidays_List(1, 500, undefined, undefined, undefined).subscribe({
       next: (result) => this.holidaysSignal.set(result.items ?? []),
       error: (apiError: ApiError) => this.errorSignal.set(apiError),
     });
   }
 
   loadEmployees(): void {
-    this.employeesClient.list4(1, 500, undefined, undefined).subscribe({
+    this.employeesClient.employees_List(1, 500, undefined, undefined).subscribe({
       next: (result) => this.employeesSignal.set(result.items ?? []),
       error: (apiError: ApiError) => this.errorSignal.set(apiError),
     });
@@ -140,7 +140,7 @@ export class LeaveFacade {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    this.proxyDelegationsClient.getMyDelegations().subscribe({
+    this.proxyDelegationsClient.proxyDelegations_GetMyDelegations().subscribe({
       next: (delegations) => {
         this.delegationsSignal.set(delegations ?? []);
         this.loadingSignal.set(false);
@@ -153,34 +153,34 @@ export class LeaveFacade {
   }
 
   submit(command: SubmitLeaveRequestCommand): Observable<SubmitLeaveRequestResponse> {
-    return this.leaveClient.submitLeaveRequest(command);
+    return this.leaveClient.leave_SubmitLeaveRequest(command);
   }
 
   approve(requestId: string): Observable<void> {
-    return this.leaveClient.approveLeaveRequest(requestId);
+    return this.leaveClient.leave_ApproveLeaveRequest(requestId);
   }
 
   reject(requestId: string, reason: string): Observable<void> {
-    return this.leaveClient.rejectLeaveRequest(requestId, { reason });
+    return this.leaveClient.leave_RejectLeaveRequest(requestId, { reason });
   }
 
   withdraw(requestId: string): Observable<void> {
-    return this.leaveClient.withdrawLeaveRequest(requestId);
+    return this.leaveClient.leave_WithdrawLeaveRequest(requestId);
   }
 
   cancel(requestId: string, reason: string): Observable<void> {
-    return this.leaveClient.cancelLeaveRequest(requestId, { reason });
+    return this.leaveClient.leave_CancelLeaveRequest(requestId, { reason });
   }
 
   encash(command: EncashLeaveCommand): Observable<void> {
-    return this.leaveClient.encashLeave(command);
+    return this.leaveClient.leave_EncashLeave(command);
   }
 
   createDelegation(command: CreateProxyDelegationCommand): Observable<string> {
-    return this.proxyDelegationsClient.createProxyDelegation(command);
+    return this.proxyDelegationsClient.proxyDelegations_CreateProxyDelegation(command);
   }
 
   revokeDelegation(delegationId: string): Observable<void> {
-    return this.proxyDelegationsClient.revokeProxyDelegation(delegationId);
+    return this.proxyDelegationsClient.proxyDelegations_RevokeProxyDelegation(delegationId);
   }
 }

@@ -13,3 +13,17 @@ if (typeof globalThis.crypto?.randomUUID !== 'function') {
   }
   Object.defineProperty(globalThis.crypto, 'randomUUID', { value: randomUUID, configurable: true });
 }
+
+// jsdom's Blob shim likewise predates the standard .text()/.arrayBuffer() methods a real
+// browser's Blob has — error-normalization.interceptor.ts reads a failed request's error body
+// (always a Blob; see its own doc comment for why) via Blob.text().
+if (typeof globalThis.Blob?.prototype.text !== 'function') {
+  globalThis.Blob.prototype.text = function (this: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(this);
+    });
+  };
+}
