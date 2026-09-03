@@ -16,6 +16,7 @@ duplicating it.
 | [0005](0005-deployment-target-ghcr-docker-compose.md) | Deployment target: GHCR + docker-compose, no cloud host |
 | [0006](0006-observability-serilog-otel-split.md) | Observability: Serilog for logs, OpenTelemetry for traces/metrics |
 | [0007](0007-testing-depth-coverage-gates-payroll-mutation.md) | Testing depth: tiered coverage gates, payroll-scoped mutation testing |
+| [0008](0008-dotnet-aspire-evaluation.md) | .NET Aspire: deferred, not adopted |
 
 ## Writing a new one
 
