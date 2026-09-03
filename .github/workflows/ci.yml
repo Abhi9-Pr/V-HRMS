@@ -188,7 +188,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push API image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Vespera.Api/Dockerfile
@@ -198,7 +198,7 @@ jobs:
             ghcr.io/${{ steps.vars.outputs.registry_owner }}/vespera-api:edge
 
       - name: Build and push Client image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Vespera.Client/Dockerfile
