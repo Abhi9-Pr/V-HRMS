@@ -29,5 +29,8 @@ COPY Vespera.Client/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
+# 127.0.0.1, not localhost: nginx only binds 0.0.0.0:80 (IPv4), but this image's /etc/hosts
+# resolves "localhost" to ::1 first — busybox wget tries that and gives up with "Connection
+# refused" without falling back to the IPv4 address, failing every probe despite the app working.
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=5 \
-    CMD wget -qO- http://localhost:80/ || exit 1
+    CMD wget -qO- http://127.0.0.1:80/ || exit 1
