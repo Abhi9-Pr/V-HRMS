@@ -44,12 +44,19 @@ public sealed class ImportEmployeesCommandHandler : IRequestHandler<ImportEmploy
     {
         var tenantId = _tenantContext.TenantId;
 
+        // GroupBy+First (not a straight ToDictionary) deliberately tolerates more than one
+        // department/designation/location sharing the same code/title/name — none of them has a
+        // uniqueness constraint today, so a straight ToDictionary would throw and 500 the whole
+        // import on a duplicate instead of just resolving to one of them.
         var departmentsByCode = (await _departments.ListAsync(new DepartmentsByTenantSpecification(tenantId), cancellationToken))
-            .ToDictionary(d => d.Code, d => d.Id, StringComparer.OrdinalIgnoreCase);
+            .GroupBy(d => d.Code, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First().Id, StringComparer.OrdinalIgnoreCase);
         var designationsByTitle = (await _designations.ListAsync(new DesignationsByTenantSpecification(tenantId), cancellationToken))
-            .ToDictionary(d => d.Title, d => d.Id, StringComparer.OrdinalIgnoreCase);
+            .GroupBy(d => d.Title, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First().Id, StringComparer.OrdinalIgnoreCase);
         var locationsByName = (await _locations.ListAsync(new LocationsByTenantSpecification(tenantId), cancellationToken))
-            .ToDictionary(l => l.Name, l => l.Id, StringComparer.OrdinalIgnoreCase);
+            .GroupBy(l => l.Name, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First().Id, StringComparer.OrdinalIgnoreCase);
         var existingCodes = (await _existingEmployees.ListAsync(new EmployeesByTenantSpecification(tenantId), cancellationToken))
             .Select(e => e.Code.Value)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);

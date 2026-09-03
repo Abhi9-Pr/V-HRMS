@@ -93,8 +93,9 @@ public sealed class RunDryRunCommandHandler : IRequestHandler<RunDryRunCommand, 
             .ToDictionary(employee => employee.Id);
 
         var lossOfPayDaysByEmployee = (await _leaveRequests.ListAsync(
-                new ApprovedLopLeaveRequestsOverlappingPeriodForEmployeesSpecification(tenantId, employeeIds, periodStart, periodEnd),
+                new ApprovedLopLeaveRequestsOverlappingPeriodForEmployeesSpecification(tenantId, employeeIds),
                 cancellationToken))
+            .Where(leaveRequest => leaveRequest.Period.Start <= periodEnd && leaveRequest.Period.End >= periodStart)
             .GroupBy(leaveRequest => leaveRequest.EmployeeId)
             .ToDictionary(group => group.Key, group => group.Sum(leaveRequest => leaveRequest.LossOfPayDays));
 

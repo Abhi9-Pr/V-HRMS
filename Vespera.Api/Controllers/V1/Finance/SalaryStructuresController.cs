@@ -35,4 +35,13 @@ public sealed class SalaryStructuresController : FinanceControllerBase
     [ProducesResponseType(typeof(SalaryStructureDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetForEmployee(Guid employeeId, [FromQuery] DateOnly asOf, CancellationToken cancellationToken) =>
         (await _sender.Send(new GetSalaryStructureQuery(employeeId, asOf), cancellationToken)).ToActionResult(this);
+
+    /// <summary>The prerequisite <see cref="Create"/> needs but never had an HTTP-reachable way
+    /// to satisfy — see <see cref="CreateSalaryComponentCommand"/>'s own doc comment.</summary>
+    /// <response code="200">The new component's id.</response>
+    [HttpPost("components")]
+    [HasPermission(Permissions.Payroll.Write)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+    public async Task<IActionResult> CreateComponent(CreateSalaryComponentCommand command, CancellationToken cancellationToken) =>
+        (await _sender.Send(command, cancellationToken)).ToActionResult(this);
 }

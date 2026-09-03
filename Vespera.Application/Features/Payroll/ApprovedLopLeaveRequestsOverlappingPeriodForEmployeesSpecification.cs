@@ -8,16 +8,20 @@ namespace Vespera.Application.Features.Payroll;
 
 /// <summary>Batch counterpart to <see cref="ApprovedLopLeaveRequestsOverlappingPeriodSpecification"/>
 /// — one query for every employee a payroll dry-run needs, instead of one per employee. See
-/// <see cref="RunDryRunCommandHandler"/>.</summary>
+/// <see cref="RunDryRunCommandHandler"/>.
+///
+/// Does NOT filter on period overlap here — see the same note on
+/// <see cref="ApprovedLopLeaveRequestsOverlappingPeriodSpecification"/> for why
+/// <c>Period.Start</c>/<c>Period.End</c> can't appear in a translatable query. Callers must apply
+/// the period-overlap check in memory on the result.</summary>
 public sealed class ApprovedLopLeaveRequestsOverlappingPeriodForEmployeesSpecification : ISpecification<LeaveRequest>
 {
     public ApprovedLopLeaveRequestsOverlappingPeriodForEmployeesSpecification(
-        TenantId tenantId, IReadOnlyCollection<EmployeeId> employeeIds, DateOnly periodStart, DateOnly periodEnd)
+        TenantId tenantId, IReadOnlyCollection<EmployeeId> employeeIds)
     {
         Criteria = request =>
             request.TenantId == tenantId && employeeIds.Contains(request.EmployeeId) &&
-            request.Status == LeaveRequestStatus.Approved && request.LossOfPayDays > 0 &&
-            request.Period.Start <= periodEnd && request.Period.End >= periodStart;
+            request.Status == LeaveRequestStatus.Approved && request.LossOfPayDays > 0;
     }
 
     public Expression<Func<LeaveRequest, bool>>? Criteria { get; }

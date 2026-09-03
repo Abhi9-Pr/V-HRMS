@@ -134,8 +134,10 @@ public sealed class GeneratePayslipCommandHandler : IRequestHandler<GeneratePays
             new StatutoryRuleSetsActiveOnDateSpecification(tenantId, periodStart), cancellationToken);
 
         var lopRequests = await _leaveRequests.ListAsync(
-            new ApprovedLopLeaveRequestsOverlappingPeriodSpecification(tenantId, employeeId, periodStart, periodEnd), cancellationToken);
-        var lossOfPayDays = lopRequests.Sum(leaveRequest => leaveRequest.LossOfPayDays);
+            new ApprovedLopLeaveRequestsOverlappingPeriodSpecification(tenantId, employeeId), cancellationToken);
+        var lossOfPayDays = lopRequests
+            .Where(leaveRequest => leaveRequest.Period.Start <= periodEnd && leaveRequest.Period.End >= periodStart)
+            .Sum(leaveRequest => leaveRequest.LossOfPayDays);
 
         var financialYear = payrollRun.Month >= 4
             ? $"{payrollRun.Year}-{(payrollRun.Year + 1) % 100:D2}"
