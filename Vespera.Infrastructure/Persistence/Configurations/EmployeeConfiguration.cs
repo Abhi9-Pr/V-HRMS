@@ -48,6 +48,13 @@ public sealed class EmployeeConfiguration : TenantScopedEntityConfiguration<Empl
         builder.Property(e => e.DesignationId).HasConversion(id => id.Value, value => new DesignationId(value));
         builder.Property(e => e.LocationId).HasConversion(id => id.Value, value => new LocationId(value));
 
+        // GetAttendanceGridQueryHandler filters by these when a caller scopes the grid to one
+        // department/location — confirmed via EXPLAIN ANALYZE against a 5,005-employee database
+        // that without these, both filters fall back to a full sequential scan of Employee
+        // (see docs/performance.md).
+        builder.HasIndex(e => new { e.TenantId, e.DepartmentId });
+        builder.HasIndex(e => new { e.TenantId, e.LocationId });
+
         builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(32);
         builder.Property(e => e.ExitDate);
         builder.Property(e => e.ExitReason).HasConversion<string>().HasMaxLength(32);
