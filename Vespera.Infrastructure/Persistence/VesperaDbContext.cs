@@ -23,6 +23,12 @@ public sealed class VesperaDbContext : DbContext, IVesperaDbContext, IUnitOfWork
 
     IQueryable<TEntity> IVesperaDbContext.Set<TEntity>() => Set<TEntity>();
 
+    Task<List<TEntity>> IVesperaDbContext.ToListAsync<TEntity>(IQueryable<TEntity> query, CancellationToken cancellationToken) =>
+        query.ToListAsync(cancellationToken);
+
+    Task<int> IVesperaDbContext.CountAsync<TEntity>(IQueryable<TEntity> query, CancellationToken cancellationToken) =>
+        query.CountAsync(cancellationToken);
+
     /// <summary>Translates EF's provider-specific concurrency exception into
     /// <see cref="ConcurrencyConflictException"/> — the only concurrency-related type
     /// Application is allowed to reference. See <c>TransactionBehavior</c>.</summary>

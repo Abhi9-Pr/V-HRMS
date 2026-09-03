@@ -2,7 +2,6 @@ using MediatR;
 using Vespera.Application.Abstractions.Identity;
 using Vespera.Application.Abstractions.Persistence;
 using Vespera.Application.Abstractions.Services;
-using Vespera.Application.Features.Employees;
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
 using Vespera.Domain.Leave;
@@ -83,6 +82,37 @@ public sealed class RunDryRunCommandHandler : IRequestHandler<RunDryRunCommand, 
         var statutoryRuleSets = await _statutoryRuleSets.ListAsync(
             new StatutoryRuleSetsActiveOnDateSpecification(tenantId, periodStart), cancellationToken);
 
+        // Everything below used to be one repository round-trip *per employee* (up to 4 per
+        // structure: employee, LOP requests, investment declaration, tax regime) — for a payroll
+        // run covering thousands of employees that was thousands of extra queries. Batched into a
+        // fixed number of queries regardless of headcount, then joined in memory; see
+        // docs/performance.md.
+        var employeeIds = salaryStructures.Select(structure => structure.EmployeeId).ToList();
+
+        var employeesById = (await _employees.ListAsync(new EmployeesByIdsSpecification(tenantId, employeeIds), cancellationToken))
+            .ToDictionary(employee => employee.Id);
+
+        var lossOfPayDaysByEmployee = (await _leaveRequests.ListAsync(
+                new ApprovedLopLeaveRequestsOverlappingPeriodForEmployeesSpecification(tenantId, employeeIds, periodStart, periodEnd),
+                cancellationToken))
+            .GroupBy(leaveRequest => leaveRequest.EmployeeId)
+            .ToDictionary(group => group.Key, group => group.Sum(leaveRequest => leaveRequest.LossOfPayDays));
+
+        // GroupBy+First (not a straight ToDictionary) deliberately tolerates more than one
+        // Verified declaration existing for the same employee/year — same "take any one, in
+        // whatever order the provider returns them" semantics the original per-employee
+        // FirstOrDefaultAsync(no OrderBy) already had, not a new assumption.
+        var declarationByEmployee = (await _investmentDeclarations.ListAsync(
+                new VerifiedInvestmentDeclarationsForEmployeesSpecification(tenantId, employeeIds, financialYear), cancellationToken))
+            .GroupBy(declaration => declaration.EmployeeId)
+            .ToDictionary(group => group.Key, group => group.First());
+
+        var taxRegimeVersionIds = declarationByEmployee.Values.Select(declaration => declaration.TaxRegimeVersionId).Distinct().ToList();
+        var taxRegimeVersionsById = taxRegimeVersionIds.Count == 0
+            ? new Dictionary<TaxRegimeVersionId, TaxRegimeVersion>()
+            : (await _taxRegimeVersions.ListAsync(new TaxRegimeVersionsByIdsSpecification(taxRegimeVersionIds), cancellationToken))
+                .ToDictionary(version => version.Id);
+
         var lineInputs = new List<PayrollLineInput>();
         foreach (var structure in salaryStructures)
         {
@@ -92,27 +122,20 @@ public sealed class RunDryRunCommandHandler : IRequestHandler<RunDryRunCommand, 
                 return Result.Failure(resolved.Error);
             }
 
-            var employee = await _employees.FirstOrDefaultAsync(
-                new EmployeeByIdSpecification(tenantId, structure.EmployeeId), cancellationToken);
-            if (employee is null)
+            if (!employeesById.TryGetValue(structure.EmployeeId, out var employee))
             {
                 continue;
             }
 
-            var lopRequests = await _leaveRequests.ListAsync(
-                new ApprovedLopLeaveRequestsOverlappingPeriodSpecification(tenantId, structure.EmployeeId, periodStart, periodEnd),
-                cancellationToken);
-            var lossOfPayDays = lopRequests.Sum(leaveRequest => leaveRequest.LossOfPayDays);
+            var lossOfPayDays = lossOfPayDaysByEmployee.GetValueOrDefault(structure.EmployeeId);
 
-            var declaration = await _investmentDeclarations.FirstOrDefaultAsync(
-                new VerifiedInvestmentDeclarationSpecification(tenantId, structure.EmployeeId, financialYear), cancellationToken);
+            declarationByEmployee.TryGetValue(structure.EmployeeId, out var declaration);
 
             TaxRegimeVersion? regime = null;
             var approvedExemptions = Money.Zero(structure.MonthlyCtc.Currency);
             if (declaration is not null)
             {
-                regime = await _taxRegimeVersions.FirstOrDefaultAsync(
-                    new TaxRegimeVersionByIdSpecification(declaration.TaxRegimeVersionId), cancellationToken);
+                taxRegimeVersionsById.TryGetValue(declaration.TaxRegimeVersionId, out regime);
                 approvedExemptions = declaration.ApprovedExemptionTotal(structure.MonthlyCtc.Currency);
             }
 

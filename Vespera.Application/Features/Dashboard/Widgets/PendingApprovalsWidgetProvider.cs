@@ -55,12 +55,20 @@ public sealed class PendingApprovalsWidgetProvider : IDashboardWidgetProvider
         var chains = await _approvalChains.ListAsync(new InProgressApprovalChainsSpecification(tenantId), cancellationToken);
         var resolver = new ApprovalChainResolver();
 
+        // One query for every chain's nominal approver instead of one query per chain — the
+        // approval-chain count here isn't bounded like a per-employee dataset, but a tenant with
+        // many concurrently in-flight approvals was still paying one round-trip per chain.
+        var nominalApproverIds = chains.Select(chain => chain.CurrentStep.ApproverId).Distinct().ToList();
+        var delegationsByDelegator = (await _proxyDelegations.ListAsync(
+                new ProxyDelegationsByDelegatorsSpecification(tenantId, nominalApproverIds), cancellationToken))
+            .GroupBy(delegation => delegation.DelegatorId)
+            .ToDictionary(group => group.Key, group => (IEnumerable<ProxyDelegation>)group);
+
         var countBySubjectType = new Dictionary<string, int>();
         foreach (var chain in chains)
         {
             var nominalApproverId = chain.CurrentStep.ApproverId;
-            var delegations = await _proxyDelegations.ListAsync(
-                new ProxyDelegationsByDelegatorSpecification(tenantId, nominalApproverId), cancellationToken);
+            var delegations = delegationsByDelegator.GetValueOrDefault(nominalApproverId, []);
             var resolvedApproverId = resolver.ResolveApprover(nominalApproverId, today, delegations);
 
             if (resolvedApproverId == employeeId.Value)

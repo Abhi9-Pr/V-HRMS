@@ -24,12 +24,21 @@ public static class RealtimeApprovalsCounter
             new InProgressApprovalChainsSpecification(tenantId), cancellationToken);
         var resolver = new ApprovalChainResolver();
 
+        // One query for every chain's nominal approver instead of one per chain — this runs on
+        // every approval-chain domain event (assigned/approved/rejected), not just once per
+        // dashboard load, so the per-chain round-trip here was the hotter of the two identical
+        // N+1 shapes in this feature area (see PendingApprovalsWidgetProvider's own fix).
+        var nominalApproverIds = chains.Select(chain => chain.CurrentStep.ApproverId).Distinct().ToList();
+        var delegationsByDelegator = (await proxyDelegations.ListIgnoringFiltersAsync(
+                new ProxyDelegationsByDelegatorsSpecification(tenantId, nominalApproverIds), cancellationToken))
+            .GroupBy(delegation => delegation.DelegatorId)
+            .ToDictionary(group => group.Key, group => (IEnumerable<ProxyDelegation>)group);
+
         var count = 0;
         foreach (var chain in chains)
         {
             var nominalApproverId = chain.CurrentStep.ApproverId;
-            var delegations = await proxyDelegations.ListIgnoringFiltersAsync(
-                new ProxyDelegationsByDelegatorSpecification(tenantId, nominalApproverId), cancellationToken);
+            var delegations = delegationsByDelegator.GetValueOrDefault(nominalApproverId, []);
             var resolvedApproverId = resolver.ResolveApprover(nominalApproverId, asOf, delegations);
 
             if (resolvedApproverId == approverId)

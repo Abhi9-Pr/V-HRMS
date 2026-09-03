@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Vespera.Api.Authorization;
 using Vespera.Api.Http;
 using Vespera.Application.Authorization;
+using Vespera.Application.Common;
 using Vespera.Application.Features.Attendance;
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
@@ -107,6 +108,21 @@ public sealed class AttendanceController : ControllerBase
     public async Task<IActionResult> Recompute(RecomputeAttendanceDayRequest request, CancellationToken cancellationToken) =>
         (await _sender.Send(new RecomputeAttendanceDayCommand(request.EmployeeId, request.RangeStart, request.RangeEnd), cancellationToken))
             .ToActionResult(this);
+
+    /// <summary>Attendance status for many employees over a date range — the "team attendance"
+    /// screen. Bounded by paging (employee axis) and a 31-day cap on the range (query validator),
+    /// so this can never turn into an unbounded scan.</summary>
+    /// <response code="200">The requested page of the grid.</response>
+    [HttpGet("grid")]
+    [HasPermission(Permissions.Attendance.ReadTeam)]
+    [ProducesResponseType(typeof(PagedResult<AttendanceGridRowDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetGrid([FromQuery] GetAttendanceGridRequest request, CancellationToken cancellationToken) =>
+        (await _sender.Send(
+            new GetAttendanceGridQuery(
+                request.DepartmentId, request.LocationId, request.RangeStart, request.RangeEnd,
+                new PagedRequest(request.Page, request.PageSize)),
+            cancellationToken))
+            .ToActionResult(this);
 }
 
 public sealed record RecordWebPunchRequest(Guid EmployeeId, string PunchType, double? Latitude, double? Longitude);
@@ -114,3 +130,6 @@ public sealed record RecordWebPunchRequest(Guid EmployeeId, string PunchType, do
 public sealed record ClearPunchFlagRequest(Guid EmployeeId, DateOnly Date, Guid PunchId);
 
 public sealed record RecomputeAttendanceDayRequest(Guid EmployeeId, DateOnly RangeStart, DateOnly RangeEnd);
+
+public sealed record GetAttendanceGridRequest(
+    Guid? DepartmentId, Guid? LocationId, DateOnly RangeStart, DateOnly RangeEnd, int Page = 1, int PageSize = 20);
