@@ -104,3 +104,53 @@ jobs:
           context: .
           file: Vespera.Client/Dockerfile
           push: false
+
+  payroll-performance-budget:
+    # Performance regression guard for the payroll dry-run handler — the query path this whole
+    # Performance phase started from (see docs/performance.md for the N+1 fixes and the real
+    # query-translation bug the k6 load test found). One clean, uncontended dry-run sample
+    # (ITERATIONS=1, vus=1 — see payroll-dry-run.js's own comment for why concurrency isn't used
+    # here) against a small seeded cohort, thresholded against a generous budget derived from
+    # real measurements. A regression here (e.g. a reintroduced N+1) fails CI instead of showing
+    # up as a slow production payroll run.
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    env:
+      COMPOSE_PROJECT_NAME: vespera-ci
+      PAYROLL_DRY_RUN_BUDGET_MS: 5000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start stack
+        run: docker compose up -d --build db api seq otel-collector
+
+      - name: Wait for API health
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/health/live > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          echo "::error::API did not become healthy in time"
+          docker compose logs api
+          exit 1
+
+      - name: Run payroll dry-run performance budget check
+        run: |
+          docker run --rm --network ${COMPOSE_PROJECT_NAME}_default \
+            -v "${{ github.workspace }}/k6:/scripts" \
+            -e BASE_URL=http://api:8080 \
+            -e EMPLOYEE_COUNT=50 \
+            -e ITERATIONS=1 \
+            -e PAYROLL_DRY_RUN_BUDGET_MS=${PAYROLL_DRY_RUN_BUDGET_MS} \
+            grafana/k6 run /scripts/payroll-dry-run.js
+
+      - name: Dump API logs on failure
+        if: failure()
+        run: docker compose logs api
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

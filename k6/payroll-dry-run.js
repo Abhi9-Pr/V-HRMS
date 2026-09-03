@@ -20,7 +20,12 @@
 //   docker run --rm --network delivery-docker-foundation_default -v "$(pwd)/k6:/scripts" \
 //     -e BASE_URL=http://api:8080 grafana/k6 run /scripts/payroll-dry-run.js
 //
-// Env vars: BASE_URL, EMPLOYEE_COUNT (default 500), VUS (default 5), DURATION (default 30s).
+// Env vars: BASE_URL, EMPLOYEE_COUNT (default 500), VUS (default 5), DURATION (default 30s),
+// ITERATIONS (if set, overrides VUS/DURATION with a single-VU run of exactly this many dry-run
+// calls — the CI performance-budget job uses ITERATIONS=1 for one clean, uncontended sample; see
+// .github/workflows/ci.yml's payroll-performance-budget job and docs/performance.md),
+// PAYROLL_DRY_RUN_BUDGET_MS (default 5000 — fails the k6 run, and so the CI job, if the p95 dry-run
+// duration exceeds this).
 
 import http from 'k6/http';
 import { check, fail, sleep } from 'k6';
@@ -29,6 +34,7 @@ import { computeCurrentTotp } from './lib/totp.js';
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
 const EMPLOYEE_COUNT = parseInt(__ENV.EMPLOYEE_COUNT || '500', 10);
+const BUDGET_MS = parseInt(__ENV.PAYROLL_DRY_RUN_BUDGET_MS || '5000', 10);
 
 const DEMO_TENANT_CODE = 'DEMO';
 const HR_ADMIN_EMAIL = 'rohan.verma@demo.vespera.test';
@@ -39,10 +45,18 @@ const FINANCE_TOTP_SECRET = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
 
 const dryRunDuration = new Trend('payroll_dry_run_duration_ms', true);
 
+// Two concurrent VUs dry-running the SAME payroll run race on PayrollRun's optimistic-concurrency
+// RowVersion — one wins (204), the other gets an expected, correct 409 (see docs/performance.md).
+// That's real, intentional protection, not a bug, but it makes VUS>1 unsuitable for a budget
+// check: a 409 isn't a slow dry-run, so ITERATIONS mode forces vus=1 to get clean latency samples.
 export const options = {
-  vus: parseInt(__ENV.VUS || '5', 10),
-  duration: __ENV.DURATION || '30s',
+  scenarios: __ENV.ITERATIONS
+    ? { default: { executor: 'shared-iterations', vus: 1, iterations: parseInt(__ENV.ITERATIONS, 10) } }
+    : { default: { executor: 'constant-vus', vus: parseInt(__ENV.VUS || '5', 10), duration: __ENV.DURATION || '30s' } },
   setupTimeout: '5m', // seeding up to EMPLOYEE_COUNT salary structures one HTTP call at a time
+  thresholds: {
+    payroll_dry_run_duration_ms: [`p(95)<${BUDGET_MS}`],
+  },
 };
 
 function jsonHeaders(token) {
