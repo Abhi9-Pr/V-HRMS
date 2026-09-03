@@ -40,6 +40,83 @@ jobs:
           name: test-results
           path: TestResults
 
+  coverage-gate:
+    # Line-coverage floor for the two layers where it matters most: Domain (pure business rules,
+    # no infra deps — held to a high bar) and Application (orchestration/CQRS handlers — held to a
+    # lower bar since a chunk of it is thin mapping/DTO code). Re-runs just these two test projects
+    # with coverlet's collector (the only coverage package these test csproj files reference — see
+    # docs/CONTRIBUTING-slices.md) and reads the Cobertura XML directly rather than trusting a
+    # blended top-level number: the Application test run also loads Domain (its handlers construct
+    # Domain types), so its per-assembly <package> line-rate is read explicitly instead of the
+    # top-level <coverage> line-rate, which would otherwise dilute/inflate the Application figure.
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    env:
+      DOMAIN_COVERAGE_GATE: "0.90"
+      APPLICATION_COVERAGE_GATE: "0.80"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore Vespera.sln
+
+      - name: Test Domain with coverage
+        run: |
+          dotnet test tests/Vespera.Domain.UnitTests/Vespera.Domain.UnitTests.csproj \
+            --configuration Release --collect:"XPlat Code Coverage" \
+            --results-directory TestResults/domain-coverage
+
+      - name: Test Application with coverage
+        run: |
+          dotnet test tests/Vespera.Application.UnitTests/Vespera.Application.UnitTests.csproj \
+            --configuration Release --collect:"XPlat Code Coverage" \
+            --results-directory TestResults/application-coverage
+
+      - name: Enforce coverage gates
+        run: |
+          set -euo pipefail
+
+          domain_xml=$(find TestResults/domain-coverage -name coverage.cobertura.xml | head -1)
+          domain_rate=$(grep -oE '<coverage line-rate="[0-9.]+"' "$domain_xml" | head -1 | sed -E 's/.*line-rate="([0-9.]+)"/\1/')
+          domain_pct=$(awk -v r="$domain_rate" 'BEGIN { printf "%.2f", r * 100 }')
+          echo "Domain line coverage: ${domain_pct}% (gate: $(awk -v g="$DOMAIN_COVERAGE_GATE" 'BEGIN { printf "%.0f", g * 100 }')%)"
+
+          # Application test run also loads Domain (handlers construct Domain types), so the
+          # top-level <coverage> figure would be blended — read the Vespera.Application <package>
+          # node specifically for the real, undiluted Application-only number.
+          app_xml=$(find TestResults/application-coverage -name coverage.cobertura.xml | head -1)
+          app_rate=$(grep -oE '<package name="Vespera\.Application" line-rate="[0-9.]+"' "$app_xml" | sed -E 's/.*line-rate="([0-9.]+)"/\1/')
+          app_pct=$(awk -v r="$app_rate" 'BEGIN { printf "%.2f", r * 100 }')
+          echo "Application line coverage: ${app_pct}% (gate: $(awk -v g="$APPLICATION_COVERAGE_GATE" 'BEGIN { printf "%.0f", g * 100 }')%)"
+
+          failed=0
+          if ! awk -v r="$domain_rate" -v g="$DOMAIN_COVERAGE_GATE" 'BEGIN { exit !(r >= g) }'; then
+            echo "::error::Domain line coverage ${domain_pct}% is below the required ${DOMAIN_COVERAGE_GATE} gate."
+            failed=1
+          fi
+          if ! awk -v r="$app_rate" -v g="$APPLICATION_COVERAGE_GATE" 'BEGIN { exit !(r >= g) }'; then
+            echo "::error::Application line coverage ${app_pct}% is below the required ${APPLICATION_COVERAGE_GATE} gate."
+            failed=1
+          fi
+          exit $failed
+
+      - name: Publish coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            TestResults/domain-coverage
+            TestResults/application-coverage
+
   security-scan:
     # Dependency + secret scanning. SAST lives in its own workflow (codeql.yml) since CodeQL's
     # own action manages triggers/scheduling differently from a plain job. Runs independently of

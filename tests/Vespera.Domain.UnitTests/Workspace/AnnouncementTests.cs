@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Vespera.Domain.Common;
+using Vespera.Domain.Eis;
 using Vespera.Domain.Workspace;
 
 namespace Vespera.Domain.UnitTests.Workspace;
@@ -82,6 +83,87 @@ public class AnnouncementTests
         var result = announcement.Unpin(Now, "hr@vespera.test");
 
         result.IsFailure.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Create_Should_Fail_When_Title_Is_Blank()
+    {
+        var result = Announcement.Create(
+            TenantId.New(), "  ", "Office closed", AnnouncementAudienceScope.AllEmployees, null, null, AnnouncementPriority.Normal,
+            Now, null, Now, "hr@vespera.test");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("announcement.title_required");
+    }
+
+    [Fact]
+    public void Create_Should_Fail_When_Department_Scoped_Without_A_Target_Department()
+    {
+        var result = Announcement.Create(
+            TenantId.New(), "Holiday notice", "Office closed", AnnouncementAudienceScope.Department, null, null, AnnouncementPriority.Normal,
+            Now, null, Now, "hr@vespera.test");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("announcement.department_required");
+    }
+
+    [Fact]
+    public void Create_Should_Fail_When_Location_Scoped_Without_A_Target_Location()
+    {
+        var result = Announcement.Create(
+            TenantId.New(), "Holiday notice", "Office closed", AnnouncementAudienceScope.Location, null, null, AnnouncementPriority.Normal,
+            Now, null, Now, "hr@vespera.test");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("announcement.location_required");
+    }
+
+    [Fact]
+    public void Create_Should_Succeed_For_A_Department_Scoped_Announcement()
+    {
+        var departmentId = DepartmentId.New();
+
+        var result = Announcement.Create(
+            TenantId.New(), "Holiday notice", "Office closed", AnnouncementAudienceScope.Department, departmentId, null, AnnouncementPriority.Normal,
+            Now, null, Now, "hr@vespera.test");
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.TargetDepartmentId.Should().Be(departmentId);
+        result.Value.TargetLocationId.Should().BeNull();
+    }
+
+    [Fact]
+    public void Publish_Should_Raise_AnnouncementPublished()
+    {
+        var announcement = CreateAnnouncement();
+
+        announcement.Publish(Now, "hr@vespera.test");
+
+        announcement.DomainEvents.Should().ContainSingle(e => e is Vespera.Domain.Workspace.Events.AnnouncementPublished);
+    }
+
+    [Fact]
+    public void Expire_Should_Fail_When_Not_Published()
+    {
+        var announcement = CreateAnnouncement();
+
+        var result = announcement.Expire(Now, "hr@vespera.test");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("announcement.not_published");
+    }
+
+    [Fact]
+    public void Expire_Should_Set_ExpiresAt_Once_Published()
+    {
+        var announcement = CreateAnnouncement();
+        announcement.Publish(Now, "hr@vespera.test");
+        var expiredAt = Now.AddDays(30);
+
+        var result = announcement.Expire(expiredAt, "hr@vespera.test");
+
+        result.IsSuccess.Should().BeTrue();
+        announcement.ExpiresAt.Should().Be(expiredAt);
     }
 
     private static Announcement CreateAnnouncement() =>

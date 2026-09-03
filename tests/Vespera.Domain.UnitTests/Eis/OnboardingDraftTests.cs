@@ -138,6 +138,15 @@ public class OnboardingDraftTests
         draft.ConvertedEmployeeId.Should().Be(employee.Id);
     }
 
+    [Fact]
+    public void OnboardingDraftId_Instances_With_The_Same_Value_Should_Be_Equal()
+    {
+        var value = Guid.NewGuid();
+
+        new OnboardingDraftId(value).Should().Be(new OnboardingDraftId(value));
+        OnboardingDraftId.New().Should().NotBe(OnboardingDraftId.New());
+    }
+
     private static OnboardingDraft CreateDraft() =>
         OnboardingDraft.StartDraft(TenantId, Now, "hr@vespera.test").Value;
 

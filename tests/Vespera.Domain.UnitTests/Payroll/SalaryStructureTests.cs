@@ -126,4 +126,21 @@ public class SalaryStructureTests
 
         result.IsSuccess.Should().BeTrue();
     }
+
+    [Fact]
+    public void SalaryStructureLine_And_SalaryComponentFormula_Equality_Should_Compare_By_Value()
+    {
+        var componentId = SalaryComponentId.New();
+
+        SalaryComponentFormula.FixedAmount(Money.Of(50000m, Currency.Inr))
+            .Should().Be(SalaryComponentFormula.FixedAmount(Money.Of(50000m, Currency.Inr)));
+        SalaryComponentFormula.PercentageOfComponent(componentId, 40m)
+            .Should().Be(SalaryComponentFormula.PercentageOfComponent(componentId, 40m));
+        SalaryComponentFormula.SumOfComponents([componentId]).Should().Be(SalaryComponentFormula.SumOfComponents([componentId]));
+
+        var first = SalaryStructureLine.Of(componentId, SalaryComponentFormula.FixedAmount(Money.Of(50000m, Currency.Inr)));
+        var second = SalaryStructureLine.Of(componentId, SalaryComponentFormula.FixedAmount(Money.Of(50000m, Currency.Inr)));
+
+        first.Should().Be(second);
+    }
 }

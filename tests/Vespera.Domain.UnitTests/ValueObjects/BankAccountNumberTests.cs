@@ -35,4 +35,15 @@ public class BankAccountNumberTests
 
         account.Masked().Should().NotBe(account.Value);
     }
+
+    [Fact]
+    public void Instances_With_The_Same_Value_Should_Be_Equal()
+    {
+        var first = BankAccountNumber.Create("123456789012").Value;
+        var second = BankAccountNumber.Create("123456789012").Value;
+        var different = BankAccountNumber.Create("987654321098").Value;
+
+        first.Should().Be(second);
+        first.Should().NotBe(different);
+    }
 }

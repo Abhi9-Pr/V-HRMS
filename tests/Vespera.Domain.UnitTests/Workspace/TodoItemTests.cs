@@ -59,6 +59,39 @@ public class TodoItemTests
         item.Urgency.Should().Be(TodoUrgency.High);
     }
 
+    [Fact]
+    public void Reopen_Should_Fail_When_Not_Done()
+    {
+        var item = CreateItem();
+
+        var result = item.Reopen();
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("todo_item.not_done");
+    }
+
+    [Fact]
+    public void Reschedule_Should_Update_DueDate()
+    {
+        var item = CreateItem();
+        var dueDate = new DateOnly(2026, 3, 1);
+
+        item.Reschedule(dueDate);
+
+        item.DueDate.Should().Be(dueDate);
+    }
+
+    [Fact]
+    public void Reschedule_Should_Allow_Clearing_The_DueDate()
+    {
+        var item = CreateItem();
+        item.Reschedule(new DateOnly(2026, 3, 1));
+
+        item.Reschedule(null);
+
+        item.DueDate.Should().BeNull();
+    }
+
     private static TodoItem CreateItem() =>
         TodoItem.Create(TenantId, OwnerId, "Submit timesheet", null, TodoUrgency.Medium, 0).Value;
 }

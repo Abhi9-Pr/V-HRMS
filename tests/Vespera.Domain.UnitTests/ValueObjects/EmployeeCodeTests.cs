@@ -30,4 +30,15 @@ public class EmployeeCodeTests
 
         result.Value.Value.Should().Be("EMP-001");
     }
+
+    [Fact]
+    public void Instances_With_The_Same_Value_Should_Be_Equal()
+    {
+        var first = EmployeeCode.Create("EMP-001").Value;
+        var second = EmployeeCode.Create("EMP-001").Value;
+        var different = EmployeeCode.Create("EMP-002").Value;
+
+        first.Should().Be(second);
+        first.Should().NotBe(different);
+    }
 }

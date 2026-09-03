@@ -22,4 +22,15 @@ public class PhoneNumberTests
     {
         PhoneNumber.Create(value).IsFailure.Should().BeTrue();
     }
+
+    [Fact]
+    public void Instances_With_The_Same_Value_Should_Be_Equal()
+    {
+        var first = PhoneNumber.Create("+14155552671").Value;
+        var second = PhoneNumber.Create("+14155552671").Value;
+        var different = PhoneNumber.Create("+919876543210").Value;
+
+        first.Should().Be(second);
+        first.Should().NotBe(different);
+    }
 }

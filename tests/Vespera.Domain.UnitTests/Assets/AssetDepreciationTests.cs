@@ -107,4 +107,19 @@ public class AssetDepreciationTests
         result.Value.Amount.Should().BeApproximately(20000m, 0.01m);
         result.Value.Currency.Should().Be(Currency.Inr);
     }
+
+    [Fact]
+    public void Schedules_With_The_Same_Method_Life_And_Salvage_Should_Be_Equal()
+    {
+        var assetA = CreateAsset();
+        assetA.ConfigureDepreciation(DepreciationMethod.StraightLine, 24, Money.Of(20000m, Currency.Inr), Now, "admin@vespera.test");
+        var assetB = CreateAsset();
+        assetB.ConfigureDepreciation(DepreciationMethod.StraightLine, 24, Money.Of(20000m, Currency.Inr), Now, "admin@vespera.test");
+
+        assetA.Depreciation.Should().Be(assetB.Depreciation);
+
+        var assetC = CreateAsset();
+        assetC.ConfigureDepreciation(DepreciationMethod.DecliningBalance, 24, Money.Of(20000m, Currency.Inr), Now, "admin@vespera.test");
+        assetA.Depreciation.Should().NotBe(assetC.Depreciation);
+    }
 }

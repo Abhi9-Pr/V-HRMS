@@ -56,4 +56,38 @@ public class BusinessHoursCalculatorTests
 
         due.Should().Be(new DateTimeOffset(2026, 1, 2, 10, 0, 0, TimeSpan.Zero));
     }
+
+    [Fact]
+    public void AddBusinessHours_Should_Roll_A_Start_Before_The_Business_Day_Opens_Forward_To_Opening()
+    {
+        // Monday 2026-01-05 07:00 (before 09:00 open) + 1h -> same-day 09:00 -> 10:00.
+        var start = new DateTimeOffset(2026, 1, 5, 7, 0, 0, TimeSpan.Zero);
+
+        var due = Calculator.AddBusinessHours(start, TimeSpan.FromHours(1), BusinessStart, BusinessEnd, new HashSet<DateOnly>());
+
+        due.Should().Be(new DateTimeOffset(2026, 1, 5, 10, 0, 0, TimeSpan.Zero));
+    }
+
+    [Fact]
+    public void AddBusinessHours_Should_Roll_A_Weekend_Start_Forward_To_The_Next_Business_Day()
+    {
+        // Saturday 2026-01-03 10:00 + 1h rolls straight to Monday 2026-01-05 09:00 -> 10:00.
+        var start = new DateTimeOffset(2026, 1, 3, 10, 0, 0, TimeSpan.Zero);
+
+        var due = Calculator.AddBusinessHours(start, TimeSpan.FromHours(1), BusinessStart, BusinessEnd, new HashSet<DateOnly>());
+
+        due.Should().Be(new DateTimeOffset(2026, 1, 5, 10, 0, 0, TimeSpan.Zero));
+    }
+
+    [Fact]
+    public void AddBusinessHours_Should_Span_Multiple_Full_Business_Days()
+    {
+        // Monday 2026-01-05 09:00 + 27h (9h/day window): rolls over Mon->Tue->Wed (9h consumed
+        // each of the first two days), landing exactly at Wednesday 2026-01-07 close (18:00).
+        var start = new DateTimeOffset(2026, 1, 5, 9, 0, 0, TimeSpan.Zero);
+
+        var due = Calculator.AddBusinessHours(start, TimeSpan.FromHours(27), BusinessStart, BusinessEnd, new HashSet<DateOnly>());
+
+        due.Should().Be(new DateTimeOffset(2026, 1, 7, 18, 0, 0, TimeSpan.Zero));
+    }
 }

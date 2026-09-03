@@ -158,4 +158,69 @@ public class AssetRecoveryTests
 
         result.IsFailure.Should().BeTrue();
     }
+
+    [Fact]
+    public void RecordCourierDispatch_Should_Fail_When_Carrier_Or_TrackingReference_Is_Blank()
+    {
+        var recovery = CreateRecovery();
+
+        var result = recovery.RecordCourierDispatch("  ", "TRK-1");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("asset_recovery.courier_details_required");
+    }
+
+    [Fact]
+    public void RecordReceived_Should_Fail_When_Already_Received()
+    {
+        var recovery = CreateRecovery();
+        recovery.RecordReceived(Now.AddDays(1));
+
+        var result = recovery.RecordReceived(Now.AddDays(2));
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("asset_recovery.not_recoverable");
+    }
+
+    [Fact]
+    public void RecordDamageAssessment_Should_Fail_When_Notes_Are_Blank()
+    {
+        var recovery = CreateRecovery();
+        recovery.RecordReceived(Now.AddDays(1));
+
+        var result = recovery.RecordDamageAssessment("   ");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("asset_recovery.damage_notes_required");
+    }
+
+    [Fact]
+    public void WriteOff_Should_Fail_When_Reason_Is_Blank()
+    {
+        var recovery = CreateRecovery();
+        recovery.RecordReceived(Now.AddDays(1));
+
+        var result = recovery.WriteOff(Money.Of(1000m, Currency.Inr), "   ");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("asset_recovery.writeoff_reason_required");
+    }
+
+    [Fact]
+    public void WriteOff_Should_Fail_When_Amount_Is_Negative()
+    {
+        var recovery = CreateRecovery();
+        recovery.RecordReceived(Now.AddDays(1));
+
+        var result = recovery.WriteOff(Money.Of(-1m, Currency.Inr), "Lost");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("asset_recovery.writeoff_amount_invalid");
+    }
+
+    [Fact]
+    public void AssetRecoveryId_New_Should_Generate_Distinct_Values()
+    {
+        AssetRecoveryId.New().Should().NotBe(AssetRecoveryId.New());
+    }
 }

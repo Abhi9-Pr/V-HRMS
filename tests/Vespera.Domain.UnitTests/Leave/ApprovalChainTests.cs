@@ -99,6 +99,34 @@ public class ApprovalChainTests
         result.IsFailure.Should().BeTrue();
     }
 
+    [Fact]
+    public void Create_Should_Fail_With_No_Approvers()
+    {
+        var result = ApprovalChain.Create(TenantId.New(), ApprovalSubjectType.LeaveRequest, Guid.NewGuid(), [], Now);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("approval_chain.no_steps");
+    }
+
+    [Fact]
+    public void Reject_Should_Fail_Once_The_Chain_Has_Reached_A_Terminal_Status()
+    {
+        var approver = EmployeeId.New();
+        var chain = CreateChain(approver);
+        chain.Approve(approver, Now);
+
+        var result = chain.Reject(approver, Now, "Too late");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("approval_chain.not_in_progress");
+    }
+
+    [Fact]
+    public void ApprovalChainId_New_Should_Generate_Distinct_Values()
+    {
+        ApprovalChainId.New().Should().NotBe(ApprovalChainId.New());
+    }
+
     private static ApprovalChain CreateChain(params EmployeeId[] approvers) =>
         ApprovalChain.Create(TenantId.New(), ApprovalSubjectType.LeaveRequest, Guid.NewGuid(), approvers, Now).Value;
 }

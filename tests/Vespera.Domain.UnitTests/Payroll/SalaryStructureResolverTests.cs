@@ -86,4 +86,18 @@ public class SalaryStructureResolverTests
         result.Value.Should().HaveCount(2);
         result.Value[hraId].Should().Be(Money.Of(16000m, Currency.Inr));
     }
+
+    [Fact]
+    public void ResolveMonthly_Single_Arg_Overload_Should_Resolve_Against_The_Structures_Own_MonthlyCtc()
+    {
+        var basicId = SalaryComponentId.New();
+        var lines = new[] { SalaryStructureLine.Of(basicId, SalaryComponentFormula.FixedAmount(Money.Of(40000m, Currency.Inr))) };
+        var structure = SalaryStructure.Create(
+            TenantId.New(), EmployeeId.New(), Money.Of(40000m, Currency.Inr), lines, new DateOnly(2026, 1, 1), null).Value;
+
+        var result = SalaryStructureResolver.ResolveMonthly(structure);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value[basicId].Should().Be(Money.Of(40000m, Currency.Inr));
+    }
 }

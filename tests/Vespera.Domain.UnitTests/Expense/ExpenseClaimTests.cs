@@ -93,4 +93,110 @@ public class ExpenseClaimTests
 
         claim.Total(Currency.Inr).Should().Be(Money.Of(8800m, Currency.Inr));
     }
+
+    [Fact]
+    public void AddLine_Should_Fail_Once_The_Claim_Is_No_Longer_Draft()
+    {
+        var claim = ExpenseClaim.Open(TenantId.New(), EmployeeId.New());
+        claim.AddLine("Travel", Money.Of(1500m, Currency.Inr), new DateOnly(2026, 1, 10), receiptReference: null);
+        claim.Submit();
+
+        var result = claim.AddLine("Meals", Money.Of(500m, Currency.Inr), new DateOnly(2026, 1, 10), receiptReference: null);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("expense_claim.not_draft");
+    }
+
+    [Fact]
+    public void AddLine_Should_Fail_With_A_Blank_Category()
+    {
+        var claim = ExpenseClaim.Open(TenantId.New(), EmployeeId.New());
+
+        var result = claim.AddLine("  ", Money.Of(1500m, Currency.Inr), new DateOnly(2026, 1, 10), receiptReference: null);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("expense_claim.category_required");
+    }
+
+    [Fact]
+    public void Submit_Should_Fail_Once_Already_Submitted()
+    {
+        var claim = ExpenseClaim.Open(TenantId.New(), EmployeeId.New());
+        claim.AddLine("Travel", Money.Of(1500m, Currency.Inr), new DateOnly(2026, 1, 10), receiptReference: null);
+        claim.Submit();
+
+        var result = claim.Submit();
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("expense_claim.not_draft");
+    }
+
+    [Fact]
+    public void Approve_Should_Fail_Before_Submission()
+    {
+        var claim = ExpenseClaim.Open(TenantId.New(), EmployeeId.New());
+
+        var result = claim.Approve();
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("expense_claim.not_submitted");
+    }
+
+    [Fact]
+    public void Reject_Should_Set_The_Reason_And_Status()
+    {
+        var claim = ExpenseClaim.Open(TenantId.New(), EmployeeId.New());
+        claim.AddLine("Travel", Money.Of(1500m, Currency.Inr), new DateOnly(2026, 1, 10), receiptReference: null);
+        claim.Submit();
+
+        var result = claim.Reject("Missing receipt");
+
+        result.IsSuccess.Should().BeTrue();
+        claim.Status.Should().Be(ExpenseClaimStatus.Rejected);
+        claim.RejectionReason.Should().Be("Missing receipt");
+    }
+
+    [Fact]
+    public void Reject_Should_Fail_Before_Submission()
+    {
+        var claim = ExpenseClaim.Open(TenantId.New(), EmployeeId.New());
+
+        var result = claim.Reject("Missing receipt");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("expense_claim.not_submitted");
+    }
+
+    [Fact]
+    public void Reject_Should_Fail_With_A_Blank_Reason()
+    {
+        var claim = ExpenseClaim.Open(TenantId.New(), EmployeeId.New());
+        claim.AddLine("Travel", Money.Of(1500m, Currency.Inr), new DateOnly(2026, 1, 10), receiptReference: null);
+        claim.Submit();
+
+        var result = claim.Reject("   ");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("expense_claim.rejection_reason_required");
+    }
+
+    [Fact]
+    public void MarkReimbursed_Should_Succeed_Once_Approved()
+    {
+        var claim = ExpenseClaim.Open(TenantId.New(), EmployeeId.New());
+        claim.AddLine("Travel", Money.Of(1500m, Currency.Inr), new DateOnly(2026, 1, 10), receiptReference: null);
+        claim.Submit();
+        claim.Approve();
+
+        var result = claim.MarkReimbursed();
+
+        result.IsSuccess.Should().BeTrue();
+        claim.Status.Should().Be(ExpenseClaimStatus.Reimbursed);
+    }
+
+    [Fact]
+    public void ExpenseClaimId_New_Should_Generate_Distinct_Values()
+    {
+        ExpenseClaimId.New().Should().NotBe(ExpenseClaimId.New());
+    }
 }

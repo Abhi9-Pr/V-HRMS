@@ -172,6 +172,131 @@ public class TicketTests
         result.IsFailure.Should().BeTrue();
     }
 
+    [Fact]
+    public void Raise_Should_Populate_All_Fields_And_Default_To_Open()
+    {
+        var tenantId = TenantId.New();
+        var raisedBy = EmployeeId.New();
+        var categoryId = TicketCategoryId.New();
+        var slaPolicyId = SlaPolicyId.New();
+
+        var ticket = Ticket.Raise(
+            tenantId, raisedBy, categoryId, slaPolicyId, "Laptop not booting", "Won't power on.",
+            TicketPriority.High, RaisedAt, TimeSpan.FromHours(24)).Value;
+
+        ticket.TenantId.Should().Be(tenantId);
+        ticket.RaisedBy.Should().Be(raisedBy);
+        ticket.CategoryId.Should().Be(categoryId);
+        ticket.SlaPolicyId.Should().Be(slaPolicyId);
+        ticket.Subject.Should().Be("Laptop not booting");
+        ticket.Description.Should().Be("Won't power on.");
+        ticket.Priority.Should().Be(TicketPriority.High);
+        ticket.Status.Should().Be(TicketStatus.Open);
+        ticket.AssignedTo.Should().BeNull();
+        ticket.DueAt.Should().Be(RaisedAt.AddHours(24));
+    }
+
+    [Fact]
+    public void Raise_With_A_ResolutionTime_Should_Fail_When_Subject_Is_Empty()
+    {
+        var result = Ticket.Raise(
+            TenantId.New(), EmployeeId.New(), TicketCategoryId.New(), SlaPolicyId.New(), "  ",
+            "Won't power on.", TicketPriority.High, RaisedAt, TimeSpan.FromHours(24));
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("ticket.subject_required");
+    }
+
+    [Fact]
+    public void Raise_With_An_Explicit_DueAt_Should_Fail_When_Subject_Is_Empty()
+    {
+        var result = Ticket.Raise(
+            TenantId.New(), EmployeeId.New(), TicketCategoryId.New(), SlaPolicyId.New(), string.Empty,
+            "Won't power on.", TicketPriority.High, RaisedAt, RaisedAt.AddHours(10));
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("ticket.subject_required");
+    }
+
+    [Fact]
+    public void AddComment_Should_Fail_When_The_Body_Is_Empty()
+    {
+        var ticket = CreateTicket();
+
+        var result = ticket.AddComment(EmployeeId.New(), "   ", isInternal: false, RaisedAt.AddMinutes(1));
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("ticket.comment_required");
+    }
+
+    [Fact]
+    public void AssignTo_Should_Set_The_Assignee_And_Move_To_InProgress()
+    {
+        var ticket = CreateTicket();
+        var assignee = EmployeeId.New();
+
+        var result = ticket.AssignTo(assignee);
+
+        result.IsSuccess.Should().BeTrue();
+        ticket.AssignedTo.Should().Be(assignee);
+        ticket.Status.Should().Be(TicketStatus.InProgress);
+    }
+
+    [Fact]
+    public void AssignTo_Should_Fail_When_The_Ticket_Is_Already_Resolved_Or_Closed()
+    {
+        var ticket = CreateTicket();
+        ticket.Resolve(RaisedAt.AddHours(2));
+
+        var result = ticket.AssignTo(EmployeeId.New());
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("ticket.closed");
+    }
+
+    [Fact]
+    public void Resolve_Should_Fail_When_The_Ticket_Is_Already_Resolved()
+    {
+        var ticket = CreateTicket();
+        ticket.Resolve(RaisedAt.AddHours(2));
+
+        var result = ticket.Resolve(RaisedAt.AddHours(3));
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("ticket.already_resolved");
+    }
+
+    [Fact]
+    public void CheckSlaWarning_Should_Not_Raise_For_A_Resolved_Ticket()
+    {
+        var ticket = CreateTicket();
+        ticket.Resolve(RaisedAt.AddHours(2));
+
+        var result = ticket.CheckSlaWarning(RaisedAt.AddHours(20));
+
+        result.IsSuccess.Should().BeTrue();
+        ticket.DomainEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CheckSlaWarning_Called_Twice_Should_Only_Raise_The_Event_Once()
+    {
+        var ticket = CreateTicket();
+
+        ticket.CheckSlaWarning(RaisedAt.AddHours(20));
+        ticket.ClearDomainEvents();
+        ticket.CheckSlaWarning(RaisedAt.AddHours(21));
+
+        ticket.DomainEvents.Should().BeEmpty();
+        ticket.SlaWarningNotified.Should().BeTrue();
+    }
+
+    [Fact]
+    public void TicketId_New_Should_Generate_Distinct_Values()
+    {
+        TicketId.New().Should().NotBe(TicketId.New());
+    }
+
     private static Ticket CreateTicket() =>
         Ticket.Raise(
             TenantId.New(), EmployeeId.New(), TicketCategoryId.New(), SlaPolicyId.New(), "Laptop not booting",

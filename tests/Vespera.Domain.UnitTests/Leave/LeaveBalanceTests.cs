@@ -2,6 +2,7 @@ using FluentAssertions;
 using Vespera.Domain.Common;
 using Vespera.Domain.Eis;
 using Vespera.Domain.Leave;
+using Vespera.Domain.Leave.Events;
 
 namespace Vespera.Domain.UnitTests.Leave;
 
@@ -72,5 +73,36 @@ public class LeaveBalanceTests
 
         balance.Available.Should().Be(10m);
         balance.Used.Should().Be(0m);
+    }
+
+    [Fact]
+    public void Encash_Should_Debit_The_Balance_And_Raise_LeaveEncashed()
+    {
+        var tenantId = TenantId.New();
+        var employeeId = EmployeeId.New();
+        var leaveTypeId = LeaveTypeId.New();
+        var balance = LeaveBalance.Open(tenantId, employeeId, leaveTypeId);
+        balance.PostEntry(LeaveLedgerEntryType.Accrual, LeaveLedgerDirection.Credit, 10m, "Monthly accrual", OccurredOn, "system");
+
+        var result = balance.Encash(4m, OccurredOn, "system");
+
+        result.IsSuccess.Should().BeTrue();
+        balance.Available.Should().Be(6m);
+        balance.DomainEvents.Should().ContainSingle(e => e is LeaveEncashed)
+            .Which.Should().BeEquivalentTo(
+                new LeaveEncashed(balance.Id, tenantId, employeeId, leaveTypeId, 4m, OccurredOn),
+                options => options.Excluding(e => ((LeaveEncashed)e).EventId));
+    }
+
+    [Fact]
+    public void Encash_Should_Fail_When_Days_Is_NonPositive()
+    {
+        var balance = LeaveBalance.Open(TenantId.New(), EmployeeId.New(), LeaveTypeId.New());
+        balance.PostEntry(LeaveLedgerEntryType.Accrual, LeaveLedgerDirection.Credit, 10m, "Monthly accrual", OccurredOn, "system");
+
+        var result = balance.Encash(0m, OccurredOn, "system");
+
+        result.IsFailure.Should().BeTrue();
+        balance.DomainEvents.Should().NotContain(e => e is LeaveEncashed);
     }
 }

@@ -28,4 +28,15 @@ public class GeoCoordinateTests
     {
         GeoCoordinate.Create(latitude, longitude).IsFailure.Should().BeTrue();
     }
+
+    [Fact]
+    public void Instances_With_The_Same_Coordinates_Should_Be_Equal()
+    {
+        var first = GeoCoordinate.Create(12.9716, 77.5946).Value;
+        var second = GeoCoordinate.Create(12.9716, 77.5946).Value;
+        var different = GeoCoordinate.Create(19.0760, 72.8777).Value;
+
+        first.Should().Be(second);
+        first.Should().NotBe(different);
+    }
 }

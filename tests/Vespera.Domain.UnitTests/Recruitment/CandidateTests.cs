@@ -65,6 +65,69 @@ public class CandidateTests
         candidate.Status.Should().Be(CandidateStatus.Withdrawn);
     }
 
+    [Fact]
+    public void Withdraw_Should_Fail_Once_Closed_Out()
+    {
+        var candidate = CreateCandidate();
+        candidate.Withdraw();
+
+        var result = candidate.Withdraw();
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("candidate.not_active");
+    }
+
+    [Fact]
+    public void MarkOffered_Should_Succeed_While_Active()
+    {
+        var candidate = CreateCandidate();
+
+        var result = candidate.MarkOffered();
+
+        result.IsSuccess.Should().BeTrue();
+        candidate.Status.Should().Be(CandidateStatus.Offered);
+    }
+
+    [Fact]
+    public void MarkOffered_Should_Fail_Once_Closed_Out()
+    {
+        var candidate = CreateCandidate();
+        candidate.Reject();
+
+        var result = candidate.MarkOffered();
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("candidate.not_active");
+    }
+
+    [Fact]
+    public void MarkHired_Should_Succeed_While_Active()
+    {
+        var candidate = CreateCandidate();
+
+        var result = candidate.MarkHired();
+
+        result.IsSuccess.Should().BeTrue();
+        candidate.Status.Should().Be(CandidateStatus.Hired);
+    }
+
+    [Fact]
+    public void Reject_Should_Succeed_While_Active()
+    {
+        var candidate = CreateCandidate();
+
+        var result = candidate.Reject();
+
+        result.IsSuccess.Should().BeTrue();
+        candidate.Status.Should().Be(CandidateStatus.Rejected);
+    }
+
+    [Fact]
+    public void CandidateId_New_Should_Generate_Distinct_Values()
+    {
+        CandidateId.New().Should().NotBe(CandidateId.New());
+    }
+
     private static void Transition(Candidate candidate, CandidateStatus status)
     {
         switch (status)

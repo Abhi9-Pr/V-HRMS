@@ -47,4 +47,15 @@ public class DateRangeTests
         range.Contains(new DateOnly(2026, 1, 5)).Should().BeTrue();
         range.Contains(new DateOnly(2026, 2, 1)).Should().BeFalse();
     }
+
+    [Fact]
+    public void Instances_With_The_Same_Bounds_Should_Be_Equal()
+    {
+        var first = DateRange.Create(new DateOnly(2026, 1, 1), new DateOnly(2026, 1, 10)).Value;
+        var second = DateRange.Create(new DateOnly(2026, 1, 1), new DateOnly(2026, 1, 10)).Value;
+        var different = DateRange.Create(new DateOnly(2026, 1, 1), new DateOnly(2026, 1, 15)).Value;
+
+        first.Should().Be(second);
+        first.Should().NotBe(different);
+    }
 }

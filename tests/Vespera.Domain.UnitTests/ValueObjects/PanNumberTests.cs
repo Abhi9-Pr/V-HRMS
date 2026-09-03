@@ -36,4 +36,15 @@ public class PanNumberTests
 
         pan.ToString().Should().Be("AB*******F");
     }
+
+    [Fact]
+    public void Instances_With_The_Same_Value_Should_Be_Equal()
+    {
+        var first = PanNumber.Create("ABCDE1234F").Value;
+        var second = PanNumber.Create("ABCDE1234F").Value;
+        var different = PanNumber.Create("PQRST5678G").Value;
+
+        first.Should().Be(second);
+        first.Should().NotBe(different);
+    }
 }
