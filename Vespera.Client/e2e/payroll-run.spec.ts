@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { computeCurrentTotp } from './support/totp';
 
-const API_BASE_URL = 'https://localhost:7095';
+// Defaults to the local `dotnet run --launch-profile https` target; CI's staging job overrides
+// this to the plain-HTTP docker-compose port (see docs/deployment.md).
+const API_BASE_URL = process.env['E2E_API_BASE_URL'] ?? 'https://localhost:7095';
 // DevelopmentSeeder.FinanceAdminTotpSecretBase32 — Finance.Admin logins require TOTP (see
 // LoginCommandHandler), pre-enrolled with this fixed secret for both demo Finance users.
 const FINANCE_ADMIN_TOTP_SECRET = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';

@@ -1,0 +1,27 @@
+# Staging overlay for docker-compose.yml — used by the `deploy-staging` job in
+# .github/workflows/ci.yml (and available locally, see docs/deployment.md). Points the api/client
+# services at the exact images CI just pushed to GHCR instead of building locally. db, redis, seq,
+# and otel-collector are unchanged — reused as-is from docker-compose.yml.
+#
+# The base file's `build:` blocks for api/client are still present after this overlay merges in
+# (compose merges maps key-by-key, it doesn't drop `build` just because `image` is set here) — so
+# always pass `--no-build` to `up` when using this overlay, or a runner with no cached image will
+# build locally instead of pulling. `docker compose ... pull` first, then `up --no-build`, is the
+# combination this overlay is designed for.
+#
+# Usage:
+#   IMAGE_OWNER=<lowercase-github-owner> IMAGE_TAG=sha-xxxxxxx \
+#     docker compose -f docker-compose.yml -f docker-compose.staging.yml pull db redis seq otel-collector api client
+#   IMAGE_OWNER=<lowercase-github-owner> IMAGE_TAG=sha-xxxxxxx \
+#     docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --no-build
+#
+# api keeps ASPNETCORE_ENVIRONMENT=Development (inherited from docker-compose.yml, not overridden
+# here) on purpose — staging still needs the auto-migrate + auto-seed startup behavior so smoke
+# tests and the Playwright suite have known demo users to log in as.
+
+services:
+  api:
+    image: "ghcr.io/${IMAGE_OWNER}/vespera-api:${IMAGE_TAG}"
+
+  client:
+    image: "ghcr.io/${IMAGE_OWNER}/vespera-client:${IMAGE_TAG}"

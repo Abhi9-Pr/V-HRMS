@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-const API_BASE_URL = 'https://localhost:7095';
+// Defaults to the local `dotnet run --launch-profile https` target; CI's staging job overrides
+// this to the plain-HTTP docker-compose port (see docs/deployment.md).
+const API_BASE_URL = process.env['E2E_API_BASE_URL'] ?? 'https://localhost:7095';
 
 test.describe('Attendance punch', () => {
   test.beforeEach(async ({ request }) => {

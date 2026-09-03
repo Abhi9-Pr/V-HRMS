@@ -9,7 +9,10 @@ export default defineConfig({
   timeout: 30_000,
   retries: 0,
   use: {
-    baseURL: 'http://localhost:4200',
+    // Matches both the local `npm start` dev-server port and the docker-compose (and
+    // docker-compose.staging.yml) client port mapping, so no override is needed in CI — see
+    // docs/deployment.md.
+    baseURL: process.env['E2E_BASE_URL'] ?? 'http://localhost:4200',
     trace: 'retain-on-failure',
   },
 });
