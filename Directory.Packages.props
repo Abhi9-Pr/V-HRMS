@@ -42,7 +42,7 @@
     <PackageVersion Include="Otp.NET" Version="1.4.1" />
     <PackageVersion Include="Polly" Version="8.4.2" />
     <PackageVersion Include="Npgsql" Version="8.0.5" />
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.0.2" />
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="8.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
