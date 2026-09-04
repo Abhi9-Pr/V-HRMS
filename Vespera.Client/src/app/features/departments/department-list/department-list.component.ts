@@ -11,10 +11,12 @@ import { DepartmentsFacade } from '../data/departments.facade';
 import { DepartmentFormDialogComponent } from '../department-form/department-form-dialog.component';
 import { ApiError, DepartmentDto, Permissions } from 'vespera-shared';
 
+import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
+
 @Component({
   selector: 'vespera-department-list',
   standalone: true,
-  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
+  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule, PageHeaderComponent],
   templateUrl: './department-list.component.html',
 })
 export class DepartmentListComponent implements OnInit, AfterViewInit {

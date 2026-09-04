@@ -38,6 +38,18 @@ module.exports = {
         2: 'var(--vespera-elevation-2)',
         3: 'var(--vespera-elevation-3)',
       },
+      borderRadius: {
+        sm: 'var(--vespera-radius-sm)',
+        md: 'var(--vespera-radius-md)',
+        lg: 'var(--vespera-radius-lg)',
+      },
+      transitionDuration: {
+        fast: 'var(--vespera-transition-fast)',
+        base: 'var(--vespera-transition-base)',
+      },
+      maxWidth: {
+        content: 'var(--vespera-max-width-content)',
+      },
     },
   },
   // Angular Material renders its own markup at runtime — Tailwind's base reset stays on

@@ -1,10 +1,9 @@
-<div class="mb-4 flex items-center justify-between">
-  <h1 class="text-xl font-semibold">Dashboard</h1>
+<vespera-page-header title="Dashboard">
   <button mat-stroked-button type="button" (click)="openCustomize()">
     <mat-icon aria-hidden="true">tune</mat-icon>
     Customize
   </button>
-</div>
+</vespera-page-header>
 
 @if (facade.loading()) {
   <vespera-loading-state title="Loading your dashboard…" />
@@ -12,26 +11,31 @@
   @if (facade.error(); as apiError) {
     <vespera-error-state [description]="apiError.message" (action)="reload()" />
   } @else {
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" role="list" aria-label="Dashboard widgets">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6" role="list" aria-label="Dashboard widgets">
       @for (entry of facade.renderableWidgets(); track entry.preference.widgetKey) {
-        <li class="rounded-lg border border-border bg-surface p-4" [class]="sizeSpanClass(entry.preference.size)">
-          <h2 class="mb-3 flex items-center gap-2 text-sm font-semibold">
-            <mat-icon aria-hidden="true" class="!text-base">{{ entry.registry.icon }}</mat-icon>
-            {{ entry.registry.title }}
-          </h2>
+        <li
+          class="vespera-card overflow-hidden transition-shadow duration-base hover:shadow-2"
+          [class]="sizeSpanClass(entry.preference.size)"
+        >
+          <div class="flex items-center gap-2 border-b border-border bg-surface-alt px-4 py-3 sm:px-5">
+            <mat-icon aria-hidden="true" class="!text-[18px] text-primary">{{ entry.registry.icon }}</mat-icon>
+            <h2 class="text-sm font-semibold tracking-tight">{{ entry.registry.title }}</h2>
+          </div>
 
-          @if (entry.envelope.success) {
-            <ng-container *ngComponentOutlet="entry.registry.component; inputs: { data: entry.envelope.data }" />
-          } @else {
-            <p class="text-sm text-danger" role="alert">
-              {{ entry.envelope.errorMessage ?? 'This widget is temporarily unavailable.' }}
-            </p>
-          }
+          <div class="p-4 sm:p-5">
+            @if (entry.envelope.success) {
+              <ng-container *ngComponentOutlet="entry.registry.component; inputs: { data: entry.envelope.data }" />
+            } @else {
+              <p class="text-sm text-danger" role="alert">
+                {{ entry.envelope.errorMessage ?? 'This widget is temporarily unavailable.' }}
+              </p>
+            }
+          </div>
         </li>
       }
 
       @if (facade.renderableWidgets().length === 0) {
-        <p class="col-span-full text-sm text-muted">No widgets are visible. Use "Customize" to add some.</p>
+        <p class="col-span-full text-sm text-text-muted">No widgets are visible. Use "Customize" to add some.</p>
       }
     </div>
   }

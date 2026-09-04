@@ -14,7 +14,7 @@ $vespera-light-theme: mat.define-theme(
       tertiary: mat.$blue-palette,
     ),
     typography: (
-      brand-family: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+      brand-family: 'Inter, Roboto, "Helvetica Neue", Arial, sans-serif',
     ),
     density: (
       scale: 0,
@@ -30,7 +30,7 @@ $vespera-dark-theme: mat.define-theme(
       tertiary: mat.$blue-palette,
     ),
     typography: (
-      brand-family: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+      brand-family: 'Inter, Roboto, "Helvetica Neue", Arial, sans-serif',
     ),
     density: (
       scale: 0,

@@ -1,37 +1,53 @@
-<mat-toolbar class="!bg-surface border-b border-border" role="banner">
-  <button mat-icon-button (click)="menuToggle.emit()" aria-label="Toggle navigation">
+<mat-toolbar class="!h-14 !bg-surface !px-3 shadow-1 sm:!px-4" role="banner">
+  <button
+    mat-icon-button
+    class="vespera-focus-ring sm:!hidden"
+    (click)="menuToggle.emit()"
+    aria-label="Toggle navigation"
+  >
     <mat-icon>menu</mat-icon>
   </button>
 
-  <span class="text-lg font-medium">Vespera</span>
+  <span class="text-lg font-semibold tracking-tight sm:hidden">Vespera</span>
+
+  <div class="mx-3 hidden min-w-0 flex-1 sm:block md:mx-4 md:max-w-md">
+    <vespera-global-search-bar />
+  </div>
 
   @if (tenantName) {
-    <span class="ml-2 text-sm text-text-muted">{{ tenantName }}</span>
+    <span class="hidden text-sm text-text-muted lg:inline">{{ tenantName }}</span>
   }
 
-  <span class="flex-1"></span>
+  <span class="flex-1 sm:hidden"></span>
 
-  <button mat-icon-button (click)="toggleTheme()" aria-label="Toggle theme">
-    <mat-icon>{{ theme.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
-  </button>
-
-  <button mat-icon-button [matMenuTriggerFor]="notificationsMenu" aria-label="Notifications">
-    <mat-icon [matBadge]="notifications.unreadCount() || null" matBadgeColor="warn" matBadgeSize="small">
-      notifications
-    </mat-icon>
-  </button>
-  <mat-menu #notificationsMenu="matMenu">
-    <button mat-menu-item (click)="notifications.markAllRead()">Mark all as read</button>
-  </mat-menu>
-
-  <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User menu">
-    <mat-icon>account_circle</mat-icon>
-  </button>
-  <mat-menu #userMenu="matMenu">
-    <div class="px-4 py-2 text-sm text-text-muted">{{ session()?.email }}</div>
-    <button mat-menu-item (click)="logout()">
-      <mat-icon>logout</mat-icon>
-      <span>Sign out</span>
+  <div class="flex items-center gap-0.5 sm:gap-1">
+    <button mat-icon-button class="vespera-focus-ring" (click)="toggleTheme()" aria-label="Toggle theme">
+      <mat-icon>{{ theme.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
     </button>
-  </mat-menu>
+
+    <button
+      mat-icon-button
+      class="vespera-focus-ring"
+      [matMenuTriggerFor]="notificationsMenu"
+      aria-label="Notifications"
+    >
+      <mat-icon [matBadge]="notifications.unreadCount() || null" matBadgeColor="warn" matBadgeSize="small">
+        notifications
+      </mat-icon>
+    </button>
+    <mat-menu #notificationsMenu="matMenu">
+      <button mat-menu-item (click)="notifications.markAllRead()">Mark all as read</button>
+    </mat-menu>
+
+    <button mat-icon-button class="vespera-focus-ring" [matMenuTriggerFor]="userMenu" aria-label="User menu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <div class="px-4 py-2 text-sm text-text-muted">{{ session()?.email }}</div>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Sign out</span>
+      </button>
+    </mat-menu>
+  </div>
 </mat-toolbar>

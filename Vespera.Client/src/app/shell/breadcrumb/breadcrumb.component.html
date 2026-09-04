@@ -1,12 +1,18 @@
 @if (crumbs().length > 0) {
-  <nav aria-label="Breadcrumb" class="px-4 py-2 text-sm text-text-muted">
-    @for (crumb of crumbs(); track crumb.url; let last = $last) {
-      @if (!last) {
-        <a [routerLink]="crumb.url" class="hover:text-primary">{{ crumb.label }}</a>
-        <span class="mx-1">/</span>
-      } @else {
-        <span class="text-text">{{ crumb.label }}</span>
+  <nav aria-label="Breadcrumb" class="border-b border-border bg-surface px-4 py-2 text-sm text-text-muted sm:px-6">
+    <ol class="flex min-w-0 items-center">
+      @for (crumb of crumbs(); track crumb.url; let last = $last; let index = $index) {
+        <li class="flex min-w-0 items-center">
+          @if (index > 0) {
+            <span class="mx-1.5 shrink-0 text-text-muted/60" aria-hidden="true">/</span>
+          }
+          @if (!last) {
+            <a [routerLink]="crumb.url" class="truncate hover:text-primary">{{ crumb.label }}</a>
+          } @else {
+            <span class="truncate font-medium text-text" aria-current="page">{{ crumb.label }}</span>
+          }
+        </li>
       }
-    }
+    </ol>
   </nav>
 }

@@ -1,9 +1,8 @@
-<div class="mb-4 flex items-center justify-between">
-  <h1 class="text-xl font-semibold">Departments</h1>
+<vespera-page-header title="Departments" subtitle="Manage your organization's department structure.">
   <vespera-permission-button [permission]="Permissions.Departments.Manage" variant="flat" (clicked)="openCreateDialog()">
     New department
   </vespera-permission-button>
-</div>
+</vespera-page-header>
 
 @if (removeError()) {
   <p class="mb-2 text-sm text-danger" role="alert">{{ removeError() }}</p>

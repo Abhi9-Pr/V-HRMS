@@ -9,10 +9,12 @@ import { NotificationService } from '../../core/services/notification.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { AuthService, TenantResolutionService } from 'vespera-shared';
 
+import { GlobalSearchBarComponent } from '../global-search/global-search-bar.component';
+
 @Component({
   selector: 'vespera-topbar',
   standalone: true,
-  imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatBadgeModule],
+  imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatBadgeModule, GlobalSearchBarComponent],
   templateUrl: './topbar.component.html',
 })
 export class TopbarComponent {

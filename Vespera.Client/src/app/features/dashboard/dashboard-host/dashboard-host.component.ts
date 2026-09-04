@@ -15,10 +15,12 @@ import { DashboardCustomizeDialogComponent } from './dashboard-customize-dialog.
  * (order/visibility/size) is edited in DashboardCustomizeDialogComponent, not by dragging the
  * live grid — see that component's doc comment for why.
  */
+import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
+
 @Component({
   selector: 'vespera-dashboard-host',
   standalone: true,
-  imports: [NgComponentOutlet, MatButtonModule, MatIconModule, LoadingStateComponent, ErrorStateComponent],
+  imports: [NgComponentOutlet, MatButtonModule, MatIconModule, LoadingStateComponent, ErrorStateComponent, PageHeaderComponent],
   templateUrl: './dashboard-host.component.html',
 })
 export class DashboardHostComponent implements OnInit {

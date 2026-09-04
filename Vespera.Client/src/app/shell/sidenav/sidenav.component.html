@@ -1,8 +1,39 @@
-<mat-nav-list>
-  @for (item of items(); track item.path) {
-    <a mat-list-item [routerLink]="item.path" routerLinkActive="bg-surface-alt">
-      <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-      <span matListItemTitle>{{ item.label }}</span>
-    </a>
-  }
-</mat-nav-list>
+<div class="flex h-full flex-col">
+  <div class="flex items-center gap-3 border-b border-border px-4 py-4">
+    <div
+      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sm font-bold text-white"
+      style="background: var(--vespera-gradient-primary)"
+      aria-hidden="true"
+    >
+      V
+    </div>
+    <div class="min-w-0">
+      <p class="truncate text-base font-semibold leading-tight">Vespera</p>
+      <p class="truncate text-xs text-text-muted">HR Management</p>
+    </div>
+  </div>
+
+  <nav class="flex-1 overflow-y-auto py-2" aria-label="Main navigation">
+    @for (section of sections(); track section.label) {
+      <div class="mb-1">
+        <p class="px-4 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
+          {{ section.label }}
+        </p>
+        <mat-nav-list class="!py-0">
+          @for (item of section.items; track item.path) {
+            <a
+              mat-list-item
+              [routerLink]="item.path"
+              routerLinkActive="sidenav-active"
+              (click)="navigate.emit()"
+              class="!mx-2 !rounded-md !text-sm transition-colors duration-fast hover:!bg-surface-alt"
+            >
+              <mat-icon matListItemIcon class="!text-[20px]">{{ item.icon }}</mat-icon>
+              <span matListItemTitle>{{ item.label }}</span>
+            </a>
+          }
+        </mat-nav-list>
+      </div>
+    }
+  </nav>
+</div>

@@ -18,4 +18,7 @@
   --vespera-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.4);
   --vespera-elevation-2: 0 2px 8px rgba(0, 0, 0, 0.5);
   --vespera-elevation-3: 0 8px 24px rgba(0, 0, 0, 0.6);
+
+  --vespera-gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --vespera-gradient-surface: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
 }

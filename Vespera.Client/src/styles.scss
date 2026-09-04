@@ -17,4 +17,29 @@ body {
   font-family: var(--vespera-font-family);
   background-color: var(--vespera-color-surface-alt);
   color: var(--vespera-color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer components {
+  .vespera-card {
+    @apply rounded-lg border border-border bg-surface shadow-1;
+  }
+
+  .vespera-page {
+    @apply mx-auto w-full max-w-content;
+  }
+
+  .vespera-focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+  }
+
+  .sidenav-active {
+    background-color: color-mix(in srgb, var(--vespera-color-primary) 12%, transparent);
+    color: var(--vespera-color-primary);
+  }
+
+  .sidenav-active .mat-icon {
+    color: var(--vespera-color-primary);
+  }
 }
