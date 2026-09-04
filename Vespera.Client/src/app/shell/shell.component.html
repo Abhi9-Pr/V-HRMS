@@ -1,4 +1,12 @@
-<mat-sidenav-container class="h-screen">
+<!--
+  autosize: MatDrawerContainer computes mat-drawer-content's margin-left ONCE (on open/close and
+  a few other internal triggers) and caches it -- it does not watch the drawer's own box size, so
+  a docked (mode="side") sidenav that changes width at runtime without autosize leaves the content
+  margin stuck at whatever it was, opening a dead gap between the drawer and the content. autosize
+  makes the container re-measure via ResizeObserver whenever the drawer's actual rendered size
+  changes, which is exactly this collapse/expand case.
+-->
+<mat-sidenav-container class="h-screen" autosize>
   <mat-sidenav
     [mode]="isMobile() ? 'over' : 'side'"
     [opened]="isMobile() ? sidenavOpened() : true"
