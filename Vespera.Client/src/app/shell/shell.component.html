@@ -2,9 +2,11 @@
   <mat-sidenav
     [mode]="isMobile() ? 'over' : 'side'"
     [opened]="isMobile() ? sidenavOpened() : true"
-    class="w-64 border-r border-border"
+    class="border-r border-border transition-[width] duration-200"
+    [class.w-64]="isMobile() || !sidenavCollapsed()"
+    [class.w-16]="!isMobile() && sidenavCollapsed()"
   >
-    <vespera-sidenav />
+    <vespera-sidenav [collapsed]="!isMobile() && sidenavCollapsed()" />
   </mat-sidenav>
 
   <mat-sidenav-content class="flex h-screen flex-col">

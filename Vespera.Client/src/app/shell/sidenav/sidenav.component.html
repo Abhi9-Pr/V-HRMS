@@ -1,8 +1,18 @@
 <mat-nav-list>
   @for (item of items(); track item.path) {
-    <a mat-list-item [routerLink]="item.path" routerLinkActive="bg-surface-alt">
+    <a
+      mat-list-item
+      [routerLink]="item.path"
+      routerLinkActive="bg-surface-alt"
+      [matTooltip]="item.label"
+      [matTooltipDisabled]="!collapsed()"
+      matTooltipPosition="right"
+      [attr.aria-label]="collapsed() ? item.label : null"
+    >
       <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-      <span matListItemTitle>{{ item.label }}</span>
+      @if (!collapsed()) {
+        <span matListItemTitle>{{ item.label }}</span>
+      }
     </a>
   }
 </mat-nav-list>

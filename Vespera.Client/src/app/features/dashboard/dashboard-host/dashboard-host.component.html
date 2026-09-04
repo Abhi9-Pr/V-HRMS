@@ -12,7 +12,7 @@
   @if (facade.error(); as apiError) {
     <vespera-error-state [description]="apiError.message" (action)="reload()" />
   } @else {
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" role="list" aria-label="Dashboard widgets">
+    <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" role="list" aria-label="Dashboard widgets">
       @for (entry of facade.renderableWidgets(); track entry.preference.widgetKey) {
         <li class="rounded-lg border border-border bg-surface p-4" [class]="sizeSpanClass(entry.preference.size)">
           <h2 class="mb-3 flex items-center gap-2 text-sm font-semibold">
@@ -29,10 +29,10 @@
           }
         </li>
       }
+    </ul>
 
-      @if (facade.renderableWidgets().length === 0) {
-        <p class="col-span-full text-sm text-muted">No widgets are visible. Use "Customize" to add some.</p>
-      }
-    </div>
+    @if (facade.renderableWidgets().length === 0) {
+      <p class="text-sm text-muted">No widgets are visible. Use "Customize" to add some.</p>
+    }
   }
 }

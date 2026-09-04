@@ -8,11 +8,12 @@ import { Router } from '@angular/router';
 import { NotificationService } from '../../core/services/notification.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { AuthService, TenantResolutionService } from 'vespera-shared';
+import { ClockComponent } from './clock/clock.component';
 
 @Component({
   selector: 'vespera-topbar',
   standalone: true,
-  imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatBadgeModule],
+  imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatBadgeModule, ClockComponent],
   templateUrl: './topbar.component.html',
 })
 export class TopbarComponent {

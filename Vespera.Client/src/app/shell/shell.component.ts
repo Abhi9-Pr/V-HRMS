@@ -8,6 +8,8 @@ import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { SidenavComponent } from './sidenav/sidenav.component';
 import { TopbarComponent } from './topbar/topbar.component';
 
+const SIDENAV_COLLAPSED_KEY = 'vespera.sidenavCollapsed';
+
 @Component({
   selector: 'vespera-shell',
   standalone: true,
@@ -22,9 +24,24 @@ export class ShellComponent {
     { initialValue: false },
   );
 
+  // Mobile: the sidenav is an overlay drawer, opened/closed by the topbar's toggle button.
   readonly sidenavOpened = signal(true);
 
+  // Desktop: the sidenav is always visible but can collapse to an icon-only rail — a distinct
+  // concept from the mobile drawer's open/closed state, so it gets its own signal rather than
+  // overloading sidenavOpened with two different meanings. Persisted like ThemeService's
+  // preference: a UI convenience, not security-sensitive, so localStorage is the right store.
+  readonly sidenavCollapsed = signal(localStorage.getItem(SIDENAV_COLLAPSED_KEY) === 'true');
+
   toggleSidenav(): void {
-    this.sidenavOpened.update((opened) => !opened);
+    if (this.isMobile()) {
+      this.sidenavOpened.update((opened) => !opened);
+    } else {
+      this.sidenavCollapsed.update((collapsed) => {
+        const next = !collapsed;
+        localStorage.setItem(SIDENAV_COLLAPSED_KEY, String(next));
+        return next;
+      });
+    }
   }
 }
