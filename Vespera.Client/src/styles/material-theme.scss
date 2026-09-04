@@ -46,3 +46,16 @@ html {
     @include mat.all-component-colors($vespera-dark-theme);
   }
 }
+
+// Outlined mat-form-field: Material's own generated CSS resets the notch piece's border-left to
+// transparent (so the seam between the leading segment and the notch is invisible) but never
+// resets border-right the same way, leaving a visible vertical line where the notch meets the
+// trailing segment — on every outlined field, not just ones with a floated label. Confirmed
+// upstream, still open as of Angular Material 18.2.x: angular/components#29821, #30615. This
+// mirrors Material's own left-side reset (including its selector's repeated-class specificity
+// bump, which Material's own build applies to guarantee it wins the cascade) onto the right side;
+// remove once fixed upstream.
+.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field
+  .mdc-notched-outline__notch {
+  border-right: 1px solid transparent;
+}
