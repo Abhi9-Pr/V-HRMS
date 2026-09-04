@@ -3,9 +3,16 @@
     [mode]="isMobile() ? 'over' : 'side'"
     [opened]="isMobile() ? sidenavOpened() : true"
     class="border-r border-border transition-[width] duration-200"
-    [class.w-64]="isMobile() || !sidenavCollapsed()"
-    [class.w-16]="!isMobile() && sidenavCollapsed()"
+    [style.width]="isMobile() || !sidenavCollapsed() ? '16rem' : 'var(--vespera-space-16)'"
   >
+    <!--
+      Width is set via [style.width] (inline style), not a Tailwind w-64/w-16 class: Angular
+      Material's own generated theme CSS has its own `.mat-drawer { width: var(--mat-sidenav-
+      container-width) }` rule at the same specificity as a single Tailwind utility class, and
+      which one wins the tie depends on stylesheet source order — that's how the collapse first
+      shipped broken (labels hid, the drawer itself never actually shrank). An inline style always
+      wins over any external stylesheet rule, sidestepping the tie entirely.
+    -->
     <vespera-sidenav [collapsed]="!isMobile() && sidenavCollapsed()" />
   </mat-sidenav>
 
