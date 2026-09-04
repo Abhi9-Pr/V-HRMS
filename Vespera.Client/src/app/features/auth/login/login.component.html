@@ -1,7 +1,15 @@
-<div class="flex min-h-screen items-center justify-center bg-surface-alt px-4">
-  <mat-card class="w-full max-w-sm p-2">
-    <mat-card-header>
-      <mat-card-title>Sign in to Vespera</mat-card-title>
+<div class="login-shell">
+  <div class="login-aurora" aria-hidden="true">
+    <span class="login-orb login-orb--a"></span>
+    <span class="login-orb login-orb--b"></span>
+    <span class="login-orb login-orb--c"></span>
+    <span class="login-grid"></span>
+  </div>
+
+  <mat-card class="login-card w-full max-w-md p-4 !rounded-lg !shadow-2">
+    <mat-card-header class="!pb-0">
+      <mat-card-title class="!text-xl !font-semibold">Sign in</mat-card-title>
+      <mat-card-subtitle class="!text-text-muted">Enter your credentials to continue</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -29,10 +37,10 @@
         }
 
         @if (error()) {
-          <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+          <p class="rounded-md bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">{{ error() }}</p>
         }
 
-        <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+        <button mat-flat-button color="primary" type="submit" class="!mt-1 !h-11" [disabled]="submitting()">
           @if (submitting()) {
             <mat-spinner diameter="20" class="inline-block align-middle" />
           } @else {

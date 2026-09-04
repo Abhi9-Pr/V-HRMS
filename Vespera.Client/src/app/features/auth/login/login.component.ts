@@ -23,6 +23,7 @@ import { ApiError, AuthService, TenantResolutionService } from 'vespera-shared';
     MatProgressSpinnerModule,
   ],
   templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   private readonly formBuilder = inject(FormBuilder);

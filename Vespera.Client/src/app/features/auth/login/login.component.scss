@@ -1,0 +1,133 @@
+:host {
+  display: block;
+}
+
+.login-shell {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 1rem;
+  background: var(--vespera-color-surface-alt);
+}
+
+.login-aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.login-aurora::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  background: conic-gradient(
+    from 180deg at 50% 50%,
+    color-mix(in srgb, var(--vespera-color-primary) 22%, transparent),
+    transparent 18%,
+    color-mix(in srgb, #7c3aed 18%, transparent),
+    transparent 42%,
+    color-mix(in srgb, #0ea5e9 14%, transparent),
+    transparent 68%,
+    color-mix(in srgb, var(--vespera-color-primary) 22%, transparent)
+  );
+  filter: blur(72px);
+  opacity: 0.9;
+  animation: login-spin 42s linear infinite;
+}
+
+.login-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(56px);
+  will-change: transform;
+}
+
+.login-orb--a {
+  width: 28rem;
+  height: 28rem;
+  top: -8rem;
+  left: -6rem;
+  background: color-mix(in srgb, var(--vespera-color-primary) 50%, transparent);
+  animation: login-drift-a 18s ease-in-out infinite;
+}
+
+.login-orb--b {
+  width: 24rem;
+  height: 24rem;
+  right: -5rem;
+  bottom: -7rem;
+  background: color-mix(in srgb, #7c3aed 46%, transparent);
+  animation: login-drift-b 22s ease-in-out infinite;
+}
+
+.login-orb--c {
+  width: 16rem;
+  height: 16rem;
+  top: 38%;
+  left: 52%;
+  background: color-mix(in srgb, #06b6d4 32%, transparent);
+  animation: login-drift-c 16s ease-in-out infinite;
+}
+
+.login-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--vespera-color-primary) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--vespera-color-primary) 10%, transparent) 1px, transparent 1px);
+  background-size: 3rem 3rem;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 10%, transparent 72%);
+  opacity: 0.55;
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes login-drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(14%, 20%) scale(1.12);
+  }
+}
+
+@keyframes login-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-16%, -12%) scale(1.08);
+  }
+}
+
+@keyframes login-drift-c {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-22%, 18%) scale(1.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-aurora::before,
+  .login-orb {
+    animation: none;
+  }
+}
