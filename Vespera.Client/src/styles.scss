@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+// Tailwind Preflight sets `border-style: solid` on every element. Material's outlined
+// form-field notch then draws a full-height line at the label join. Hide that edge.
+.mdc-notched-outline__notch {
+  border-right: none;
+}
+
 @import './styles/tokens.css';
 @import './styles/tokens.dark.css';
 
