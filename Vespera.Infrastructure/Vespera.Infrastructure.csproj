@@ -29,6 +29,12 @@
     <PackageReference Include="NodaTime" />
     <PackageReference Include="QuestPDF" />
     <PackageReference Include="PdfSharpCore" />
+    <!-- Direct pins forcing NuGet past known-vulnerable versions Microsoft.Data.Sqlite /
+         Microsoft.AspNetCore.DataProtection resolve transitively on their own (see
+         Directory.Packages.props for why, and the security-scan CI job for the advisories). -->
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
+    <PackageReference Include="SixLabors.ImageSharp" />
   </ItemGroup>
 
   <ItemGroup>

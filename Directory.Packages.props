@@ -3,6 +3,20 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Transitive-only pins for known-vulnerable packages pulled in below their patched version
+         (see the security-scan CI job, or "dotnet list package" with the vulnerable/transitive
+         flags). Same minor/patch line as what Microsoft.Data.Sqlite/EntityFrameworkCore.Sqlite and
+         AspNetCore.DataProtection 8.0.10 resolve on their own, so no API-surface change, just the
+         security fix. Pulled up via an explicit direct PackageReference in Vespera.Infrastructure
+         (see that csproj) since these are transitive-only elsewhere in the graph. -->
+    <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.13" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="8.0.4" />
+    <!-- PdfSharpCore 1.3.67 (latest as of writing) still hardcodes SixLabors.ImageSharp 1.0.4 with
+         no patched 1.x release available. Vespera only calls PdfSharpCore's PdfReader.Open/Save for
+         password-protecting an already-rendered PDF (PdfSharpPasswordProtector) — never its
+         image-drawing APIs — so this override is verified against PdfSharpPasswordProtectorTests
+         rather than assumed safe. -->
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.12" />
     <!-- Application -->
     <PackageVersion Include="Asp.Versioning.Mvc" Version="8.1.0" />
     <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />

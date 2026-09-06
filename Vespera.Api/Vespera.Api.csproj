@@ -52,7 +52,7 @@
     the build happened to run from. Requires `dotnet tool restore` once (see .config/dotnet-tools.json).
   -->
   <Target Name="GenerateOpenApiDocument" AfterTargets="Build">
-    <Exec Command="dotnet swagger tofile --output &quot;$(MSBuildProjectDirectory)\openapi.json&quot; &quot;$(TargetFileName)&quot; v1"
+    <Exec Command="dotnet swagger tofile --output &quot;$(MSBuildProjectDirectory)/openapi.json&quot; &quot;$(TargetFileName)&quot; v1"
           WorkingDirectory="$(TargetDir)"
           EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Testing"
           ContinueOnError="WarnAndContinue" />

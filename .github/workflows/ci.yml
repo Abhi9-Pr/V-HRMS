@@ -27,6 +27,9 @@ jobs:
       - name: Restore
         run: dotnet restore Vespera.sln
 
+      - name: Restore local tools
+        run: dotnet tool restore
+
       - name: Build (warnings as errors)
         run: dotnet build Vespera.sln --no-restore --configuration Release /warnaserror
 
