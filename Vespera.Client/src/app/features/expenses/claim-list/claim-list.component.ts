@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -12,9 +20,10 @@ import { ClaimCreateDialogComponent } from './claim-create-dialog.component';
 import { ExpenseClaimDto, Permissions } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-claim-list',
-    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
-    templateUrl: './claim-list.component.html'
+  selector: 'vespera-claim-list',
+  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './claim-list.component.html',
 })
 export class ClaimListComponent implements OnInit, AfterViewInit {
   private readonly expensesFacade = inject(ExpensesFacade);

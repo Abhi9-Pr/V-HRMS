@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -10,9 +10,10 @@ import { CURRENCY_LABELS } from '../expenses.labels';
 import { ApiError, Currency } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-claim-create-dialog',
-    imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatSelectModule, MatButtonModule],
-    templateUrl: './claim-create-dialog.component.html'
+  selector: 'vespera-claim-create-dialog',
+  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatSelectModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './claim-create-dialog.component.html',
 })
 export class ClaimCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

@@ -17,6 +17,14 @@ module.exports = defineConfig([
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      // Angular 22 flipped the default change-detection strategy to OnPush and its `ng update`
+      // migration explicitly opted every existing component out via `changeDetection:
+      // ChangeDetectionStrategy.Eager` to preserve pre-v22 behavior (see the Angular 19->22
+      // upgrade commits). angular-eslint's tsRecommended config now flags that explicit opt-out.
+      // Actually adopting OnPush across ~80 components is a real behavioral migration requiring
+      // per-component verification, not something to bundle into a dependency-upgrade pass -
+      // tracked as separate follow-up work, so this rule is off until that happens.
+      "@angular-eslint/prefer-on-push-component-change-detection": "off",
       "@angular-eslint/directive-selector": [
         "error",
         {

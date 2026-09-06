@@ -1,4 +1,4 @@
-import { Component, Input, inject, signal } from '@angular/core';
+import { Component, Input, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PermissionButtonComponent } from '../../../../shared/buttons/permission-button.component';
 import { TimezoneDatePipe } from '../../../../shared/pipes/timezone-date.pipe';
@@ -8,9 +8,10 @@ import { CreateEventDialogComponent } from './create-event-dialog.component';
 import { CorporateEventSummaryDto, Permissions, RsvpResponse } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-corporate-events-widget',
-    imports: [PermissionButtonComponent, TimezoneDatePipe],
-    templateUrl: './corporate-events-widget.component.html'
+  selector: 'vespera-corporate-events-widget',
+  imports: [PermissionButtonComponent, TimezoneDatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './corporate-events-widget.component.html',
 })
 export class CorporateEventsWidgetComponent {
   private readonly corporateEventsFacade = inject(CorporateEventsFacade);

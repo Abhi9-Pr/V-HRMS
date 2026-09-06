@@ -1,4 +1,4 @@
-import { Component, Input, signal } from '@angular/core';
+import { Component, Input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CurrencyDisplayPipe } from '../../../../shared/pipes/currency-display.pipe';
@@ -6,9 +6,10 @@ import { TimezoneDatePipe } from '../../../../shared/pipes/timezone-date.pipe';
 import { MyLatestPayslipDto } from '../dashboard-widget-payloads.model';
 
 @Component({
-    selector: 'vespera-payslip-quick-link-widget',
-    imports: [MatButtonModule, MatIconModule, CurrencyDisplayPipe, TimezoneDatePipe],
-    templateUrl: './payslip-quick-link-widget.component.html'
+  selector: 'vespera-payslip-quick-link-widget',
+  imports: [MatButtonModule, MatIconModule, CurrencyDisplayPipe, TimezoneDatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './payslip-quick-link-widget.component.html',
 })
 export class PayslipQuickLinkWidgetComponent {
   private readonly dataSignal = signal<MyLatestPayslipDto | null>(null);

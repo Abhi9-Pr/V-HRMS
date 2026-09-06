@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -12,9 +20,10 @@ import { AssetCreateDialogComponent } from './asset-create-dialog.component';
 import { AssetDto, Permissions } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-asset-list',
-    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
-    templateUrl: './asset-list.component.html'
+  selector: 'vespera-asset-list',
+  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './asset-list.component.html',
 })
 export class AssetListComponent implements OnInit, AfterViewInit {
   private readonly assetsFacade = inject(AssetsFacade);

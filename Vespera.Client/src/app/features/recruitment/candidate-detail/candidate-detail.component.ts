@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -17,21 +17,22 @@ import { CANDIDATE_STATUS_LABELS, INTERVIEW_STATUS_LABELS, OFFER_LETTER_STATUS_L
 import { ApiError, CandidateStatus, Currency, InterviewDto, OfferLetterDto, OfferLetterStatus } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-candidate-detail',
-    imports: [
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatButtonModule,
-        FormErrorComponent,
-        TimezoneDatePipe,
-        ErrorStateComponent,
-        LoadingStateComponent,
-    ],
-    templateUrl: './candidate-detail.component.html'
+  selector: 'vespera-candidate-detail',
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+    FormErrorComponent,
+    TimezoneDatePipe,
+    ErrorStateComponent,
+    LoadingStateComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './candidate-detail.component.html',
 })
 export class CandidateDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

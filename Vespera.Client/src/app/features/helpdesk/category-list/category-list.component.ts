@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
 import { DataTableColumn, DataTableQuery } from '../../../shared/data-table/data-table.model';
@@ -9,9 +9,10 @@ import { CategoryCreateDialogComponent } from './category-create-dialog.componen
 import { Permissions, TicketCategoryDto } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-category-list',
-    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
-    templateUrl: './category-list.component.html'
+  selector: 'vespera-category-list',
+  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './category-list.component.html',
 })
 export class CategoryListComponent implements OnInit {
   private readonly helpdeskFacade = inject(HelpdeskFacade);

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -14,16 +14,17 @@ export interface CourierDispatchDialogData {
 }
 
 @Component({
-    selector: 'vespera-courier-dispatch-dialog',
-    imports: [
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        FormErrorComponent,
-    ],
-    templateUrl: './courier-dispatch-dialog.component.html'
+  selector: 'vespera-courier-dispatch-dialog',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    FormErrorComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './courier-dispatch-dialog.component.html',
 })
 export class CourierDispatchDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

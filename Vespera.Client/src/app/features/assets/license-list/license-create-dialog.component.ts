@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -11,17 +11,18 @@ import { AssetsFacade } from '../data/assets.facade';
 import { ApiError } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-license-create-dialog',
-    imports: [
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatButtonModule,
-    ],
-    templateUrl: './license-create-dialog.component.html'
+  selector: 'vespera-license-create-dialog',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './license-create-dialog.component.html',
 })
 export class LicenseCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

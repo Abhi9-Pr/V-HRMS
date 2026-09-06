@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -7,9 +7,10 @@ import { MatInputModule } from '@angular/material/input';
  * empty-state panel so the shell's layout is final; wiring a real search index is a later-phase
  * decision. */
 @Component({
-    selector: 'vespera-global-search-bar',
-    imports: [FormsModule, MatIconModule, MatInputModule],
-    templateUrl: './global-search-bar.component.html'
+  selector: 'vespera-global-search-bar',
+  imports: [FormsModule, MatIconModule, MatInputModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './global-search-bar.component.html',
 })
 export class GlobalSearchBarComponent {
   query = '';

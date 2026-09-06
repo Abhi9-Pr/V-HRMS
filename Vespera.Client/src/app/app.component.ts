@@ -1,13 +1,14 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, effect, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NotificationService } from './core/services/notification.service';
 import { ThemeService } from './core/services/theme.service';
 import { AuthService } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-root',
-    imports: [RouterOutlet],
-    templateUrl: './app.component.html'
+  selector: 'vespera-root',
+  imports: [RouterOutlet],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './app.component.html',
 })
 export class AppComponent {
   private readonly auth = inject(AuthService);

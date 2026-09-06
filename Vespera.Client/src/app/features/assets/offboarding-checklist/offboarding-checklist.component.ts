@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
@@ -8,9 +8,10 @@ import { AssetsFacade } from '../data/assets.facade';
 import { ApiError, Permissions } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-offboarding-checklist',
-    imports: [PermissionButtonComponent, ErrorStateComponent, LoadingStateComponent],
-    templateUrl: './offboarding-checklist.component.html'
+  selector: 'vespera-offboarding-checklist',
+  imports: [PermissionButtonComponent, ErrorStateComponent, LoadingStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './offboarding-checklist.component.html',
 })
 export class OffboardingChecklistComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

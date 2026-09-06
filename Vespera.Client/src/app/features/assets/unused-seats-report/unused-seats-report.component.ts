@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
 import { EmptyStateComponent } from '../../../shared/states/empty-state.component';
@@ -6,9 +6,10 @@ import { TimezoneDatePipe } from '../../../shared/pipes/timezone-date.pipe';
 import { AssetsFacade } from '../data/assets.facade';
 
 @Component({
-    selector: 'vespera-unused-seats-report',
-    imports: [ErrorStateComponent, LoadingStateComponent, EmptyStateComponent, TimezoneDatePipe],
-    templateUrl: './unused-seats-report.component.html'
+  selector: 'vespera-unused-seats-report',
+  imports: [ErrorStateComponent, LoadingStateComponent, EmptyStateComponent, TimezoneDatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './unused-seats-report.component.html',
 })
 export class UnusedSeatsReportComponent implements OnInit {
   private readonly assetsFacade = inject(AssetsFacade);

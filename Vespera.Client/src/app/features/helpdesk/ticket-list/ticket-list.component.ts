@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -12,9 +20,10 @@ import { TicketCreateDialogComponent } from './ticket-create-dialog.component';
 import { Permissions, TicketSummaryDto } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-ticket-list',
-    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
-    templateUrl: './ticket-list.component.html'
+  selector: 'vespera-ticket-list',
+  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './ticket-list.component.html',
 })
 export class TicketListComponent implements OnInit, AfterViewInit {
   private readonly helpdeskFacade = inject(HelpdeskFacade);

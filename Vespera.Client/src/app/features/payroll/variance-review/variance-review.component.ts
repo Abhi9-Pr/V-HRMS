@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTableModule } from '@angular/material/table';
@@ -22,9 +22,10 @@ const FLAG_LABELS: Record<string, string> = {
  * the prior finalized cycle, plus new joiners, exits, and zero-net anomalies — read straight from
  * `GetPayrollRunVarianceQuery`'s output, no client-side re-derivation of what counts as "large". */
 @Component({
-    selector: 'vespera-variance-review',
-    imports: [DecimalPipe, MatTableModule, MatChipsModule, LoadingStateComponent, EmptyStateComponent],
-    templateUrl: './variance-review.component.html'
+  selector: 'vespera-variance-review',
+  imports: [DecimalPipe, MatTableModule, MatChipsModule, LoadingStateComponent, EmptyStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './variance-review.component.html',
 })
 export class VarianceReviewComponent implements OnInit {
   private readonly store = inject(Store);

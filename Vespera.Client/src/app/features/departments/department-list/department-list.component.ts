@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, inject, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { catchError, of } from 'rxjs';
@@ -14,9 +23,10 @@ import { ApiError, DepartmentDto, Permissions } from 'vespera-shared';
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 
 @Component({
-    selector: 'vespera-department-list',
-    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule, PageHeaderComponent],
-    templateUrl: './department-list.component.html'
+  selector: 'vespera-department-list',
+  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule, PageHeaderComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './department-list.component.html',
 })
 export class DepartmentListComponent implements OnInit, AfterViewInit {
   private readonly departmentsFacade = inject(DepartmentsFacade);

@@ -1,5 +1,5 @@
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -28,19 +28,20 @@ interface CustomizeRow {
  * convention.
  */
 @Component({
-    selector: 'vespera-dashboard-customize-dialog',
-    imports: [
-        FormsModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatIconModule,
-        MatCheckboxModule,
-        MatSelectModule,
-        CdkDropList,
-        CdkDrag,
-        CdkDragHandle,
-    ],
-    templateUrl: './dashboard-customize-dialog.component.html'
+  selector: 'vespera-dashboard-customize-dialog',
+  imports: [
+    FormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCheckboxModule,
+    MatSelectModule,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './dashboard-customize-dialog.component.html',
 })
 export class DashboardCustomizeDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<DashboardCustomizeDialogComponent>);

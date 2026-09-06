@@ -1,4 +1,4 @@
-import { Component, Input, computed, signal } from '@angular/core';
+import { Component, Input, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TimezoneDatePipe } from '../../../../shared/pipes/timezone-date.pipe';
@@ -11,9 +11,10 @@ import { CelebrationSummaryDto } from '../dashboard-widget-payloads.model';
  * clickable divs) so the whole thing is keyboard- and screen-reader-operable, not mouse-only.
  */
 @Component({
-    selector: 'vespera-celebrations-carousel-widget',
-    imports: [MatButtonModule, MatIconModule, TimezoneDatePipe],
-    templateUrl: './celebrations-carousel-widget.component.html'
+  selector: 'vespera-celebrations-carousel-widget',
+  imports: [MatButtonModule, MatIconModule, TimezoneDatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './celebrations-carousel-widget.component.html',
 })
 export class CelebrationsCarouselWidgetComponent {
   private readonly itemsSignal = signal<CelebrationSummaryDto[]>([]);

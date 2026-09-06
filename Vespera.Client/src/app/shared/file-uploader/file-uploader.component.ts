@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, output, signal } from '@angular/core';
+import { Component, ElementRef, ViewChild, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -6,9 +6,10 @@ import { MatIconModule } from '@angular/material/icon';
  * IFileStorage HTTP surface to call — same "plumbing only" treatment as Phase 4's mobile
  * affordances), so this stops at "here are the files the user picked." */
 @Component({
-    selector: 'vespera-file-uploader',
-    imports: [MatButtonModule, MatIconModule],
-    templateUrl: './file-uploader.component.html'
+  selector: 'vespera-file-uploader',
+  imports: [MatButtonModule, MatIconModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './file-uploader.component.html',
 })
 export class FileUploaderComponent {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;

@@ -1,9 +1,10 @@
-import { Component, Input, signal } from '@angular/core';
+import { Component, Input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { LeaveBalanceWidgetDto } from '../dashboard-widget-payloads.model';
 
 @Component({
   selector: 'vespera-leave-balance-widget',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './leave-balance-widget.component.html',
 })
 export class LeaveBalanceWidgetComponent {

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, output } from '@angular/core';
+import { Component, Input, OnInit, output, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,9 +12,10 @@ export interface DateRange {
 /** Thin wrapper over Angular Material's date range picker — a plain `{start, end}` in, the same
  * shape out via (rangeChange), so callers never touch Material's own FormGroup API directly. */
 @Component({
-    selector: 'vespera-date-range-picker',
-    imports: [ReactiveFormsModule, MatDatepickerModule, MatFormFieldModule, MatInputModule],
-    templateUrl: './date-range-picker.component.html'
+  selector: 'vespera-date-range-picker',
+  imports: [ReactiveFormsModule, MatDatepickerModule, MatFormFieldModule, MatInputModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './date-range-picker.component.html',
 })
 export class DateRangePickerComponent implements OnInit {
   @Input() label = 'Date range';
@@ -29,6 +30,8 @@ export class DateRangePickerComponent implements OnInit {
 
   ngOnInit(): void {
     this.range.setValue(this.initialRange, { emitEvent: false });
-    this.range.valueChanges.subscribe((value) => this.rangeChange.emit({ start: value.start ?? null, end: value.end ?? null }));
+    this.range.valueChanges.subscribe((value) =>
+      this.rangeChange.emit({ start: value.start ?? null, end: value.end ?? null }),
+    );
   }
 }

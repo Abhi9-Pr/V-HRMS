@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,16 +13,17 @@ import { ApiError, InvestmentDeclarationQueueItemDto, InvestmentDeclarationRevie
  * yet) — reviewing the last Pending line auto-verifies the declaration server-side, so this screen
  * doesn't need its own "verify" action. */
 @Component({
-    selector: 'vespera-investment-declaration-review',
-    imports: [
-        MatTableModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        LoadingStateComponent,
-        EmptyStateComponent,
-    ],
-    templateUrl: './investment-declaration-review.component.html'
+  selector: 'vespera-investment-declaration-review',
+  imports: [
+    MatTableModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    LoadingStateComponent,
+    EmptyStateComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './investment-declaration-review.component.html',
 })
 export class InvestmentDeclarationReviewComponent implements OnInit {
   private readonly client = inject(InvestmentDeclarationReviewClient);

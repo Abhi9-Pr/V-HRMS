@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -14,9 +14,10 @@ export interface DecisionDialogData {
 }
 
 @Component({
-    selector: 'vespera-decision-dialog',
-    imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
-    templateUrl: './decision-dialog.component.html'
+  selector: 'vespera-decision-dialog',
+  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './decision-dialog.component.html',
 })
 export class DecisionDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

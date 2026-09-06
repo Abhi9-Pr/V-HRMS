@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -20,17 +20,18 @@ function currentFinancialYear(): string {
  * declaration" step in this UI either. Proof upload is a plain storage-key text field for now; the
  * backend has no dedicated upload endpoint for declaration proofs yet. */
 @Component({
-    selector: 'vespera-investment-declaration',
-    imports: [
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatChipsModule,
-        LoadingStateComponent,
-        EmptyStateComponent,
-    ],
-    templateUrl: './investment-declaration.component.html'
+  selector: 'vespera-investment-declaration',
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatChipsModule,
+    LoadingStateComponent,
+    EmptyStateComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './investment-declaration.component.html',
 })
 export class InvestmentDeclarationComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);

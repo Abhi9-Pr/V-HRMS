@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { DateRange, DateRangePickerComponent } from '../../../shared/date-range-picker/date-range-picker.component';
@@ -16,9 +16,10 @@ function startOfWeek(date: Date): Date {
  * and where the team crosses the conflict threshold) without a bespoke calendar-grid component
  * this codebase doesn't have one of yet. */
 @Component({
-    selector: 'vespera-team-calendar',
-    imports: [DateRangePickerComponent, MatChipsModule, MatIconModule, ErrorStateComponent, DatePipe],
-    templateUrl: './team-calendar.component.html'
+  selector: 'vespera-team-calendar',
+  imports: [DateRangePickerComponent, MatChipsModule, MatIconModule, ErrorStateComponent, DatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './team-calendar.component.html',
 })
 export class TeamCalendarComponent implements OnInit {
   private readonly leaveFacade = inject(LeaveFacade);
@@ -27,7 +28,10 @@ export class TeamCalendarComponent implements OnInit {
   readonly loading = this.leaveFacade.loading;
   readonly error = this.leaveFacade.error;
 
-  private readonly range = signal<DateRange>({ start: startOfWeek(new Date()), end: addDays(startOfWeek(new Date()), 13) });
+  private readonly range = signal<DateRange>({
+    start: startOfWeek(new Date()),
+    end: addDays(startOfWeek(new Date()), 13),
+  });
 
   ngOnInit(): void {
     this.reload();

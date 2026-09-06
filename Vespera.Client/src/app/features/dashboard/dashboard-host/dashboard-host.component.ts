@@ -1,5 +1,5 @@
 import { NgComponentOutlet } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,9 +18,17 @@ import { DashboardCustomizeDialogComponent } from './dashboard-customize-dialog.
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 
 @Component({
-    selector: 'vespera-dashboard-host',
-    imports: [NgComponentOutlet, MatButtonModule, MatIconModule, LoadingStateComponent, ErrorStateComponent, PageHeaderComponent],
-    templateUrl: './dashboard-host.component.html'
+  selector: 'vespera-dashboard-host',
+  imports: [
+    NgComponentOutlet,
+    MatButtonModule,
+    MatIconModule,
+    LoadingStateComponent,
+    ErrorStateComponent,
+    PageHeaderComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './dashboard-host.component.html',
 })
 export class DashboardHostComponent implements OnInit {
   private readonly dialog = inject(MatDialog);

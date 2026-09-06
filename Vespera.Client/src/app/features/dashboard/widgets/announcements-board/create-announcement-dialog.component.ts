@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -16,19 +16,20 @@ import { LocationsFacade } from '../../data/locations.facade';
 import { AnnouncementAudienceScope, AnnouncementPriority, ApiError, LocationDto } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-create-announcement-dialog',
-    imports: [
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatCheckboxModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatButtonModule,
-    ],
-    templateUrl: './create-announcement-dialog.component.html'
+  selector: 'vespera-create-announcement-dialog',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './create-announcement-dialog.component.html',
 })
 export class CreateAnnouncementDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

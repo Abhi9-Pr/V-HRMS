@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -11,18 +11,19 @@ import { catchError, of, switchMap, tap } from 'rxjs';
 import { ApiError, AuthService, TenantResolutionService } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-login',
-    imports: [
-        ReactiveFormsModule,
-        RouterLink,
-        MatCardModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatProgressSpinnerModule,
-    ],
-    templateUrl: './login.component.html',
-    styleUrl: './login.component.scss'
+  selector: 'vespera-login',
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+  ],
+  templateUrl: './login.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   private readonly formBuilder = inject(FormBuilder);

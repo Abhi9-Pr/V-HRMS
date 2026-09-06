@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -11,17 +11,18 @@ import { CorporateEventsFacade } from '../../data/corporate-events.facade';
 import { ApiError } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-create-event-dialog',
-    imports: [
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatButtonModule,
-    ],
-    templateUrl: './create-event-dialog.component.html'
+  selector: 'vespera-create-event-dialog',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './create-event-dialog.component.html',
 })
 export class CreateEventDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

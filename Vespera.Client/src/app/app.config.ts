@@ -1,4 +1,4 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { APP_INITIALIZER, ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -39,6 +39,7 @@ export const appConfig: ApplicationConfig = {
     // request+retry lifecycle, error normalization must run after refresh has had its chance to
     // retry a 401, and refresh must be innermost so it sees the raw HttpErrorResponse first.
     provideHttpClient(
+      withXhr(),
       withInterceptors([
         correlationIdInterceptor,
         authInterceptor,

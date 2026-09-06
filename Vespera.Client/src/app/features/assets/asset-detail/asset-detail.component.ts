@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,22 +18,23 @@ import { ASSET_STATUS_LABELS, CURRENCY_LABELS, DEPRECIATION_METHOD_LABELS } from
 import { ApiError, AssetStatus, Currency, DepreciationMethod, Permissions } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-asset-detail',
-    imports: [
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        FormErrorComponent,
-        PermissionButtonComponent,
-        HasPermissionDirective,
-        ErrorStateComponent,
-        LoadingStateComponent,
-        CurrencyDisplayPipe,
-        TimezoneDatePipe,
-    ],
-    templateUrl: './asset-detail.component.html'
+  selector: 'vespera-asset-detail',
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    FormErrorComponent,
+    PermissionButtonComponent,
+    HasPermissionDirective,
+    ErrorStateComponent,
+    LoadingStateComponent,
+    CurrencyDisplayPipe,
+    TimezoneDatePipe,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './asset-detail.component.html',
 })
 export class AssetDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

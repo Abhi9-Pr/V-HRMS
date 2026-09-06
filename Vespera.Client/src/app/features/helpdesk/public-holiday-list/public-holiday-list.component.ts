@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
 import { DataTableColumn, DataTableQuery } from '../../../shared/data-table/data-table.model';
@@ -9,9 +9,10 @@ import { PublicHolidayCreateDialogComponent } from './public-holiday-create-dial
 import { Permissions, PublicHolidayDto } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-public-holiday-list',
-    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
-    templateUrl: './public-holiday-list.component.html'
+  selector: 'vespera-public-holiday-list',
+  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './public-holiday-list.component.html',
 })
 export class PublicHolidayListComponent implements OnInit {
   private readonly helpdeskFacade = inject(HelpdeskFacade);

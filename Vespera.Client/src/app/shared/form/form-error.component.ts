@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Input, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, Input, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl } from '@angular/forms';
 import { VALIDATION_MESSAGES } from './validation-messages';
@@ -9,6 +9,7 @@ import { VALIDATION_MESSAGES } from './validation-messages';
 @Component({
   selector: 'vespera-form-error',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './form-error.component.html',
 })
 export class FormErrorComponent {

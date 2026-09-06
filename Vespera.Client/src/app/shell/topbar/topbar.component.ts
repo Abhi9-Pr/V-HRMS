@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, output, ChangeDetectionStrategy } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,9 +12,10 @@ import { AuthService, TenantResolutionService } from 'vespera-shared';
 import { GlobalSearchBarComponent } from '../global-search/global-search-bar.component';
 
 @Component({
-    selector: 'vespera-topbar',
-    imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatBadgeModule, GlobalSearchBarComponent],
-    templateUrl: './topbar.component.html'
+  selector: 'vespera-topbar',
+  imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatBadgeModule, GlobalSearchBarComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './topbar.component.html',
 })
 export class TopbarComponent {
   private readonly auth = inject(AuthService);

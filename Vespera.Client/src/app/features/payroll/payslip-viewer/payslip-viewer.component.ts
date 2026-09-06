@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
@@ -17,9 +17,10 @@ import { ApiError, PayslipsClient } from 'vespera-shared';
  * this screen deliberately doesn't fake that data with a single point pretending to be a trend.
  */
 @Component({
-    selector: 'vespera-payslip-viewer',
-    imports: [MatButtonModule, NgxChartsModule, LoadingStateComponent],
-    templateUrl: './payslip-viewer.component.html'
+  selector: 'vespera-payslip-viewer',
+  imports: [MatButtonModule, NgxChartsModule, LoadingStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './payslip-viewer.component.html',
 })
 export class PayslipViewerComponent implements OnInit {
   private readonly store = inject(Store);

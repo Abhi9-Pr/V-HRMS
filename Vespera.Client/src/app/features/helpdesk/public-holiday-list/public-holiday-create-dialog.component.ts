@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -11,17 +11,18 @@ import { HelpdeskFacade } from '../data/helpdesk.facade';
 import { ApiError } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-public-holiday-create-dialog',
-    imports: [
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatButtonModule,
-    ],
-    templateUrl: './public-holiday-create-dialog.component.html'
+  selector: 'vespera-public-holiday-create-dialog',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './public-holiday-create-dialog.component.html',
 })
 export class PublicHolidayCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

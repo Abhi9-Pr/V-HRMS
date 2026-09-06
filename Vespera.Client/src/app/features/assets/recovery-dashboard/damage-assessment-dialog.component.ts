@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -14,16 +14,17 @@ export interface DamageAssessmentDialogData {
 }
 
 @Component({
-    selector: 'vespera-damage-assessment-dialog',
-    imports: [
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        FormErrorComponent,
-    ],
-    templateUrl: './damage-assessment-dialog.component.html'
+  selector: 'vespera-damage-assessment-dialog',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    FormErrorComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './damage-assessment-dialog.component.html',
 })
 export class DamageAssessmentDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

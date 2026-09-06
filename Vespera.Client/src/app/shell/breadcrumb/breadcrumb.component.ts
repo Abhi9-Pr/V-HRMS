@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, startWith } from 'rxjs';
 
@@ -10,9 +10,10 @@ interface Crumb {
 /** Derives from each activated route's `data['breadcrumb']` — a route with no breadcrumb entry
  * contributes nothing, so leaf routes that don't opt in stay invisible here. */
 @Component({
-    selector: 'vespera-breadcrumb',
-    imports: [RouterLink],
-    templateUrl: './breadcrumb.component.html'
+  selector: 'vespera-breadcrumb',
+  imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './breadcrumb.component.html',
 })
 export class BreadcrumbComponent {
   private readonly router = inject(Router);

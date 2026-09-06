@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -27,21 +27,22 @@ interface ThreadedComment {
  * Open/InProgress/OnHold -> Assign or Resolve; Resolved -> Close; Closed -> Rate satisfaction.
  */
 @Component({
-    selector: 'vespera-ticket-detail',
-    imports: [
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatCheckboxModule,
-        MatButtonModule,
-        FileUploaderComponent,
-        FormErrorComponent,
-        PermissionButtonComponent,
-        TimezoneDatePipe,
-        ErrorStateComponent,
-        LoadingStateComponent,
-    ],
-    templateUrl: './ticket-detail.component.html'
+  selector: 'vespera-ticket-detail',
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    FileUploaderComponent,
+    FormErrorComponent,
+    PermissionButtonComponent,
+    TimezoneDatePipe,
+    ErrorStateComponent,
+    LoadingStateComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './ticket-detail.component.html',
 })
 export class TicketDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

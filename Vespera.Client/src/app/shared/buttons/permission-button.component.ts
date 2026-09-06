@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, Input, computed, inject, output } from '@angular/core';
+import { Component, Input, computed, inject, output, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService, hasPermission } from 'vespera-shared';
 
@@ -7,9 +7,10 @@ import { AuthService, hasPermission } from 'vespera-shared';
  * </vespera-permission-button>` — hides (not just disables) the action when the user lacks the
  * permission, using the same hasPermission() check as the guard and the structural directive. */
 @Component({
-    selector: 'vespera-permission-button',
-    imports: [MatButtonModule, NgTemplateOutlet],
-    templateUrl: './permission-button.component.html'
+  selector: 'vespera-permission-button',
+  imports: [MatButtonModule, NgTemplateOutlet],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './permission-button.component.html',
 })
 export class PermissionButtonComponent {
   private readonly auth = inject(AuthService);

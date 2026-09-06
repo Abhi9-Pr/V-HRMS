@@ -1,5 +1,5 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, Input, inject, signal } from '@angular/core';
+import { Component, Input, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -14,9 +14,10 @@ import { TodoItemDto, TodoUrgency } from 'vespera-shared';
  * row) — CDK's native keyboard support (focus an item, Enter/Space to lift, arrow keys to move,
  * Enter/Space to drop) is sufficient on its own for a plain reorderable list like this one. */
 @Component({
-    selector: 'vespera-todo-list-widget',
-    imports: [FormsModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatInputModule, CdkDropList, CdkDrag],
-    templateUrl: './todo-list-widget.component.html'
+  selector: 'vespera-todo-list-widget',
+  imports: [FormsModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatInputModule, CdkDropList, CdkDrag],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './todo-list-widget.component.html',
 })
 export class TodoListWidgetComponent {
   private readonly todosFacade = inject(TodosFacade);

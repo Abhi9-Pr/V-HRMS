@@ -1,4 +1,4 @@
-import { Component, computed, inject, output } from '@angular/core';
+import { Component, computed, inject, output, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -28,9 +28,10 @@ function sectionForPath(path: string): string {
 }
 
 @Component({
-    selector: 'vespera-sidenav',
-    imports: [MatListModule, MatIconModule, RouterLink, RouterLinkActive],
-    templateUrl: './sidenav.component.html'
+  selector: 'vespera-sidenav',
+  imports: [MatListModule, MatIconModule, RouterLink, RouterLinkActive],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './sidenav.component.html',
 })
 export class SidenavComponent {
   private readonly auth = inject(AuthService);
@@ -49,8 +50,6 @@ export class SidenavComponent {
     }
 
     const order = [...SECTION_BY_PREFIX.map(([, label]) => label), 'Other'];
-    return order
-      .filter((label) => grouped.has(label))
-      .map((label) => ({ label, items: grouped.get(label)! }));
+    return order.filter((label) => grouped.has(label)).map((label) => ({ label, items: grouped.get(label)! }));
   });
 }

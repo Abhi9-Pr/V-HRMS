@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, output } from '@angular/core';
+import { Component, Input, OnChanges, output, ChangeDetectionStrategy } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -15,9 +15,17 @@ import { DataTableColumn, DataTableQuery } from './data-table.model';
  * entirely feature-specific.
  */
 @Component({
-    selector: 'vespera-data-table',
-    imports: [MatTableModule, MatSortModule, MatPaginatorModule, MatProgressBarModule, EmptyStateComponent, NgTemplateOutlet],
-    templateUrl: './data-table.component.html'
+  selector: 'vespera-data-table',
+  imports: [
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatProgressBarModule,
+    EmptyStateComponent,
+    NgTemplateOutlet,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './data-table.component.html',
 })
 export class DataTableComponent<T> implements OnChanges {
   @Input({ required: true }) columns: DataTableColumn<T>[] = [];

@@ -1,4 +1,4 @@
-import { Component, Input, inject, signal } from '@angular/core';
+import { Component, Input, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { PermissionButtonComponent } from '../../../../shared/buttons/permission-button.component';
@@ -11,9 +11,10 @@ import { ReadReceiptsDialogComponent } from './read-receipts-dialog.component';
 import { AnnouncementSummaryDto, Permissions } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-announcements-board-widget',
-    imports: [MatIconModule, PermissionButtonComponent, MarkdownPipe, TimezoneDatePipe],
-    templateUrl: './announcements-board-widget.component.html'
+  selector: 'vespera-announcements-board-widget',
+  imports: [MatIconModule, PermissionButtonComponent, MarkdownPipe, TimezoneDatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './announcements-board-widget.component.html',
 })
 export class AnnouncementsBoardWidgetComponent {
   private readonly announcementsFacade = inject(AnnouncementsFacade);

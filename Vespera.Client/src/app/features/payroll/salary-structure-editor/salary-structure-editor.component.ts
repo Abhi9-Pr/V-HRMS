@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -40,18 +40,19 @@ function newLine(): EditableLine {
  * own that logic directly than fight a dynamically-shaped reactive form group.
  */
 @Component({
-    selector: 'vespera-salary-structure-editor',
-    imports: [
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatDatepickerModule,
-        MatButtonModule,
-        MatIconModule,
-        FormErrorComponent,
-    ],
-    templateUrl: './salary-structure-editor.component.html'
+  selector: 'vespera-salary-structure-editor',
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatButtonModule,
+    MatIconModule,
+    FormErrorComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './salary-structure-editor.component.html',
 })
 export class SalaryStructureEditorComponent {
   private readonly formBuilder = inject(FormBuilder);

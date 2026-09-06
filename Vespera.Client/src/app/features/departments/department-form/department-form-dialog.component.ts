@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -12,17 +12,18 @@ import { DepartmentFormDialogData } from './department-form-dialog.model';
 import { ApiError } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-department-form-dialog',
-    imports: [
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        FormErrorComponent,
-    ],
-    templateUrl: './department-form-dialog.component.html'
+  selector: 'vespera-department-form-dialog',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    FormErrorComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './department-form-dialog.component.html',
 })
 export class DepartmentFormDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

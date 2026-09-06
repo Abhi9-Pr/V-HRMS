@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -21,25 +21,26 @@ import { CURRENCY_LABELS, EXPENSE_CLAIM_STATUS_LABELS } from '../expenses.labels
 import { ApiError, Currency, ExpenseClaimStatus, Permissions } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-claim-detail',
-    imports: [
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatButtonModule,
-        FileUploaderComponent,
-        FormErrorComponent,
-        PermissionButtonComponent,
-        HasPermissionDirective,
-        ErrorStateComponent,
-        LoadingStateComponent,
-        CurrencyDisplayPipe,
-        TimezoneDatePipe,
-    ],
-    templateUrl: './claim-detail.component.html'
+  selector: 'vespera-claim-detail',
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+    FileUploaderComponent,
+    FormErrorComponent,
+    PermissionButtonComponent,
+    HasPermissionDirective,
+    ErrorStateComponent,
+    LoadingStateComponent,
+    CurrencyDisplayPipe,
+    TimezoneDatePipe,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './claim-detail.component.html',
 })
 export class ClaimDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

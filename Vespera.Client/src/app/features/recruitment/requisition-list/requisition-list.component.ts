@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -12,9 +20,10 @@ import { RequisitionCreateDialogComponent } from './requisition-create-dialog.co
 import { JobRequisitionDto, Permissions } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-requisition-list',
-    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
-    templateUrl: './requisition-list.component.html'
+  selector: 'vespera-requisition-list',
+  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './requisition-list.component.html',
 })
 export class RequisitionListComponent implements OnInit, AfterViewInit {
   private readonly recruitmentFacade = inject(RecruitmentFacade);

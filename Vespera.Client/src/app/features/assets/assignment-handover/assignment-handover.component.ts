@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,18 +14,19 @@ import { ASSET_CONDITION_RATING_LABELS } from '../assets.labels';
 import { ApiError, AssetConditionRating, Permissions } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-assignment-handover',
-    imports: [
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        FileUploaderComponent,
-        FormErrorComponent,
-        PermissionButtonComponent,
-    ],
-    templateUrl: './assignment-handover.component.html'
+  selector: 'vespera-assignment-handover',
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    FileUploaderComponent,
+    FormErrorComponent,
+    PermissionButtonComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './assignment-handover.component.html',
 })
 export class AssignmentHandoverComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

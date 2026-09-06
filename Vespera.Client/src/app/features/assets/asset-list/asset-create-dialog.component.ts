@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -13,18 +13,19 @@ import { CURRENCY_LABELS } from '../assets.labels';
 import { ApiError, Currency } from 'vespera-shared';
 
 @Component({
-    selector: 'vespera-asset-create-dialog',
-    imports: [
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatButtonModule,
-    ],
-    templateUrl: './asset-create-dialog.component.html'
+  selector: 'vespera-asset-create-dialog',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './asset-create-dialog.component.html',
 })
 export class AssetCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

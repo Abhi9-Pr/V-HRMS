@@ -1,4 +1,4 @@
-import { Component, Input, computed, inject, signal } from '@angular/core';
+import { Component, Input, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -7,9 +7,10 @@ import { AttendanceFacade } from '../../data/attendance.facade';
 import { ShiftTrackerWidgetDto } from '../dashboard-widget-payloads.model';
 
 @Component({
-    selector: 'vespera-shift-tracker-widget',
-    imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, TimezoneDatePipe],
-    templateUrl: './shift-tracker-widget.component.html'
+  selector: 'vespera-shift-tracker-widget',
+  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, TimezoneDatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  templateUrl: './shift-tracker-widget.component.html',
 })
 export class ShiftTrackerWidgetComponent {
   private readonly attendanceFacade = inject(AttendanceFacade);
