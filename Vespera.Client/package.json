@@ -28,7 +28,7 @@
     "@ngrx/effects": "^20.1.0",
     "@ngrx/store": "^20.1.0",
     "@ngrx/store-devtools": "^20.1.0",
-    "@swimlane/ngx-charts": "^23.1.0",
+    "@swimlane/ngx-charts": "^24.0.2",
     "autoprefixer": "^10.5.4",
     "dompurify": "^3.4.14",
     "marked": "^18.0.11",
