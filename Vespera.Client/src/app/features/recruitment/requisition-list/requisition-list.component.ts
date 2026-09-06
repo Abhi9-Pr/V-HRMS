@@ -12,10 +12,9 @@ import { RequisitionCreateDialogComponent } from './requisition-create-dialog.co
 import { JobRequisitionDto, Permissions } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-requisition-list',
-  standalone: true,
-  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
-  templateUrl: './requisition-list.component.html',
+    selector: 'vespera-requisition-list',
+    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
+    templateUrl: './requisition-list.component.html'
 })
 export class RequisitionListComponent implements OnInit, AfterViewInit {
   private readonly recruitmentFacade = inject(RecruitmentFacade);

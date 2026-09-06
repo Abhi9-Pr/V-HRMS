@@ -14,17 +14,16 @@ export interface DamageAssessmentDialogData {
 }
 
 @Component({
-  selector: 'vespera-damage-assessment-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    FormErrorComponent,
-  ],
-  templateUrl: './damage-assessment-dialog.component.html',
+    selector: 'vespera-damage-assessment-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        FormErrorComponent,
+    ],
+    templateUrl: './damage-assessment-dialog.component.html'
 })
 export class DamageAssessmentDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

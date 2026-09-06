@@ -13,17 +13,16 @@ import { ApiError, InvestmentDeclarationQueueItemDto, InvestmentDeclarationRevie
  * yet) — reviewing the last Pending line auto-verifies the declaration server-side, so this screen
  * doesn't need its own "verify" action. */
 @Component({
-  selector: 'vespera-investment-declaration-review',
-  standalone: true,
-  imports: [
-    MatTableModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    LoadingStateComponent,
-    EmptyStateComponent,
-  ],
-  templateUrl: './investment-declaration-review.component.html',
+    selector: 'vespera-investment-declaration-review',
+    imports: [
+        MatTableModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        LoadingStateComponent,
+        EmptyStateComponent,
+    ],
+    templateUrl: './investment-declaration-review.component.html'
 })
 export class InvestmentDeclarationReviewComponent implements OnInit {
   private readonly client = inject(InvestmentDeclarationReviewClient);

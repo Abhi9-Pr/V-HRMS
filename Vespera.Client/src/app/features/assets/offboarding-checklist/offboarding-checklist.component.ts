@@ -8,10 +8,9 @@ import { AssetsFacade } from '../data/assets.facade';
 import { ApiError, Permissions } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-offboarding-checklist',
-  standalone: true,
-  imports: [PermissionButtonComponent, ErrorStateComponent, LoadingStateComponent],
-  templateUrl: './offboarding-checklist.component.html',
+    selector: 'vespera-offboarding-checklist',
+    imports: [PermissionButtonComponent, ErrorStateComponent, LoadingStateComponent],
+    templateUrl: './offboarding-checklist.component.html'
 })
 export class OffboardingChecklistComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

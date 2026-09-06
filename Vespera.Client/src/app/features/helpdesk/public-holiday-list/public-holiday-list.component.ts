@@ -9,10 +9,9 @@ import { PublicHolidayCreateDialogComponent } from './public-holiday-create-dial
 import { Permissions, PublicHolidayDto } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-public-holiday-list',
-  standalone: true,
-  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
-  templateUrl: './public-holiday-list.component.html',
+    selector: 'vespera-public-holiday-list',
+    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
+    templateUrl: './public-holiday-list.component.html'
 })
 export class PublicHolidayListComponent implements OnInit {
   private readonly helpdeskFacade = inject(HelpdeskFacade);

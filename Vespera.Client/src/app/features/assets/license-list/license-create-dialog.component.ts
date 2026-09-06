@@ -11,18 +11,17 @@ import { AssetsFacade } from '../data/assets.facade';
 import { ApiError } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-license-create-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatButtonModule,
-  ],
-  templateUrl: './license-create-dialog.component.html',
+    selector: 'vespera-license-create-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatButtonModule,
+    ],
+    templateUrl: './license-create-dialog.component.html'
 })
 export class LicenseCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

@@ -17,10 +17,9 @@ import { ApiError } from 'vespera-shared';
  * enough that a plain table with a selection column is simpler and more honest here than forcing
  * a paginator over data that isn't actually paged. */
 @Component({
-  selector: 'vespera-approval-inbox',
-  standalone: true,
-  imports: [MatTableModule, MatCheckboxModule, MatButtonModule, MatChipsModule, ErrorStateComponent, DatePipe],
-  templateUrl: './approval-inbox.component.html',
+    selector: 'vespera-approval-inbox',
+    imports: [MatTableModule, MatCheckboxModule, MatButtonModule, MatChipsModule, ErrorStateComponent, DatePipe],
+    templateUrl: './approval-inbox.component.html'
 })
 export class ApprovalInboxComponent implements OnInit {
   private readonly leaveFacade = inject(LeaveFacade);

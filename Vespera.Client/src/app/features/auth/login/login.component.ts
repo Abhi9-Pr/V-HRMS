@@ -11,19 +11,18 @@ import { catchError, of, switchMap, tap } from 'rxjs';
 import { ApiError, AuthService, TenantResolutionService } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-login',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-  ],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
+    selector: 'vespera-login',
+    imports: [
+        ReactiveFormsModule,
+        RouterLink,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
+    ],
+    templateUrl: './login.component.html',
+    styleUrl: './login.component.scss'
 })
 export class LoginComponent {
   private readonly formBuilder = inject(FormBuilder);

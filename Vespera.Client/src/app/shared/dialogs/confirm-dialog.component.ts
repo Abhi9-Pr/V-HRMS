@@ -4,10 +4,9 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { ConfirmDialogData } from './confirm-dialog.model';
 
 @Component({
-  selector: 'vespera-confirm-dialog',
-  standalone: true,
-  imports: [MatDialogModule, MatButtonModule],
-  templateUrl: './confirm-dialog.component.html',
+    selector: 'vespera-confirm-dialog',
+    imports: [MatDialogModule, MatButtonModule],
+    templateUrl: './confirm-dialog.component.html'
 })
 export class ConfirmDialogComponent {
   readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);

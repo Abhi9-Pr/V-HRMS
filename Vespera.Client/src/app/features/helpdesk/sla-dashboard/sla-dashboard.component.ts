@@ -6,10 +6,9 @@ import { LoadingStateComponent } from '../../../shared/states/loading-state.comp
 import { HelpdeskFacade } from '../data/helpdesk.facade';
 
 @Component({
-  selector: 'vespera-sla-dashboard',
-  standalone: true,
-  imports: [ErrorStateComponent, LoadingStateComponent, EmptyStateComponent, DecimalPipe],
-  templateUrl: './sla-dashboard.component.html',
+    selector: 'vespera-sla-dashboard',
+    imports: [ErrorStateComponent, LoadingStateComponent, EmptyStateComponent, DecimalPipe],
+    templateUrl: './sla-dashboard.component.html'
 })
 export class SlaDashboardComponent implements OnInit {
   private readonly helpdeskFacade = inject(HelpdeskFacade);

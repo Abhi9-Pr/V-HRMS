@@ -12,18 +12,17 @@ import { DepartmentFormDialogData } from './department-form-dialog.model';
 import { ApiError } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-department-form-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    FormErrorComponent,
-  ],
-  templateUrl: './department-form-dialog.component.html',
+    selector: 'vespera-department-form-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        FormErrorComponent,
+    ],
+    templateUrl: './department-form-dialog.component.html'
 })
 export class DepartmentFormDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

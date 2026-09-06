@@ -12,10 +12,9 @@ export interface DateRange {
 /** Thin wrapper over Angular Material's date range picker — a plain `{start, end}` in, the same
  * shape out via (rangeChange), so callers never touch Material's own FormGroup API directly. */
 @Component({
-  selector: 'vespera-date-range-picker',
-  standalone: true,
-  imports: [ReactiveFormsModule, MatDatepickerModule, MatFormFieldModule, MatInputModule],
-  templateUrl: './date-range-picker.component.html',
+    selector: 'vespera-date-range-picker',
+    imports: [ReactiveFormsModule, MatDatepickerModule, MatFormFieldModule, MatInputModule],
+    templateUrl: './date-range-picker.component.html'
 })
 export class DateRangePickerComponent implements OnInit {
   @Input() label = 'Date range';

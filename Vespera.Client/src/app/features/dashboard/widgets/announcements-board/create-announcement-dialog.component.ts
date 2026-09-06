@@ -16,20 +16,19 @@ import { LocationsFacade } from '../../data/locations.facade';
 import { AnnouncementAudienceScope, AnnouncementPriority, ApiError, LocationDto } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-create-announcement-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatButtonModule,
-  ],
-  templateUrl: './create-announcement-dialog.component.html',
+    selector: 'vespera-create-announcement-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatCheckboxModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatButtonModule,
+    ],
+    templateUrl: './create-announcement-dialog.component.html'
 })
 export class CreateAnnouncementDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

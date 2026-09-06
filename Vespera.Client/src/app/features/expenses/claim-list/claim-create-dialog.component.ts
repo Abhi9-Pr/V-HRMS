@@ -10,10 +10,9 @@ import { CURRENCY_LABELS } from '../expenses.labels';
 import { ApiError, Currency } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-claim-create-dialog',
-  standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatSelectModule, MatButtonModule],
-  templateUrl: './claim-create-dialog.component.html',
+    selector: 'vespera-claim-create-dialog',
+    imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatSelectModule, MatButtonModule],
+    templateUrl: './claim-create-dialog.component.html'
 })
 export class ClaimCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

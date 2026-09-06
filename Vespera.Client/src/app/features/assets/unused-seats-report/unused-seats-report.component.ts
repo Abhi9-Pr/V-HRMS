@@ -6,10 +6,9 @@ import { TimezoneDatePipe } from '../../../shared/pipes/timezone-date.pipe';
 import { AssetsFacade } from '../data/assets.facade';
 
 @Component({
-  selector: 'vespera-unused-seats-report',
-  standalone: true,
-  imports: [ErrorStateComponent, LoadingStateComponent, EmptyStateComponent, TimezoneDatePipe],
-  templateUrl: './unused-seats-report.component.html',
+    selector: 'vespera-unused-seats-report',
+    imports: [ErrorStateComponent, LoadingStateComponent, EmptyStateComponent, TimezoneDatePipe],
+    templateUrl: './unused-seats-report.component.html'
 })
 export class UnusedSeatsReportComponent implements OnInit {
   private readonly assetsFacade = inject(AssetsFacade);

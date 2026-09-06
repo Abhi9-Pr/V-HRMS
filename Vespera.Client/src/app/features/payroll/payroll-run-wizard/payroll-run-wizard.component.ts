@@ -29,20 +29,19 @@ import { selectCurrentRun, selectCurrentRunLoading, selectError } from '../store
  * wizard can never show a step that disagrees with what the server actually did.
  */
 @Component({
-  selector: 'vespera-payroll-run-wizard',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    FormsModule,
-    RouterLink,
-    MatStepperModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    LoadingStateComponent,
-  ],
-  templateUrl: './payroll-run-wizard.component.html',
+    selector: 'vespera-payroll-run-wizard',
+    imports: [
+        ReactiveFormsModule,
+        FormsModule,
+        RouterLink,
+        MatStepperModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        LoadingStateComponent,
+    ],
+    templateUrl: './payroll-run-wizard.component.html'
 })
 export class PayrollRunWizardComponent implements OnInit {
   private readonly store = inject(Store);

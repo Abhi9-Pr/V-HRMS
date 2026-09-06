@@ -14,17 +14,16 @@ export interface AllocateSeatDialogData {
 }
 
 @Component({
-  selector: 'vespera-allocate-seat-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    FormErrorComponent,
-  ],
-  templateUrl: './allocate-seat-dialog.component.html',
+    selector: 'vespera-allocate-seat-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        FormErrorComponent,
+    ],
+    templateUrl: './allocate-seat-dialog.component.html'
 })
 export class AllocateSeatDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

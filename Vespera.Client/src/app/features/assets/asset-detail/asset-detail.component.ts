@@ -18,23 +18,22 @@ import { ASSET_STATUS_LABELS, CURRENCY_LABELS, DEPRECIATION_METHOD_LABELS } from
 import { ApiError, AssetStatus, Currency, DepreciationMethod, Permissions } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-asset-detail',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    FormErrorComponent,
-    PermissionButtonComponent,
-    HasPermissionDirective,
-    ErrorStateComponent,
-    LoadingStateComponent,
-    CurrencyDisplayPipe,
-    TimezoneDatePipe,
-  ],
-  templateUrl: './asset-detail.component.html',
+    selector: 'vespera-asset-detail',
+    imports: [
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        FormErrorComponent,
+        PermissionButtonComponent,
+        HasPermissionDirective,
+        ErrorStateComponent,
+        LoadingStateComponent,
+        CurrencyDisplayPipe,
+        TimezoneDatePipe,
+    ],
+    templateUrl: './asset-detail.component.html'
 })
 export class AssetDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

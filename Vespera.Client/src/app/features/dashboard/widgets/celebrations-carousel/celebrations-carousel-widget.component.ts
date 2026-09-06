@@ -11,10 +11,9 @@ import { CelebrationSummaryDto } from '../dashboard-widget-payloads.model';
  * clickable divs) so the whole thing is keyboard- and screen-reader-operable, not mouse-only.
  */
 @Component({
-  selector: 'vespera-celebrations-carousel-widget',
-  standalone: true,
-  imports: [MatButtonModule, MatIconModule, TimezoneDatePipe],
-  templateUrl: './celebrations-carousel-widget.component.html',
+    selector: 'vespera-celebrations-carousel-widget',
+    imports: [MatButtonModule, MatIconModule, TimezoneDatePipe],
+    templateUrl: './celebrations-carousel-widget.component.html'
 })
 export class CelebrationsCarouselWidgetComponent {
   private readonly itemsSignal = signal<CelebrationSummaryDto[]>([]);

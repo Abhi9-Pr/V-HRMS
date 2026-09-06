@@ -22,10 +22,9 @@ const FLAG_LABELS: Record<string, string> = {
  * the prior finalized cycle, plus new joiners, exits, and zero-net anomalies — read straight from
  * `GetPayrollRunVarianceQuery`'s output, no client-side re-derivation of what counts as "large". */
 @Component({
-  selector: 'vespera-variance-review',
-  standalone: true,
-  imports: [DecimalPipe, MatTableModule, MatChipsModule, LoadingStateComponent, EmptyStateComponent],
-  templateUrl: './variance-review.component.html',
+    selector: 'vespera-variance-review',
+    imports: [DecimalPipe, MatTableModule, MatChipsModule, LoadingStateComponent, EmptyStateComponent],
+    templateUrl: './variance-review.component.html'
 })
 export class VarianceReviewComponent implements OnInit {
   private readonly store = inject(Store);

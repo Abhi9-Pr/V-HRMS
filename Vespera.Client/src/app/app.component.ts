@@ -5,10 +5,9 @@ import { ThemeService } from './core/services/theme.service';
 import { AuthService } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-root',
-  standalone: true,
-  imports: [RouterOutlet],
-  templateUrl: './app.component.html',
+    selector: 'vespera-root',
+    imports: [RouterOutlet],
+    templateUrl: './app.component.html'
 })
 export class AppComponent {
   private readonly auth = inject(AuthService);

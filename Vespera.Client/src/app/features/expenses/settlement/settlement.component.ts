@@ -13,10 +13,9 @@ import { ApiError } from 'vespera-shared';
  * text input, the same "no picker exists, take the raw id" treatment used elsewhere in this
  * codebase wherever a cross-feature reference has no UI to look it up yet. */
 @Component({
-  selector: 'vespera-settlement',
-  standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormErrorComponent],
-  templateUrl: './settlement.component.html',
+    selector: 'vespera-settlement',
+    imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormErrorComponent],
+    templateUrl: './settlement.component.html'
 })
 export class SettlementComponent {
   private readonly formBuilder = inject(FormBuilder);

@@ -27,20 +27,19 @@ import {
  * published) -> Publish. Same discipline as assets' recovery-dashboard status-gated actions.
  */
 @Component({
-  selector: 'vespera-requisition-detail',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    FormErrorComponent,
-    PermissionButtonComponent,
-    ErrorStateComponent,
-    LoadingStateComponent,
-  ],
-  templateUrl: './requisition-detail.component.html',
+    selector: 'vespera-requisition-detail',
+    imports: [
+        ReactiveFormsModule,
+        RouterLink,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        FormErrorComponent,
+        PermissionButtonComponent,
+        ErrorStateComponent,
+        LoadingStateComponent,
+    ],
+    templateUrl: './requisition-detail.component.html'
 })
 export class RequisitionDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

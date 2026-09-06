@@ -11,18 +11,17 @@ import { CorporateEventsFacade } from '../../data/corporate-events.facade';
 import { ApiError } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-create-event-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatButtonModule,
-  ],
-  templateUrl: './create-event-dialog.component.html',
+    selector: 'vespera-create-event-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatButtonModule,
+    ],
+    templateUrl: './create-event-dialog.component.html'
 })
 export class CreateEventDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

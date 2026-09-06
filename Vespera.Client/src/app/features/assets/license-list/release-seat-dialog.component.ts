@@ -13,17 +13,16 @@ import { ApiError } from 'vespera-shared';
  * "no picker exists, take the raw id" precedent as expenses' settlement screen, this takes the
  * allocation id directly rather than inventing a richer lookup UI the backend can't back. */
 @Component({
-  selector: 'vespera-release-seat-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    FormErrorComponent,
-  ],
-  templateUrl: './release-seat-dialog.component.html',
+    selector: 'vespera-release-seat-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        FormErrorComponent,
+    ],
+    templateUrl: './release-seat-dialog.component.html'
 })
 export class ReleaseSeatDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

@@ -17,19 +17,18 @@ const SCOPES = ['LeaveApprovals', 'ExpenseApprovals', 'AttendanceApprovals', 'Al
 
 /** "Holiday Mode" — a manager routes their approvals to someone else for a date window. */
 @Component({
-  selector: 'vespera-delegation-settings',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatTableModule,
-    MatChipsModule,
-    DateRangePickerComponent,
-    DatePipe,
-  ],
-  templateUrl: './delegation-settings.component.html',
+    selector: 'vespera-delegation-settings',
+    imports: [
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatTableModule,
+        MatChipsModule,
+        DateRangePickerComponent,
+        DatePipe,
+    ],
+    templateUrl: './delegation-settings.component.html'
 })
 export class DelegationSettingsComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);

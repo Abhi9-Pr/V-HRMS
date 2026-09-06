@@ -10,10 +10,9 @@ import { DecisionDialogComponent } from './decision-dialog.component';
 import { ExpenseClaimDto, Permissions } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-approvals',
-  standalone: true,
-  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
-  templateUrl: './approvals.component.html',
+    selector: 'vespera-approvals',
+    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
+    templateUrl: './approvals.component.html'
 })
 export class ApprovalsComponent implements OnInit, AfterViewInit {
   private readonly expensesFacade = inject(ExpensesFacade);

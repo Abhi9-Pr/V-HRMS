@@ -17,22 +17,21 @@ import { CANDIDATE_STATUS_LABELS, INTERVIEW_STATUS_LABELS, OFFER_LETTER_STATUS_L
 import { ApiError, CandidateStatus, Currency, InterviewDto, OfferLetterDto, OfferLetterStatus } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-candidate-detail',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatButtonModule,
-    FormErrorComponent,
-    TimezoneDatePipe,
-    ErrorStateComponent,
-    LoadingStateComponent,
-  ],
-  templateUrl: './candidate-detail.component.html',
+    selector: 'vespera-candidate-detail',
+    imports: [
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatButtonModule,
+        FormErrorComponent,
+        TimezoneDatePipe,
+        ErrorStateComponent,
+        LoadingStateComponent,
+    ],
+    templateUrl: './candidate-detail.component.html'
 })
 export class CandidateDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

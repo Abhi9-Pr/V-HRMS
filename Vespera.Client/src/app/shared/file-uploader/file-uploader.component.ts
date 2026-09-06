@@ -6,10 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
  * IFileStorage HTTP surface to call — same "plumbing only" treatment as Phase 4's mobile
  * affordances), so this stops at "here are the files the user picked." */
 @Component({
-  selector: 'vespera-file-uploader',
-  standalone: true,
-  imports: [MatButtonModule, MatIconModule],
-  templateUrl: './file-uploader.component.html',
+    selector: 'vespera-file-uploader',
+    imports: [MatButtonModule, MatIconModule],
+    templateUrl: './file-uploader.component.html'
 })
 export class FileUploaderComponent {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;

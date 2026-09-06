@@ -14,17 +14,16 @@ export interface CourierDispatchDialogData {
 }
 
 @Component({
-  selector: 'vespera-courier-dispatch-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    FormErrorComponent,
-  ],
-  templateUrl: './courier-dispatch-dialog.component.html',
+    selector: 'vespera-courier-dispatch-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        FormErrorComponent,
+    ],
+    templateUrl: './courier-dispatch-dialog.component.html'
 })
 export class CourierDispatchDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

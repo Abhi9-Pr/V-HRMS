@@ -17,10 +17,9 @@ import { ApiError, PayslipsClient } from 'vespera-shared';
  * this screen deliberately doesn't fake that data with a single point pretending to be a trend.
  */
 @Component({
-  selector: 'vespera-payslip-viewer',
-  standalone: true,
-  imports: [MatButtonModule, NgxChartsModule, LoadingStateComponent],
-  templateUrl: './payslip-viewer.component.html',
+    selector: 'vespera-payslip-viewer',
+    imports: [MatButtonModule, NgxChartsModule, LoadingStateComponent],
+    templateUrl: './payslip-viewer.component.html'
 })
 export class PayslipViewerComponent implements OnInit {
   private readonly store = inject(Store);

@@ -11,18 +11,17 @@ import { HelpdeskFacade } from '../data/helpdesk.facade';
 import { ApiError } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-public-holiday-create-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatButtonModule,
-  ],
-  templateUrl: './public-holiday-create-dialog.component.html',
+    selector: 'vespera-public-holiday-create-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatButtonModule,
+    ],
+    templateUrl: './public-holiday-create-dialog.component.html'
 })
 export class PublicHolidayCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

@@ -10,10 +10,9 @@ import { SidenavComponent } from './sidenav/sidenav.component';
 import { TopbarComponent } from './topbar/topbar.component';
 
 @Component({
-  selector: 'vespera-shell',
-  standalone: true,
-  imports: [MatSidenavModule, RouterOutlet, TopbarComponent, SidenavComponent, BreadcrumbComponent],
-  templateUrl: './shell.component.html',
+    selector: 'vespera-shell',
+    imports: [MatSidenavModule, RouterOutlet, TopbarComponent, SidenavComponent, BreadcrumbComponent],
+    templateUrl: './shell.component.html'
 })
 export class ShellComponent {
   private readonly breakpointObserver = inject(BreakpointObserver);

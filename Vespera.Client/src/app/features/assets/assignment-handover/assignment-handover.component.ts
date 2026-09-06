@@ -14,19 +14,18 @@ import { ASSET_CONDITION_RATING_LABELS } from '../assets.labels';
 import { ApiError, AssetConditionRating, Permissions } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-assignment-handover',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    FileUploaderComponent,
-    FormErrorComponent,
-    PermissionButtonComponent,
-  ],
-  templateUrl: './assignment-handover.component.html',
+    selector: 'vespera-assignment-handover',
+    imports: [
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        FileUploaderComponent,
+        FormErrorComponent,
+        PermissionButtonComponent,
+    ],
+    templateUrl: './assignment-handover.component.html'
 })
 export class AssignmentHandoverComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

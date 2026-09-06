@@ -13,19 +13,18 @@ import { CURRENCY_LABELS } from '../assets.labels';
 import { ApiError, Currency } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-asset-create-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatButtonModule,
-  ],
-  templateUrl: './asset-create-dialog.component.html',
+    selector: 'vespera-asset-create-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatButtonModule,
+    ],
+    templateUrl: './asset-create-dialog.component.html'
 })
 export class AssetCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

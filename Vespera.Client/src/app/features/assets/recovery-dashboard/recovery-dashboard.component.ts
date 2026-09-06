@@ -22,10 +22,9 @@ import { ApiError, AssetRecoveryDto, AssetRecoveryStatus, Permissions } from 've
  * appear in the pending list at all, but no action renders regardless).
  */
 @Component({
-  selector: 'vespera-recovery-dashboard',
-  standalone: true,
-  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
-  templateUrl: './recovery-dashboard.component.html',
+    selector: 'vespera-recovery-dashboard',
+    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
+    templateUrl: './recovery-dashboard.component.html'
 })
 export class RecoveryDashboardComponent implements OnInit, AfterViewInit {
   private readonly assetsFacade = inject(AssetsFacade);

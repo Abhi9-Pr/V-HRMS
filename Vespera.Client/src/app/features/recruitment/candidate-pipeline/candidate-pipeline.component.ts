@@ -30,21 +30,20 @@ interface PipelineColumn {
  * moved back to its original column and the server's error message is shown — see onDrop().
  */
 @Component({
-  selector: 'vespera-candidate-pipeline',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    CdkDropListGroup,
-    CdkDropList,
-    CdkDrag,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    FormErrorComponent,
-    ErrorStateComponent,
-    LoadingStateComponent,
-  ],
-  templateUrl: './candidate-pipeline.component.html',
+    selector: 'vespera-candidate-pipeline',
+    imports: [
+        ReactiveFormsModule,
+        CdkDropListGroup,
+        CdkDropList,
+        CdkDrag,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormErrorComponent,
+        ErrorStateComponent,
+        LoadingStateComponent,
+    ],
+    templateUrl: './candidate-pipeline.component.html'
 })
 export class CandidatePipelineComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

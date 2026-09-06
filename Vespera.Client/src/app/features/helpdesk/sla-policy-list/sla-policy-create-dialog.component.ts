@@ -16,10 +16,9 @@ function toTimeOnly(value: string): string {
 }
 
 @Component({
-  selector: 'vespera-sla-policy-create-dialog',
-  standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
-  templateUrl: './sla-policy-create-dialog.component.html',
+    selector: 'vespera-sla-policy-create-dialog',
+    imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+    templateUrl: './sla-policy-create-dialog.component.html'
 })
 export class SlaPolicyCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

@@ -20,18 +20,17 @@ function currentFinancialYear(): string {
  * declaration" step in this UI either. Proof upload is a plain storage-key text field for now; the
  * backend has no dedicated upload endpoint for declaration proofs yet. */
 @Component({
-  selector: 'vespera-investment-declaration',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatChipsModule,
-    LoadingStateComponent,
-    EmptyStateComponent,
-  ],
-  templateUrl: './investment-declaration.component.html',
+    selector: 'vespera-investment-declaration',
+    imports: [
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatChipsModule,
+        LoadingStateComponent,
+        EmptyStateComponent,
+    ],
+    templateUrl: './investment-declaration.component.html'
 })
 export class InvestmentDeclarationComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);

@@ -10,10 +10,9 @@ interface Crumb {
 /** Derives from each activated route's `data['breadcrumb']` — a route with no breadcrumb entry
  * contributes nothing, so leaf routes that don't opt in stay invisible here. */
 @Component({
-  selector: 'vespera-breadcrumb',
-  standalone: true,
-  imports: [RouterLink],
-  templateUrl: './breadcrumb.component.html',
+    selector: 'vespera-breadcrumb',
+    imports: [RouterLink],
+    templateUrl: './breadcrumb.component.html'
 })
 export class BreadcrumbComponent {
   private readonly router = inject(Router);

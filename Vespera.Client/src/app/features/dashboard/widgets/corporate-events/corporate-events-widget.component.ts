@@ -8,10 +8,9 @@ import { CreateEventDialogComponent } from './create-event-dialog.component';
 import { CorporateEventSummaryDto, Permissions, RsvpResponse } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-corporate-events-widget',
-  standalone: true,
-  imports: [PermissionButtonComponent, TimezoneDatePipe],
-  templateUrl: './corporate-events-widget.component.html',
+    selector: 'vespera-corporate-events-widget',
+    imports: [PermissionButtonComponent, TimezoneDatePipe],
+    templateUrl: './corporate-events-widget.component.html'
 })
 export class CorporateEventsWidgetComponent {
   private readonly corporateEventsFacade = inject(CorporateEventsFacade);

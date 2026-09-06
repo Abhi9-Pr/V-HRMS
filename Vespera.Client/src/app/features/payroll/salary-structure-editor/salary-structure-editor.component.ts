@@ -40,19 +40,18 @@ function newLine(): EditableLine {
  * own that logic directly than fight a dynamically-shaped reactive form group.
  */
 @Component({
-  selector: 'vespera-salary-structure-editor',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatButtonModule,
-    MatIconModule,
-    FormErrorComponent,
-  ],
-  templateUrl: './salary-structure-editor.component.html',
+    selector: 'vespera-salary-structure-editor',
+    imports: [
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatDatepickerModule,
+        MatButtonModule,
+        MatIconModule,
+        FormErrorComponent,
+    ],
+    templateUrl: './salary-structure-editor.component.html'
 })
 export class SalaryStructureEditorComponent {
   private readonly formBuilder = inject(FormBuilder);

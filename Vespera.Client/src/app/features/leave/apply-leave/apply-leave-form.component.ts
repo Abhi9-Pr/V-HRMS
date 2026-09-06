@@ -31,19 +31,18 @@ function toIsoDate(date: Date): string {
 }
 
 @Component({
-  selector: 'vespera-apply-leave-form',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    DateRangePickerComponent,
-    FormErrorComponent,
-  ],
-  templateUrl: './apply-leave-form.component.html',
+    selector: 'vespera-apply-leave-form',
+    imports: [
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        MatCheckboxModule,
+        MatButtonModule,
+        DateRangePickerComponent,
+        FormErrorComponent,
+    ],
+    templateUrl: './apply-leave-form.component.html'
 })
 export class ApplyLeaveFormComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);

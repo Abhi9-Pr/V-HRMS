@@ -9,10 +9,9 @@ import { HelpdeskFacade } from '../data/helpdesk.facade';
 import { ApiError } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-category-create-dialog',
-  standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
-  templateUrl: './category-create-dialog.component.html',
+    selector: 'vespera-category-create-dialog',
+    imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+    templateUrl: './category-create-dialog.component.html'
 })
 export class CategoryCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

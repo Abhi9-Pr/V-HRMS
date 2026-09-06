@@ -11,10 +11,9 @@ import { TICKET_PRIORITY_LABELS } from '../helpdesk.labels';
 import { ApiError, TicketPriority } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-ticket-create-dialog',
-  standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule],
-  templateUrl: './ticket-create-dialog.component.html',
+    selector: 'vespera-ticket-create-dialog',
+    imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule],
+    templateUrl: './ticket-create-dialog.component.html'
 })
 export class TicketCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

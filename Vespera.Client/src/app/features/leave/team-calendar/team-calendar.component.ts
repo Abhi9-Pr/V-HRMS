@@ -16,10 +16,9 @@ function startOfWeek(date: Date): Date {
  * and where the team crosses the conflict threshold) without a bespoke calendar-grid component
  * this codebase doesn't have one of yet. */
 @Component({
-  selector: 'vespera-team-calendar',
-  standalone: true,
-  imports: [DateRangePickerComponent, MatChipsModule, MatIconModule, ErrorStateComponent, DatePipe],
-  templateUrl: './team-calendar.component.html',
+    selector: 'vespera-team-calendar',
+    imports: [DateRangePickerComponent, MatChipsModule, MatIconModule, ErrorStateComponent, DatePipe],
+    templateUrl: './team-calendar.component.html'
 })
 export class TeamCalendarComponent implements OnInit {
   private readonly leaveFacade = inject(LeaveFacade);

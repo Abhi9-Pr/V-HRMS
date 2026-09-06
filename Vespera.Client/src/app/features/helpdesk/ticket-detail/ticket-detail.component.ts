@@ -27,22 +27,21 @@ interface ThreadedComment {
  * Open/InProgress/OnHold -> Assign or Resolve; Resolved -> Close; Closed -> Rate satisfaction.
  */
 @Component({
-  selector: 'vespera-ticket-detail',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    FileUploaderComponent,
-    FormErrorComponent,
-    PermissionButtonComponent,
-    TimezoneDatePipe,
-    ErrorStateComponent,
-    LoadingStateComponent,
-  ],
-  templateUrl: './ticket-detail.component.html',
+    selector: 'vespera-ticket-detail',
+    imports: [
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatCheckboxModule,
+        MatButtonModule,
+        FileUploaderComponent,
+        FormErrorComponent,
+        PermissionButtonComponent,
+        TimezoneDatePipe,
+        ErrorStateComponent,
+        LoadingStateComponent,
+    ],
+    templateUrl: './ticket-detail.component.html'
 })
 export class TicketDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

@@ -7,10 +7,9 @@ import { MatInputModule } from '@angular/material/input';
  * empty-state panel so the shell's layout is final; wiring a real search index is a later-phase
  * decision. */
 @Component({
-  selector: 'vespera-global-search-bar',
-  standalone: true,
-  imports: [FormsModule, MatIconModule, MatInputModule],
-  templateUrl: './global-search-bar.component.html',
+    selector: 'vespera-global-search-bar',
+    imports: [FormsModule, MatIconModule, MatInputModule],
+    templateUrl: './global-search-bar.component.html'
 })
 export class GlobalSearchBarComponent {
   query = '';

@@ -28,20 +28,19 @@ interface CustomizeRow {
  * convention.
  */
 @Component({
-  selector: 'vespera-dashboard-customize-dialog',
-  standalone: true,
-  imports: [
-    FormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCheckboxModule,
-    MatSelectModule,
-    CdkDropList,
-    CdkDrag,
-    CdkDragHandle,
-  ],
-  templateUrl: './dashboard-customize-dialog.component.html',
+    selector: 'vespera-dashboard-customize-dialog',
+    imports: [
+        FormsModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatCheckboxModule,
+        MatSelectModule,
+        CdkDropList,
+        CdkDrag,
+        CdkDragHandle,
+    ],
+    templateUrl: './dashboard-customize-dialog.component.html'
 })
 export class DashboardCustomizeDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<DashboardCustomizeDialogComponent>);

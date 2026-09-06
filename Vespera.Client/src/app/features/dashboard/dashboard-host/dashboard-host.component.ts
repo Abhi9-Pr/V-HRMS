@@ -18,10 +18,9 @@ import { DashboardCustomizeDialogComponent } from './dashboard-customize-dialog.
 import { PageHeaderComponent } from '../../../shared/page-header/page-header.component';
 
 @Component({
-  selector: 'vespera-dashboard-host',
-  standalone: true,
-  imports: [NgComponentOutlet, MatButtonModule, MatIconModule, LoadingStateComponent, ErrorStateComponent, PageHeaderComponent],
-  templateUrl: './dashboard-host.component.html',
+    selector: 'vespera-dashboard-host',
+    imports: [NgComponentOutlet, MatButtonModule, MatIconModule, LoadingStateComponent, ErrorStateComponent, PageHeaderComponent],
+    templateUrl: './dashboard-host.component.html'
 })
 export class DashboardHostComponent implements OnInit {
   private readonly dialog = inject(MatDialog);

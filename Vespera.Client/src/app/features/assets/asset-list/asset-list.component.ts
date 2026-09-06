@@ -12,10 +12,9 @@ import { AssetCreateDialogComponent } from './asset-create-dialog.component';
 import { AssetDto, Permissions } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-asset-list',
-  standalone: true,
-  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
-  templateUrl: './asset-list.component.html',
+    selector: 'vespera-asset-list',
+    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
+    templateUrl: './asset-list.component.html'
 })
 export class AssetListComponent implements OnInit, AfterViewInit {
   private readonly assetsFacade = inject(AssetsFacade);

@@ -12,10 +12,9 @@ import { TicketCreateDialogComponent } from './ticket-create-dialog.component';
 import { Permissions, TicketSummaryDto } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-ticket-list',
-  standalone: true,
-  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
-  templateUrl: './ticket-list.component.html',
+    selector: 'vespera-ticket-list',
+    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
+    templateUrl: './ticket-list.component.html'
 })
 export class TicketListComponent implements OnInit, AfterViewInit {
   private readonly helpdeskFacade = inject(HelpdeskFacade);

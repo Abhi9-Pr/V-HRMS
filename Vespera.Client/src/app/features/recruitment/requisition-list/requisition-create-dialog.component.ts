@@ -10,17 +10,16 @@ import { RecruitmentFacade } from '../data/recruitment.facade';
 import { ApiError } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-requisition-create-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    FormErrorComponent,
-  ],
-  templateUrl: './requisition-create-dialog.component.html',
+    selector: 'vespera-requisition-create-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        FormErrorComponent,
+    ],
+    templateUrl: './requisition-create-dialog.component.html'
 })
 export class RequisitionCreateDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

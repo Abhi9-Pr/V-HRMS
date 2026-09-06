@@ -14,10 +14,9 @@ export interface DecisionDialogData {
 }
 
 @Component({
-  selector: 'vespera-decision-dialog',
-  standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
-  templateUrl: './decision-dialog.component.html',
+    selector: 'vespera-decision-dialog',
+    imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+    templateUrl: './decision-dialog.component.html'
 })
 export class DecisionDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

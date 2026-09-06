@@ -11,10 +11,9 @@ import { ReadReceiptsDialogComponent } from './read-receipts-dialog.component';
 import { AnnouncementSummaryDto, Permissions } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-announcements-board-widget',
-  standalone: true,
-  imports: [MatIconModule, PermissionButtonComponent, MarkdownPipe, TimezoneDatePipe],
-  templateUrl: './announcements-board-widget.component.html',
+    selector: 'vespera-announcements-board-widget',
+    imports: [MatIconModule, PermissionButtonComponent, MarkdownPipe, TimezoneDatePipe],
+    templateUrl: './announcements-board-widget.component.html'
 })
 export class AnnouncementsBoardWidgetComponent {
   private readonly announcementsFacade = inject(AnnouncementsFacade);

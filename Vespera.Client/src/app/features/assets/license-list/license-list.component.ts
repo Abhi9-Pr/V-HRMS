@@ -12,10 +12,9 @@ import { ReleaseSeatDialogComponent } from './release-seat-dialog.component';
 import { Permissions, SoftwareLicenseDto } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-license-list',
-  standalone: true,
-  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
-  templateUrl: './license-list.component.html',
+    selector: 'vespera-license-list',
+    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
+    templateUrl: './license-list.component.html'
 })
 export class LicenseListComponent implements OnInit, AfterViewInit {
   private readonly assetsFacade = inject(AssetsFacade);

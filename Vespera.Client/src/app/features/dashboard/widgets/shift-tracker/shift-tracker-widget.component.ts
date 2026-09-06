@@ -7,10 +7,9 @@ import { AttendanceFacade } from '../../data/attendance.facade';
 import { ShiftTrackerWidgetDto } from '../dashboard-widget-payloads.model';
 
 @Component({
-  selector: 'vespera-shift-tracker-widget',
-  standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, TimezoneDatePipe],
-  templateUrl: './shift-tracker-widget.component.html',
+    selector: 'vespera-shift-tracker-widget',
+    imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, TimezoneDatePipe],
+    templateUrl: './shift-tracker-widget.component.html'
 })
 export class ShiftTrackerWidgetComponent {
   private readonly attendanceFacade = inject(AttendanceFacade);

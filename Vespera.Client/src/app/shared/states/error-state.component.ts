@@ -3,10 +3,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'vespera-error-state',
-  standalone: true,
-  imports: [MatIconModule, MatButtonModule],
-  templateUrl: './error-state.component.html',
+    selector: 'vespera-error-state',
+    imports: [MatIconModule, MatButtonModule],
+    templateUrl: './error-state.component.html'
 })
 export class ErrorStateComponent {
   @Input() icon = 'error_outline';

@@ -16,18 +16,17 @@ export interface WriteOffDialogData {
 }
 
 @Component({
-  selector: 'vespera-write-off-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    FormErrorComponent,
-  ],
-  templateUrl: './write-off-dialog.component.html',
+    selector: 'vespera-write-off-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        FormErrorComponent,
+    ],
+    templateUrl: './write-off-dialog.component.html'
 })
 export class WriteOffDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

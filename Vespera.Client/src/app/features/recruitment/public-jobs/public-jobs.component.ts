@@ -13,10 +13,9 @@ import { TenantResolutionService } from 'vespera-shared';
  * uses, not a second mechanism) and only calls the public jobs endpoint once that's cached.
  */
 @Component({
-  selector: 'vespera-public-jobs',
-  standalone: true,
-  imports: [ErrorStateComponent, LoadingStateComponent],
-  templateUrl: './public-jobs.component.html',
+    selector: 'vespera-public-jobs',
+    imports: [ErrorStateComponent, LoadingStateComponent],
+    templateUrl: './public-jobs.component.html'
 })
 export class PublicJobsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

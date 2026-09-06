@@ -28,10 +28,9 @@ function sectionForPath(path: string): string {
 }
 
 @Component({
-  selector: 'vespera-sidenav',
-  standalone: true,
-  imports: [MatListModule, MatIconModule, RouterLink, RouterLinkActive],
-  templateUrl: './sidenav.component.html',
+    selector: 'vespera-sidenav',
+    imports: [MatListModule, MatIconModule, RouterLink, RouterLinkActive],
+    templateUrl: './sidenav.component.html'
 })
 export class SidenavComponent {
   private readonly auth = inject(AuthService);

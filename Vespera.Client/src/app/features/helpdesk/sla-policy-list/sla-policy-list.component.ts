@@ -9,10 +9,9 @@ import { SlaPolicyCreateDialogComponent } from './sla-policy-create-dialog.compo
 import { Permissions, SlaPolicyDto } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-sla-policy-list',
-  standalone: true,
-  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
-  templateUrl: './sla-policy-list.component.html',
+    selector: 'vespera-sla-policy-list',
+    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
+    templateUrl: './sla-policy-list.component.html'
 })
 export class SlaPolicyListComponent implements OnInit {
   private readonly helpdeskFacade = inject(HelpdeskFacade);

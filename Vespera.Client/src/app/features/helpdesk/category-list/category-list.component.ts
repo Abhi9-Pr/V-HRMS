@@ -9,10 +9,9 @@ import { CategoryCreateDialogComponent } from './category-create-dialog.componen
 import { Permissions, TicketCategoryDto } from 'vespera-shared';
 
 @Component({
-  selector: 'vespera-category-list',
-  standalone: true,
-  imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
-  templateUrl: './category-list.component.html',
+    selector: 'vespera-category-list',
+    imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
+    templateUrl: './category-list.component.html'
 })
 export class CategoryListComponent implements OnInit {
   private readonly helpdeskFacade = inject(HelpdeskFacade);
