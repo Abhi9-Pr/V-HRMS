@@ -49,6 +49,15 @@ public sealed class DockerDatabaseOptions
     public bool ReuseExisting { get; set; } = true;
 
     public int StartupTimeoutSeconds { get; set; } = 60;
+
+    /// <summary>When set, ProvisionAsync creates (if missing) and connects to this database
+    /// instead of the server's default "postgres"/"master" catalog — the Docker-mode equivalent
+    /// of FallbackDatabaseOptions.DatabaseFileName. Without this, every WebApplicationFactory
+    /// instance shares one physical database on the reused dev container: DevelopmentSeeder
+    /// reseeding the same tenant/employees from many concurrently-running test classes, and
+    /// attendance/payroll rows from one test class colliding with another's. See
+    /// VesperaWebApplicationFactory.</summary>
+    public string? DatabaseName { get; set; }
 }
 
 public sealed class DockerCredentials

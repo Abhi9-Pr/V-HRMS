@@ -30,11 +30,22 @@ public sealed class VesperaWebApplicationFactory : WebApplicationFactory<Program
 {
     private readonly string _databaseFileName = $"integration-test-{Guid.NewGuid():N}.db";
 
+    // Same isolation, for whichever provisioner Auto mode actually picks: on any machine/runner
+    // where Docker is reachable (true on GitHub-hosted runners by default), DatabaseProvisionerSelector
+    // picks Docker over the SQLite fallback — and without this, every factory instance shared one
+    // "postgres" database on the one reused dev container (see DockerContainerProvisioner), which is
+    // what was actually behind the intermittent attendance/payroll test failures this was chasing.
+    private readonly string _dockerDatabaseName = $"integration_test_{Guid.NewGuid():N}";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("IntegrationTesting");
         builder.ConfigureAppConfiguration((_, configBuilder) => configBuilder.AddInMemoryCollection(
-            new Dictionary<string, string?> { ["Vespera:Database:Fallback:DatabaseFileName"] = _databaseFileName }));
+            new Dictionary<string, string?>
+            {
+                ["Vespera:Database:Fallback:DatabaseFileName"] = _databaseFileName,
+                ["Vespera:Database:Docker:DatabaseName"] = _dockerDatabaseName,
+            }));
 
         // Neither real OCR adapter (TesseractDocumentOcrService needs native binaries + a
         // .traineddata file on disk; AzureDocumentIntelligenceOcrService needs a real Azure

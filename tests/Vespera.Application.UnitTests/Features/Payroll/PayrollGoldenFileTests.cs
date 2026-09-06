@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using FluentAssertions;
 using Vespera.Application.Features.Payroll;
@@ -162,6 +161,23 @@ public class PayrollGoldenFileTests
             expectedJson.Replace("\r\n", "\n"), $"the pipeline's output for scenario '{scenarioName}' must match its checked-in golden file");
     }
 
-    private static string GoldenFilePath(string scenarioName, [CallerFilePath] string sourceFilePath = "") =>
-        Path.Combine(Path.GetDirectoryName(sourceFilePath)!, "GoldenFiles", $"{scenarioName}.json");
+    // [CallerFilePath] is a compile-time constant, which the .NET SDK rewrites to a deterministic
+    // "/_/..." placeholder instead of the real checkout path whenever ContinuousIntegrationBuild
+    // is enabled (Directory.Build.props turns that on whenever CI=true, which every CI run sets) —
+    // so it must not be used to locate real files at runtime. Walking up from the actual runtime
+    // output directory to the repo root (marked by Vespera.sln) works in every environment.
+    private static string GoldenFilePath(string scenarioName) =>
+        Path.Combine(RepositoryRoot.Value, "tests", "Vespera.Application.UnitTests", "Features", "Payroll", "GoldenFiles", $"{scenarioName}.json");
+
+    private static readonly Lazy<string> RepositoryRoot = new(() =>
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Vespera.sln")))
+        {
+            dir = dir.Parent;
+        }
+
+        return dir?.FullName
+            ?? throw new InvalidOperationException($"Could not locate Vespera.sln above {AppContext.BaseDirectory}.");
+    });
 }

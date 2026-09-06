@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using FluentAssertions;
 
 namespace Vespera.Architecture.Tests;
@@ -31,6 +30,22 @@ public class QueryFilterEscapeHatchTests
             AllowedFileName, string.Join(", ", offendingFiles));
     }
 
-    private static string GetInfrastructureProjectPath([CallerFilePath] string sourceFile = "") =>
-        Path.GetFullPath(Path.Combine(Path.GetDirectoryName(sourceFile)!, "..", "..", "Vespera.Infrastructure"));
+    // [CallerFilePath] is a compile-time constant, which the .NET SDK rewrites to a deterministic
+    // "/_/..." placeholder instead of the real checkout path whenever ContinuousIntegrationBuild
+    // is enabled (Directory.Build.props turns that on whenever CI=true, which every CI run sets) —
+    // so it must not be used to locate real files at runtime. Walking up from the actual runtime
+    // output directory to the repo root (marked by Vespera.sln) works in every environment.
+    private static string GetInfrastructureProjectPath() => Path.Combine(RepositoryRoot.Value, "Vespera.Infrastructure");
+
+    private static readonly Lazy<string> RepositoryRoot = new(() =>
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Vespera.sln")))
+        {
+            dir = dir.Parent;
+        }
+
+        return dir?.FullName
+            ?? throw new InvalidOperationException($"Could not locate Vespera.sln above {AppContext.BaseDirectory}.");
+    });
 }
