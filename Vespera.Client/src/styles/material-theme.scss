@@ -1,7 +1,7 @@
 // Angular Material's M3 theme. Generated once from the closest predefined M3 palette
 // (violet — Material's built-in M3 palette set has no indigo) to our design tokens' primary
 // color (--vespera-color-primary, an indigo) — Material's system tokens
-// (--mdc-*/--mat-*) and our own tokens.css custom properties are two separate palettes kept in
+// (--mat-*/--mat-*) and our own tokens.css custom properties are two separate palettes kept in
 // sync by hand when either changes; see docs/CONTRIBUTING-frontend.md for why they can't be
 // unified automatically.
 @use '@angular/material' as mat;
