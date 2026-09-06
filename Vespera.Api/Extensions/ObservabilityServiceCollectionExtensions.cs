@@ -53,6 +53,13 @@ public static class ObservabilityServiceCollectionExtensions
             });
         });
 
+        // Configurable (default 100/min/IP) rather than hardcoded: docker-compose.yml's dev/CI
+        // stack (payroll-performance-budget, deploy-staging) seeds test data as dozens of
+        // sequential single-record POSTs from one container IP — legitimate synthetic load that
+        // has nothing to do with the abuse pattern this limiter defends against — and overrides
+        // it higher there. Production keeps the 100 default; nothing here changes for it.
+        var globalPermitLimit = builder.Configuration.GetValue("Vespera:RateLimiting:GlobalPermitLimit", 100);
+
         builder.Services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -60,7 +67,7 @@ public static class ObservabilityServiceCollectionExtensions
             options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
                 RateLimitPartition.GetFixedWindowLimiter(
                     ClientKey(context),
-                    _ => new FixedWindowRateLimiterOptions { PermitLimit = 100, Window = TimeSpan.FromMinutes(1) }));
+                    _ => new FixedWindowRateLimiterOptions { PermitLimit = globalPermitLimit, Window = TimeSpan.FromMinutes(1) }));
 
             // Tighter on auth endpoints — see AuthController's [EnableRateLimiting].
             options.AddPolicy(AuthRateLimitPolicyName, context =>

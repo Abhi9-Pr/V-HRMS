@@ -72,6 +72,12 @@ services:
       # overriding here, from the file's default self-provisioning Mode to this stack's own db.
       Vespera__Database__Mode: External
       ConnectionStrings__VesperaExternal: "Host=db;Port=5432;Database=vespera;Username=vespera;Password=vespera-compose-only"
+      # The 100/min/IP default (see ObservabilityServiceCollectionExtensions) is sized for real
+      # client traffic. k6's payroll-performance-budget setup() seeds its own cohort as dozens of
+      # sequential single-record POSTs from this one container's IP — legitimate synthetic load,
+      # not the abuse pattern the limiter defends against — so this stack (and deploy-staging's
+      # smoke/E2E suite, which shares this same api service) raises it well above that.
+      Vespera__RateLimiting__GlobalPermitLimit: "1000"
       # Serilog's Seq sink and the OTel OTLP exporter both already default to these compose
       # hostnames in appsettings.Development.json — no override needed here, just startup
       # ordering below. Both are non-blocking if unreachable (buffered/dropped, never crash
