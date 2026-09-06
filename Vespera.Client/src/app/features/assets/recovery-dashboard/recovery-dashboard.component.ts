@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, inject, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { catchError, of } from 'rxjs';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
@@ -23,8 +32,8 @@ import { ApiError, AssetRecoveryDto, AssetRecoveryStatus, Permissions } from 've
  */
 @Component({
   selector: 'vespera-recovery-dashboard',
-  standalone: true,
   imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './recovery-dashboard.component.html',
 })
 export class RecoveryDashboardComponent implements OnInit, AfterViewInit {

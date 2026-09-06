@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -11,8 +11,8 @@ import { AnnouncementReceiptsReportDto, ApiError } from 'vespera-shared';
  * Workspace.ManageAnnouncements the same as the "New announcement" action. */
 @Component({
   selector: 'vespera-read-receipts-dialog',
-  standalone: true,
   imports: [MatDialogModule, MatButtonModule, MatProgressSpinnerModule, TimezoneDatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './read-receipts-dialog.component.html',
 })
 export class ReadReceiptsDialogComponent implements OnInit {

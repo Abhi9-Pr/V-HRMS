@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
@@ -18,8 +18,8 @@ import { ApiError, PayslipsClient } from 'vespera-shared';
  */
 @Component({
   selector: 'vespera-payslip-viewer',
-  standalone: true,
   imports: [MatButtonModule, NgxChartsModule, LoadingStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './payslip-viewer.component.html',
 })
 export class PayslipViewerComponent implements OnInit {

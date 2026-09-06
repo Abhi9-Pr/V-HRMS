@@ -1,4 +1,4 @@
-import { Component, Input, computed, signal } from '@angular/core';
+import { Component, Input, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TimezoneDatePipe } from '../../../../shared/pipes/timezone-date.pipe';
@@ -12,8 +12,8 @@ import { CelebrationSummaryDto } from '../dashboard-widget-payloads.model';
  */
 @Component({
   selector: 'vespera-celebrations-carousel-widget',
-  standalone: true,
   imports: [MatButtonModule, MatIconModule, TimezoneDatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './celebrations-carousel-widget.component.html',
 })
 export class CelebrationsCarouselWidgetComponent {

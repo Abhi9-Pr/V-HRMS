@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -17,8 +17,8 @@ function toTimeOnly(value: string): string {
 
 @Component({
   selector: 'vespera-sla-policy-create-dialog',
-  standalone: true,
   imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './sla-policy-create-dialog.component.html',
 })
 export class SlaPolicyCreateDialogComponent {

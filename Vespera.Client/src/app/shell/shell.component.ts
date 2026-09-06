@@ -1,5 +1,5 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
@@ -11,8 +11,8 @@ import { TopbarComponent } from './topbar/topbar.component';
 
 @Component({
   selector: 'vespera-shell',
-  standalone: true,
   imports: [MatSidenavModule, RouterOutlet, TopbarComponent, SidenavComponent, BreadcrumbComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './shell.component.html',
 })
 export class ShellComponent {

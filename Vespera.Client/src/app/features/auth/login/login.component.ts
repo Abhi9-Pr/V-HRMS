@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -12,7 +12,6 @@ import { ApiError, AuthService, TenantResolutionService } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-login',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     RouterLink,
@@ -23,6 +22,7 @@ import { ApiError, AuthService, TenantResolutionService } from 'vespera-shared';
     MatProgressSpinnerModule,
   ],
   templateUrl: './login.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {

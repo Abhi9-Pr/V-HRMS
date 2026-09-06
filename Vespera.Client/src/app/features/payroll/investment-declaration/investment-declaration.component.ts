@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -21,7 +21,6 @@ function currentFinancialYear(): string {
  * backend has no dedicated upload endpoint for declaration proofs yet. */
 @Component({
   selector: 'vespera-investment-declaration',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -31,6 +30,7 @@ function currentFinancialYear(): string {
     LoadingStateComponent,
     EmptyStateComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './investment-declaration.component.html',
 })
 export class InvestmentDeclarationComponent implements OnInit {

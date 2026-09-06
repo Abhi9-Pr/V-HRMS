@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'vespera-page-header',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './page-header.component.html',
 })
 export class PageHeaderComponent {

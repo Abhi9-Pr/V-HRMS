@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, Input, computed, inject, output } from '@angular/core';
+import { Component, Input, computed, inject, output, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService, hasPermission } from 'vespera-shared';
 
@@ -8,8 +8,8 @@ import { AuthService, hasPermission } from 'vespera-shared';
  * permission, using the same hasPermission() check as the guard and the structural directive. */
 @Component({
   selector: 'vespera-permission-button',
-  standalone: true,
   imports: [MatButtonModule, NgTemplateOutlet],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './permission-button.component.html',
 })
 export class PermissionButtonComponent {

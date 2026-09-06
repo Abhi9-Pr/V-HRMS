@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { EmptyStateComponent } from '../../../shared/states/empty-state.component';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
@@ -7,8 +7,8 @@ import { HelpdeskFacade } from '../data/helpdesk.facade';
 
 @Component({
   selector: 'vespera-sla-dashboard',
-  standalone: true,
   imports: [ErrorStateComponent, LoadingStateComponent, EmptyStateComponent, DecimalPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './sla-dashboard.component.html',
 })
 export class SlaDashboardComponent implements OnInit {

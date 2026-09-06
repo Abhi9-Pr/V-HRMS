@@ -1,5 +1,5 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, Input, inject, signal } from '@angular/core';
+import { Component, Input, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -15,8 +15,8 @@ import { TodoItemDto, TodoUrgency } from 'vespera-shared';
  * Enter/Space to drop) is sufficient on its own for a plain reorderable list like this one. */
 @Component({
   selector: 'vespera-todo-list-widget',
-  standalone: true,
   imports: [FormsModule, MatButtonModule, MatCheckboxModule, MatIconModule, MatInputModule, CdkDropList, CdkDrag],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './todo-list-widget.component.html',
 })
 export class TodoListWidgetComponent {

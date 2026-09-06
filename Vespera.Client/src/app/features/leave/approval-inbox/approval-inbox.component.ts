@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
@@ -18,8 +18,8 @@ import { ApiError } from 'vespera-shared';
  * a paginator over data that isn't actually paged. */
 @Component({
   selector: 'vespera-approval-inbox',
-  standalone: true,
   imports: [MatTableModule, MatCheckboxModule, MatButtonModule, MatChipsModule, ErrorStateComponent, DatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './approval-inbox.component.html',
 })
 export class ApprovalInboxComponent implements OnInit {

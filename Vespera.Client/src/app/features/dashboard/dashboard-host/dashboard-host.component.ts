@@ -1,5 +1,5 @@
 import { NgComponentOutlet } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,8 +19,15 @@ import { PageHeaderComponent } from '../../../shared/page-header/page-header.com
 
 @Component({
   selector: 'vespera-dashboard-host',
-  standalone: true,
-  imports: [NgComponentOutlet, MatButtonModule, MatIconModule, LoadingStateComponent, ErrorStateComponent, PageHeaderComponent],
+  imports: [
+    NgComponentOutlet,
+    MatButtonModule,
+    MatIconModule,
+    LoadingStateComponent,
+    ErrorStateComponent,
+    PageHeaderComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './dashboard-host.component.html',
 })
 export class DashboardHostComponent implements OnInit {

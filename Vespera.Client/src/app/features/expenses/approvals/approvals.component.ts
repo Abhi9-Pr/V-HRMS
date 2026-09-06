@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
 import { DataTableColumn, DataTableQuery } from '../../../shared/data-table/data-table.model';
@@ -11,8 +19,8 @@ import { ExpenseClaimDto, Permissions } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-approvals',
-  standalone: true,
   imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './approvals.component.html',
 })
 export class ApprovalsComponent implements OnInit, AfterViewInit {

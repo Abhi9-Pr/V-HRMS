@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -32,7 +32,6 @@ function toIsoDate(date: Date): string {
 
 @Component({
   selector: 'vespera-apply-leave-form',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -43,6 +42,7 @@ function toIsoDate(date: Date): string {
     DateRangePickerComponent,
     FormErrorComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './apply-leave-form.component.html',
 })
 export class ApplyLeaveFormComponent implements OnInit {

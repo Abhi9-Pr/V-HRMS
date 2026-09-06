@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,7 +15,6 @@ import { ApiError, Currency, ExpensePolicyDto, ExpensePolicySeverity } from 'ves
 
 @Component({
   selector: 'vespera-policy-admin',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -26,6 +25,7 @@ import { ApiError, Currency, ExpensePolicyDto, ExpensePolicySeverity } from 'ves
     ErrorStateComponent,
     FormErrorComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './policy-admin.component.html',
 })
 export class PolicyAdminComponent implements OnInit {

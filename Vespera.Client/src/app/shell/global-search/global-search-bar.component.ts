@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -8,8 +8,8 @@ import { MatInputModule } from '@angular/material/input';
  * decision. */
 @Component({
   selector: 'vespera-global-search-bar',
-  standalone: true,
   imports: [FormsModule, MatIconModule, MatInputModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './global-search-bar.component.html',
 })
 export class GlobalSearchBarComponent {

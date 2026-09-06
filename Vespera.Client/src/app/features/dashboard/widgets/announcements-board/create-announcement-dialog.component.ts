@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -17,7 +17,6 @@ import { AnnouncementAudienceScope, AnnouncementPriority, ApiError, LocationDto 
 
 @Component({
   selector: 'vespera-create-announcement-dialog',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
@@ -29,6 +28,7 @@ import { AnnouncementAudienceScope, AnnouncementPriority, ApiError, LocationDto 
     MatNativeDateModule,
     MatButtonModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './create-announcement-dialog.component.html',
 })
 export class CreateAnnouncementDialogComponent {

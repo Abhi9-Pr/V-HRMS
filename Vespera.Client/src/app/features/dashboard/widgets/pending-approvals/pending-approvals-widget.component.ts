@@ -1,9 +1,10 @@
-import { Component, Input, computed, signal } from '@angular/core';
+import { Component, Input, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { PendingApprovalsWidgetDto } from '../dashboard-widget-payloads.model';
 
 @Component({
   selector: 'vespera-pending-approvals-widget',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './pending-approvals-widget.component.html',
 })
 export class PendingApprovalsWidgetComponent {

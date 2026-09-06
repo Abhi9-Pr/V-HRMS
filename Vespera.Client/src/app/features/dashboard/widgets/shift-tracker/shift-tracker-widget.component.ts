@@ -1,4 +1,4 @@
-import { Component, Input, computed, inject, signal } from '@angular/core';
+import { Component, Input, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -8,8 +8,8 @@ import { ShiftTrackerWidgetDto } from '../dashboard-widget-payloads.model';
 
 @Component({
   selector: 'vespera-shift-tracker-widget',
-  standalone: true,
   imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, TimezoneDatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './shift-tracker-widget.component.html',
 })
 export class ShiftTrackerWidgetComponent {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -22,7 +22,6 @@ import { ApiError, Currency, ExpenseClaimStatus, Permissions } from 'vespera-sha
 
 @Component({
   selector: 'vespera-claim-detail',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -40,6 +39,7 @@ import { ApiError, Currency, ExpenseClaimStatus, Permissions } from 'vespera-sha
     CurrencyDisplayPipe,
     TimezoneDatePipe,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './claim-detail.component.html',
 })
 export class ClaimDetailComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
@@ -9,8 +9,8 @@ import { ApiError, Permissions } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-offboarding-checklist',
-  standalone: true,
   imports: [PermissionButtonComponent, ErrorStateComponent, LoadingStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './offboarding-checklist.component.html',
 })
 export class OffboardingChecklistComponent implements OnInit {

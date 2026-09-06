@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
 import { DataTableColumn, DataTableQuery } from '../../../shared/data-table/data-table.model';
@@ -10,8 +10,8 @@ import { Permissions, SlaPolicyDto } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-sla-policy-list',
-  standalone: true,
   imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './sla-policy-list.component.html',
 })
 export class SlaPolicyListComponent implements OnInit {

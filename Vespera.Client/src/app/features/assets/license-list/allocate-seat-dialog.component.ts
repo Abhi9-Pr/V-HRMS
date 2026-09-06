@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -15,7 +15,6 @@ export interface AllocateSeatDialogData {
 
 @Component({
   selector: 'vespera-allocate-seat-dialog',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
@@ -24,6 +23,7 @@ export interface AllocateSeatDialogData {
     MatButtonModule,
     FormErrorComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './allocate-seat-dialog.component.html',
 })
 export class AllocateSeatDialogComponent {

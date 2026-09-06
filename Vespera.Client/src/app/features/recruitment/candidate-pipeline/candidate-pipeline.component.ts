@@ -1,4 +1,4 @@
-import { Component, OnInit, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +31,6 @@ interface PipelineColumn {
  */
 @Component({
   selector: 'vespera-candidate-pipeline',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     CdkDropListGroup,
@@ -44,6 +43,7 @@ interface PipelineColumn {
     ErrorStateComponent,
     LoadingStateComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './candidate-pipeline.component.html',
 })
 export class CandidatePipelineComponent implements OnInit {

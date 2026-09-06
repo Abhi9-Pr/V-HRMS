@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -18,7 +18,6 @@ const SCOPES = ['LeaveApprovals', 'ExpenseApprovals', 'AttendanceApprovals', 'Al
 /** "Holiday Mode" — a manager routes their approvals to someone else for a date window. */
 @Component({
   selector: 'vespera-delegation-settings',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -29,6 +28,7 @@ const SCOPES = ['LeaveApprovals', 'ExpenseApprovals', 'AttendanceApprovals', 'Al
     DateRangePickerComponent,
     DatePipe,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './delegation-settings.component.html',
 })
 export class DelegationSettingsComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -28,7 +28,6 @@ interface ThreadedComment {
  */
 @Component({
   selector: 'vespera-ticket-detail',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -42,6 +41,7 @@ interface ThreadedComment {
     ErrorStateComponent,
     LoadingStateComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ticket-detail.component.html',
 })
 export class TicketDetailComponent implements OnInit {

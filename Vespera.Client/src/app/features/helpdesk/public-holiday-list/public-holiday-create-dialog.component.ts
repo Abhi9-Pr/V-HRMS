@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -12,7 +12,6 @@ import { ApiError } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-public-holiday-create-dialog',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
@@ -22,6 +21,7 @@ import { ApiError } from 'vespera-shared';
     MatNativeDateModule,
     MatButtonModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './public-holiday-create-dialog.component.html',
 })
 export class PublicHolidayCreateDialogComponent {

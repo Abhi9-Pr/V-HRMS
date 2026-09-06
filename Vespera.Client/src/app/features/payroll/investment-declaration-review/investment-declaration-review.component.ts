@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -14,7 +14,6 @@ import { ApiError, InvestmentDeclarationQueueItemDto, InvestmentDeclarationRevie
  * doesn't need its own "verify" action. */
 @Component({
   selector: 'vespera-investment-declaration-review',
-  standalone: true,
   imports: [
     MatTableModule,
     MatButtonModule,
@@ -23,6 +22,7 @@ import { ApiError, InvestmentDeclarationQueueItemDto, InvestmentDeclarationRevie
     LoadingStateComponent,
     EmptyStateComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './investment-declaration-review.component.html',
 })
 export class InvestmentDeclarationReviewComponent implements OnInit {

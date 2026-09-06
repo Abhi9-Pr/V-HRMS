@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -10,8 +10,8 @@ import { ApiError } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-category-create-dialog',
-  standalone: true,
   imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './category-create-dialog.component.html',
 })
 export class CategoryCreateDialogComponent {

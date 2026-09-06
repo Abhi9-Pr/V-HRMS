@@ -1,11 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { EmptyStateComponent } from '../../shared/states/empty-state.component';
 
 @Component({
   selector: 'vespera-not-found',
-  standalone: true,
   imports: [EmptyStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<vespera-empty-state
     icon="search_off"
     title="Page not found"

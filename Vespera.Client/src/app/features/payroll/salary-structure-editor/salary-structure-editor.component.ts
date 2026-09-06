@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -41,7 +41,6 @@ function newLine(): EditableLine {
  */
 @Component({
   selector: 'vespera-salary-structure-editor',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -52,6 +51,7 @@ function newLine(): EditableLine {
     MatIconModule,
     FormErrorComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './salary-structure-editor.component.html',
 })
 export class SalaryStructureEditorComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,8 +14,8 @@ import { ApiError } from 'vespera-shared';
  * codebase wherever a cross-feature reference has no UI to look it up yet. */
 @Component({
   selector: 'vespera-settlement',
-  standalone: true,
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormErrorComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './settlement.component.html',
 })
 export class SettlementComponent {

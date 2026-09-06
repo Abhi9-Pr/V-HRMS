@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ErrorStateComponent } from '../../../shared/states/error-state.component';
 import { LoadingStateComponent } from '../../../shared/states/loading-state.component';
@@ -14,8 +14,8 @@ import { TenantResolutionService } from 'vespera-shared';
  */
 @Component({
   selector: 'vespera-public-jobs',
-  standalone: true,
   imports: [ErrorStateComponent, LoadingStateComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './public-jobs.component.html',
 })
 export class PublicJobsComponent implements OnInit {

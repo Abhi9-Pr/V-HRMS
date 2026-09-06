@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -18,7 +18,6 @@ import { ApiError, CandidateStatus, Currency, InterviewDto, OfferLetterDto, Offe
 
 @Component({
   selector: 'vespera-candidate-detail',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -32,6 +31,7 @@ import { ApiError, CandidateStatus, Currency, InterviewDto, OfferLetterDto, Offe
     ErrorStateComponent,
     LoadingStateComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './candidate-detail.component.html',
 })
 export class CandidateDetailComponent implements OnInit {

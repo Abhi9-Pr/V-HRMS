@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,7 +28,6 @@ import {
  */
 @Component({
   selector: 'vespera-requisition-detail',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     RouterLink,
@@ -40,6 +39,7 @@ import {
     ErrorStateComponent,
     LoadingStateComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './requisition-detail.component.html',
 })
 export class RequisitionDetailComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -17,7 +17,6 @@ export interface WriteOffDialogData {
 
 @Component({
   selector: 'vespera-write-off-dialog',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
@@ -27,6 +26,7 @@ export interface WriteOffDialogData {
     MatButtonModule,
     FormErrorComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './write-off-dialog.component.html',
 })
 export class WriteOffDialogComponent {

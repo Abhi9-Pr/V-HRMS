@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, output, ChangeDetectionStrategy } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,8 +13,8 @@ import { GlobalSearchBarComponent } from '../global-search/global-search-bar.com
 
 @Component({
   selector: 'vespera-topbar',
-  standalone: true,
   imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatBadgeModule, GlobalSearchBarComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './topbar.component.html',
 })
 export class TopbarComponent {

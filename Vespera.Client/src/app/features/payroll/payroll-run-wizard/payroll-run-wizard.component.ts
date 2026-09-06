@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,7 +30,6 @@ import { selectCurrentRun, selectCurrentRunLoading, selectError } from '../store
  */
 @Component({
   selector: 'vespera-payroll-run-wizard',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     FormsModule,
@@ -42,6 +41,7 @@ import { selectCurrentRun, selectCurrentRunLoading, selectError } from '../store
     MatIconModule,
     LoadingStateComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './payroll-run-wizard.component.html',
 })
 export class PayrollRunWizardComponent implements OnInit {

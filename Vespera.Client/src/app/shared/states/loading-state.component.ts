@@ -1,10 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'vespera-loading-state',
-  standalone: true,
   imports: [MatProgressSpinnerModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './loading-state.component.html',
 })
 export class LoadingStateComponent {

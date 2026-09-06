@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -11,7 +11,6 @@ import { ApiError } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-requisition-create-dialog',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
@@ -20,6 +19,7 @@ import { ApiError } from 'vespera-shared';
     MatButtonModule,
     FormErrorComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './requisition-create-dialog.component.html',
 })
 export class RequisitionCreateDialogComponent {

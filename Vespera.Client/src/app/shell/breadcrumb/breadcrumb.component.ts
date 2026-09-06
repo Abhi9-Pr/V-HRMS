@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, startWith } from 'rxjs';
 
@@ -11,8 +11,8 @@ interface Crumb {
  * contributes nothing, so leaf routes that don't opt in stay invisible here. */
 @Component({
   selector: 'vespera-breadcrumb',
-  standalone: true,
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './breadcrumb.component.html',
 })
 export class BreadcrumbComponent {

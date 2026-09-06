@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { PermissionButtonComponent } from '../../../shared/buttons/permission-button.component';
@@ -13,8 +21,8 @@ import { Permissions, SoftwareLicenseDto } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-license-list',
-  standalone: true,
   imports: [DataTableComponent, PermissionButtonComponent, ErrorStateComponent, MatIconModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './license-list.component.html',
 })
 export class LicenseListComponent implements OnInit, AfterViewInit {

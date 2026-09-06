@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -12,8 +12,8 @@ import { ApiError, TicketPriority } from 'vespera-shared';
 
 @Component({
   selector: 'vespera-ticket-create-dialog',
-  standalone: true,
   imports: [ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ticket-create-dialog.component.html',
 })
 export class TicketCreateDialogComponent {

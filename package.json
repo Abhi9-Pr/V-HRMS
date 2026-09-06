@@ -5,5 +5,8 @@
   "workspaces": [
     "Vespera.Client",
     "Vespera.Mobile"
-  ]
+  ],
+  "overrides": {
+    "rxjs": "7.8.2"
+  }
 }
